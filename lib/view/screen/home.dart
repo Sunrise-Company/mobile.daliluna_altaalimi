@@ -1,0 +1,1032 @@
+// ignore_for_file: must_be_iacademyv3utable
+
+import 'package:daliluna_altaalimi/view/widget/customDrawer.dart';
+import 'package:daliluna_altaalimi/view/widget/customcardhome.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:responsive_builder/responsive_builder.dart';
+import 'package:daliluna_altaalimi/controller/basket_controller.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
+import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
+import 'package:daliluna_altaalimi/core/constant/color.dart';
+import 'package:daliluna_altaalimi/core/constant/imageasset.dart';
+import 'package:daliluna_altaalimi/core/constant/routes.dart';
+import 'package:daliluna_altaalimi/core/function/alertexitapp.dart';
+import 'package:daliluna_altaalimi/core/function/alertinfocompany.dart';
+import 'package:daliluna_altaalimi/view/widget/customcarousels.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../widget/basketWidget.dart';
+
+class Home extends GetView<HomeController> {
+  Home({super.key});
+
+  final OurCoursesController ourcoursecontroller = Get.put(
+    OurCoursesController(),
+  );
+  final BasketController baskerc = Get.put(BasketController());
+
+  @override
+  Widget build(BuildContext context) {
+    // Ensure HomeController is available (in case widget is loaded without route binding)
+    if (!Get.isRegistered<HomeController>()) {
+      Get.put(HomeController());
+    }
+    return WillPopScope(
+      onWillPop: alertExitApp,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          drawer: customDrawer(context),
+          backgroundColor: Colors.white,
+          // appBar: PreferredSize(
+          //   preferredSize: Size.fromHeight(
+          //     getValueForScreenType<double>(
+          //       context: context,
+          //       mobile: 85,
+          //       tablet: 100,
+          //     ),
+          //   ),
+          //   child: AppBar(
+          //     // toolbarHeight: getValueForScreenType<double>(
+          //     //   context: context,
+          //     //   mobile: 160, // العرض على الموبايل
+          //     //   tablet: 140, // العرض على التابلت
+          //     // ),
+          //     shape: RoundedRectangleBorder(
+          //       borderRadius: BorderRadius.vertical(
+          //         bottom: Radius.circular(
+          //           getValueForScreenType<double>(
+          //             context: context,
+          //             mobile: 40,
+          //             tablet: 60,
+          //           ),
+          //         ),
+          //       ),
+          //     ),
+          //     backgroundColor: AppColor.DeepPurple,
+          //     elevation: 0.0,
+          //     // leadingWidth: 100,
+          //     leading:      Column(
+          //         children:[
+          //           Text("مرحباً, رغد",
+          //             style: TextStyle(
+          //               fontSize: 20,
+          //               fontWeight: FontWeight.bold,
+          //               color: Colors.white,
+          //             ),
+          //           ),
+          //           Text("هيا نبدأ",
+          //             style: TextStyle(
+          //               fontSize: 10,
+          //               fontWeight: FontWeight.bold,
+          //               color: Colors.white,
+          //             ),
+          //           ),
+          //
+          //         ] ),
+          //
+          //     title: Image.asset(
+          //       AppImageAsset.newLogo,
+          //       width: getValueForScreenType<double>(
+          //         context: context,
+          //         mobile: 220,
+          //         tablet: 650,
+          //       ),
+          //       height: getValueForScreenType<double>(
+          //         context: context,
+          //         mobile: 100,
+          //         tablet: 100,
+          //       ),
+          //     ),
+          //     actions: [
+          //       Stack(
+          //         alignment: Alignment.topLeft,
+          //         children: [
+          //           IconButton(
+          //               padding: EdgeInsets.only(
+          //                 right: getValueForScreenType<double>(
+          //                   context: context,
+          //                   mobile: 20,
+          //                   tablet: 40,
+          //                 ),
+          //                 top: getValueForScreenType<double>(
+          //                   context: context,
+          //                   mobile: 4,
+          //                   tablet: 8,
+          //                 ),
+          //               ),
+          //               onPressed: () {
+          //                 Get.toNamed(AppRoute.notifications,
+          //                     arguments: {'app_student_id': 555});
+          //               },
+          //               icon: Icon(
+          //                 Icons.notifications,
+          //                 color: AppColor.PrimaryColor,
+          //                 size: getValueForScreenType<double>(
+          //                   context: context,
+          //                   mobile: 30,
+          //                   tablet: 50,
+          //                 ),
+          //               )),
+          //         ],
+          //       ),
+          //
+          //
+          //     ],
+          //     // actions: [
+          //     //   Obx(
+          //     //     () => CustomIconBasket(
+          //     //         text: baskerc.mycart.length != 0
+          //     //             ? baskerc.mycart.length.toString()
+          //     //             : "0"),
+          //     //   ),
+          //     // ],
+          //   ),
+          // ),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(
+              getValueForScreenType<double>(
+                context: context,
+                mobile: 60,
+                tablet: 100,
+              ),
+            ),
+            child: AppBar(
+              backgroundColor: AppColor.PrimaryColor,
+              elevation: 0.0,
+              automaticallyImplyLeading: false,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(
+                    getValueForScreenType<double>(
+                      context: context,
+                      mobile: 40,
+                      tablet: 60,
+                    ),
+                  ),
+                ),
+              ),
+              title: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: getValueForScreenType<double>(
+                    context: context,
+                    mobile: 2,
+                    tablet: 30,
+                  ),
+                  vertical: getValueForScreenType<double>(
+                    context: context,
+                    mobile: 4,
+                    tablet: 10,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Builder(
+                      builder: (context) => IconButton(
+                        icon: Icon(
+                          Icons.menu,
+                          color: Colors.white,
+                          size: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 25,
+                            tablet: 40,
+                          ),
+                        ),
+                        onPressed: () {
+                          Scaffold.of(context).openDrawer();
+                        },
+                      ),
+                    ),
+
+                    // Column(
+                    //   crossAxisAlignment: CrossAxisAlignment.start,
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     Text(
+                    //       "مرحباً, رغد",
+                    //       style: TextStyle(
+                    //         fontSize: getValueForScreenType<double>(
+                    //           context: context,
+                    //           mobile: 22,
+                    //           tablet: 28,
+                    //         ),
+                    //         fontWeight: FontWeight.bold,
+                    //         color: Colors.white,
+                    //       ),
+                    //     ),
+                    //     const SizedBox(height: 4),
+                    //     Text(
+                    //       "هيا نبدأ ✨",
+                    //       style: TextStyle(
+                    //         fontSize: getValueForScreenType<double>(
+                    //           context: context,
+                    //           mobile: 16,
+                    //           tablet: 22,
+                    //         ),
+                    //         fontWeight: FontWeight.w400,
+                    //         color: Colors.white70,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    Row(
+                      children: [
+                        ClipRect(
+                          child: Image.asset(
+                            AppImageAsset.newLogoWithoutBackground,
+                            width: getValueForScreenType<double>(
+                              context: context,
+                              mobile: 65,
+                              tablet: 75,
+                            ),
+                            height: getValueForScreenType<double>(
+                              context: context,
+                              mobile: 75,
+                              tablet: 85,
+                            ),
+                            // fit: BoxFit.scaleDown,
+                          ),
+                        ),
+
+                        IconButton(
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            Get.toNamed(
+                              AppRoute.notifications,
+                              arguments: {'app_student_id': 555},
+                            );
+                          },
+                          icon: Icon(
+                            Icons.notifications,
+                            color: AppColor.SecondryColor,
+                            size: getValueForScreenType<double>(
+                              context: context,
+                              mobile: 30,
+                              tablet: 50,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Professional Search Bar
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: getValueForScreenType<double>(
+                      context: context,
+                      mobile: 16,
+                      tablet: 30,
+                    ),
+                    vertical: getValueForScreenType<double>(
+                      context: context,
+                      mobile: 12,
+                      tablet: 16,
+                    ),
+                  ),
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.toNamed(AppRoute.search);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                        border: Border.all(
+                          color: AppColor.DeepPurple2,
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 12,
+                            tablet: 16,
+                          ),
+                          vertical: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 10,
+                            tablet: 12,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.search,
+                              color: AppColor.DeepPurple,
+                              size: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 22,
+                                tablet: 28,
+                              ),
+                            ),
+                            SizedBox(
+                              width: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 10,
+                                tablet: 12,
+                              ),
+                            ),
+                            Text(
+                              'ابحث عن الدروس والمعاهد والمعلمين...',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: getValueForScreenType<double>(
+                                  context: context,
+                                  mobile: 14,
+                                  tablet: 16,
+                                ),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // GetBuilder<BasketController>(
+                //   builder: (controller) => Center(
+                //     child: InkWell(
+                //       onTap: () {
+                //         alertInfoCompany(
+                //             baskerc
+                //                 .companyInformations['app_company_informations']
+                //                     ['description']
+                //                 .toString(),
+                //             baskerc
+                //                 .companyInformations['app_company_informations']
+                //                     ['title']
+                //                 .toString(),
+                //             baskerc
+                //                 .companyInformations['app_company_informations']
+                //                     ['facebook']
+                //                 .toString(),
+                //             baskerc
+                //                 .companyInformations['app_company_informations']
+                //                     ['website']
+                //                 .toString());
+                //       },
+                //       child: Row(
+                //         mainAxisAlignment: MainAxisAlignment.center,
+                //         children: [
+                //           Container(
+                //             padding: EdgeInsets.only(
+                //               top: getValueForScreenType<double>(
+                //                 context: context,
+                //                 mobile: 20,
+                //                 tablet: 40,
+                //               ),
+                //               bottom: getValueForScreenType<double>(
+                //                 context: context,
+                //                 mobile: 20,
+                //                 tablet: 40,
+                //               ),
+                //             ),
+                //             child: Text(
+                //               'By SunriseIt',
+                //               style: TextStyle(
+                //                 fontSize: getValueForScreenType<double>(
+                //                   context: context,
+                //                   mobile: 13,
+                //                   tablet: 15,
+                //                 ),
+                //                 decoration: TextDecoration.underline,
+                //               ),
+                //             ),
+                //           ),
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // GetBuilder<BasketController>(
+                //   builder: (controller) => Center(
+                //     child: GestureDetector(
+                //       onTap: () {
+                //         alertInfoCompany(
+                //           baskerc.companyInformations['app_company_informations']['description']
+                //               .toString(),
+                //           baskerc.companyInformations['app_company_informations']['title']
+                //               .toString(),
+                //           baskerc.companyInformations['app_company_informations']['facebook']
+                //               .toString(),
+                //           baskerc.companyInformations['app_company_informations']['website']
+                //               .toString(),
+                //         );
+                //       },
+                //       child: AnimatedContainer(
+                //         duration: const Duration(milliseconds: 500),
+                //         curve: Curves.easeOutBack,
+                //         padding: EdgeInsets.symmetric(
+                //           horizontal: getValueForScreenType<double>(
+                //             context: context,
+                //             mobile: 25,
+                //             tablet: 40,
+                //           ),
+                //           vertical: getValueForScreenType<double>(
+                //             context: context,
+                //             mobile: 1,
+                //             tablet: 20,
+                //           ),
+                //         ),
+                //         decoration: BoxDecoration(
+                //
+                //           borderRadius: BorderRadius.circular(50),
+                //           boxShadow: [
+                //             BoxShadow(
+                //               color: Colors.teal.withOpacity(0.3),
+                //               blurRadius: 10,
+                //               offset: const Offset(0, 4),
+                //             ),
+                //           ],
+                //         ),
+                //         child: Row(
+                //           mainAxisSize: MainAxisSize.min,
+                //           children: [
+                //             const Icon(
+                //               Icons.info_outline,
+                //               color: Colors.white,
+                //               size: 18,
+                //             ),
+                //             const SizedBox(width: 8),
+                //             Text(
+                //               'By SunriseIt',
+                //               style: TextStyle(
+                //                 color: Colors.white,
+                //                 fontWeight: FontWeight.bold,
+                //                 letterSpacing: 0.8,
+                //                 fontSize: getValueForScreenType<double>(
+                //                   context: context,
+                //                   mobile: 13,
+                //                   tablet: 15,
+                //                 ),
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+
+                // Container(
+                //     padding: EdgeInsets.only(
+                //       right: getValueForScreenType<double>(
+                //         context: context,
+                //         mobile: 20,
+                //         tablet: 40,
+                //       ),
+                //       left: getValueForScreenType<double>(
+                //         context: context,
+                //         mobile: 20,
+                //         tablet: 40,
+                //       ),
+                //     ),
+                //     child: CustomTitleText(text: "آخر العروض")),
+                // Hero Section with Gradient Background
+                Container(
+                  margin: EdgeInsets.symmetric(
+                    horizontal: getValueForScreenType<double>(
+                      context: context,
+                      mobile: 16,
+                      tablet: 32,
+                    ),
+                    vertical: getValueForScreenType<double>(
+                      context: context,
+                      mobile: 20,
+                      tablet: 30,
+                    ),
+                  ),
+                  padding: EdgeInsets.all(
+                    getValueForScreenType<double>(
+                      context: context,
+                      mobile: 20,
+                      tablet: 32,
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColor.PrimaryColor.withOpacity(0.1),
+                        AppColor.SecondryColor.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topRight,
+                      end: Alignment.bottomLeft,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                      getValueForScreenType<double>(
+                        context: context,
+                        mobile: 24,
+                        tablet: 32,
+                      ),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.PrimaryColor.withOpacity(0.1),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColor.PrimaryColor,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              Icons.location_city_rounded,
+                              color: Colors.white,
+                              size: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 24,
+                                tablet: 34,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'اختر محافظتك',
+                                  style: TextStyle(
+                                    fontSize: getValueForScreenType<double>(
+                                      context: context,
+                                      mobile: 16,
+                                      tablet: 22,
+                                    ),
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColor.PrimaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'للعثور على المعاهد المتاحة',
+                                  style: TextStyle(
+                                    fontSize: getValueForScreenType<double>(
+                                      context: context,
+                                      mobile: 13,
+                                      tablet: 16,
+                                    ),
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Carousel Slider
+                SizedBox(
+                  height: getValueForScreenType<double>(
+                    context: context,
+                    mobile: 8,
+                    tablet: 16,
+                  ),
+                ),
+                Obx(() {
+                  return ourcoursecontroller.slider.length != 0
+                      ? Container(
+                          margin: EdgeInsets.symmetric(
+                            horizontal: getValueForScreenType<double>(
+                              context: context,
+                              mobile: 16,
+                              tablet: 32,
+                            ),
+                          ),
+                          child: CustomCarouselslider(
+                            items: ourcoursecontroller.slider,
+                          ),
+                        )
+                      : const SizedBox.shrink();
+                }),
+
+                // Title Section with enhanced design
+                SizedBox(
+                  height: getValueForScreenType<double>(
+                    context: context,
+                    mobile: 32,
+                    tablet: 48,
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: getValueForScreenType<double>(
+                      context: context,
+                      mobile: 20,
+                      tablet: 40,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: getValueForScreenType<double>(
+                          context: context,
+                          mobile: 24,
+                          tablet: 30,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColor.PrimaryColor,
+                              AppColor.SecondryColor,
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "المحافظات",
+                        style: TextStyle(
+                          fontSize: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 20,
+                            tablet: 26,
+                          ),
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.PrimaryColor,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const Spacer(),
+                      GetBuilder<HomeController>(
+                        builder: (hc) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.SecondryColor.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${hc.cities.length}',
+                            style: TextStyle(
+                              fontSize: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 12,
+                                tablet: 16,
+                              ),
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.PrimaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: getValueForScreenType<double>(
+                    context: context,
+                    mobile: 16,
+                    tablet: 24,
+                  ),
+                ),
+                GetBuilder<HomeController>(
+                  builder: (homeController) {
+                    if (homeController.isLoadingCities) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 16,
+                            tablet: 36,
+                          ),
+                        ),
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: 6,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 0.9,
+                              ),
+                          itemBuilder: (context, index) {
+                            return Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                    if (homeController.citiesError != null) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 20,
+                            tablet: 40,
+                          ),
+                          vertical: 40,
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.red[200]!, width: 1),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: Colors.red[400],
+                              size: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 48,
+                                tablet: 64,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              homeController.citiesError!,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColor.PrimaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: getValueForScreenType<double>(
+                                  context: context,
+                                  mobile: 15,
+                                  tablet: 18,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              onPressed: homeController.fetchCities,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColor.PrimaryColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
+                              ),
+                              icon: const Icon(Icons.refresh_rounded),
+                              label: const Text('إعادة المحاولة'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    if (homeController.cities.isEmpty) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 20,
+                            tablet: 40,
+                          ),
+                          vertical: 60,
+                        ),
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.location_city_outlined,
+                              size: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 64,
+                                tablet: 80,
+                              ),
+                              color: AppColor.grey.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'لا توجد محافظات متاحة حالياً',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: AppColor.grey,
+                                fontWeight: FontWeight.w500,
+                                fontSize: getValueForScreenType<double>(
+                                  context: context,
+                                  mobile: 15,
+                                  tablet: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return AnimationLimiter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 16,
+                            tablet: 36,
+                          ),
+                          vertical: 10,
+                        ),
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: homeController.cities.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 16,
+                                crossAxisSpacing: 16,
+                                childAspectRatio: 0.9,
+                              ),
+                          itemBuilder: (context, index) {
+                            final city = homeController.cities[index];
+                            return AnimationConfiguration.staggeredGrid(
+                              position: index,
+                              duration: const Duration(milliseconds: 375),
+                              columnCount: 3,
+                              child: ScaleAnimation(
+                                scale: 0.5,
+                                child: FadeInAnimation(
+                                  child: _CityCard(
+                                    city: city,
+                                    onTap: () => homeController.goToInstitutes(
+                                      Map<String, dynamic>.from(city),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: getValueForScreenType<double>(
+                    context: context,
+                    mobile: 55,
+                    tablet: 60,
+                  ),
+                ),
+                GetBuilder<BasketController>(
+                  builder: (controller) => Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        alertInfoCompany(
+                          baskerc
+                              .companyInformations['app_company_informations']['description']
+                              .toString(),
+                          baskerc
+                              .companyInformations['app_company_informations']['title']
+                              .toString(),
+                          baskerc
+                              .companyInformations['app_company_informations']['facebook']
+                              .toString(),
+                          baskerc
+                              .companyInformations['app_company_informations']['website']
+                              .toString(),
+                        );
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(width: 8),
+                          Text(
+                            'By SunriseIt',
+                            style: TextStyle(
+                              color: AppColor.PrimaryColor,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.8,
+                              fontSize: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 13,
+                                tablet: 15,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          floatingActionButton: Obx(
+            () => SizedBox(
+              width: getValueForScreenType<double>(
+                context: context,
+                mobile: 56, // العرض على الموبايل
+                tablet: 80, // العرض على التابلت
+              ),
+              height: getValueForScreenType<double>(
+                context: context,
+                mobile: 56, // الارتفاع على الموبايل
+                tablet: 80, // الارتفاع على التابلت
+              ),
+              child: BasketWidget(heroTag: 'one'),
+              // FloatingActionButton(
+              //   heroTag: 'unique_tag_1',
+              //               backgroundColor: AppColor.SecondryColor,
+              //               elevation: 6,
+              //               onPressed: () {
+              //                 Get.toNamed(AppRoute.basket);
+              //               },
+              //               child: Stack(
+              // alignment: Alignment.center,
+              // children: [
+              //   const Icon(Icons.shopping_cart, color: Colors.white, size: 28),
+              //   Positioned(
+              //     right: 0,
+              //     top: 5,
+              //     child: Container(
+              //       padding: const EdgeInsets.all(4),
+              //       decoration: const BoxDecoration(
+              //         color: Colors.redAccent,
+              //         shape: BoxShape.circle,
+              //       ),
+              //       child: Text(
+              //         baskerc.mycart.isNotEmpty
+              //             ? baskerc.mycart.length.toString()
+              //             : "0",
+              //         style: const TextStyle(
+              //           color: Colors.white,
+              //           fontSize: 10,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ],
+              //               ),
+              //             ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Enhanced City Card Widget
+class _CityCard extends StatelessWidget {
+  final Map<String, dynamic> city;
+  final VoidCallback onTap;
+
+  const _CityCard({required this.city, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomCardHome(
+      name: city['name'] ?? '',
+      image: city['image'],
+      onTap: () => Get.find<HomeController>().goToInstitutes(
+        Map<String, dynamic>.from(city),
+      ),
+    );
+  }
+}

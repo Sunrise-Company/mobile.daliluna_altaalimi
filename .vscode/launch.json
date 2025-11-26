@@ -1,0 +1,52 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "daliluna_altaalimi",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "daliluna_altaalimi (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "daliluna_altaalimi (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "better_player-0.0.84",
+            "cwd": "better_player-0.0.84",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "better_player-0.0.84 (profile mode)",
+            "cwd": "better_player-0.0.84",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "better_player-0.0.84 (release mode)",
+            "cwd": "better_player-0.0.84",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "Flutter (main.dart without debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "noDebug": true
+        }
+    ]
+}

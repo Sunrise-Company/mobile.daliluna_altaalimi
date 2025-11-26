@@ -1,0 +1,60 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:daliluna_altaalimi/controller/basket_controller.dart';
+import 'package:daliluna_altaalimi/core/constant/color.dart';
+import 'package:daliluna_altaalimi/core/constant/routes.dart';
+import 'package:daliluna_altaalimi/view/widget/customelevatedbutton.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<bool> alertPaidMethod(String nam, String phone) async {
+  late BasketController baskerc;
+  baskerc = Get.put(BasketController());
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  print(prefs.getBool('isLogin'));
+  String name =
+      'يرجى تحويل المبلغ المستحق عن طريق الهرم  '; // Replace with the actual name
+  String phonee = "عبر الرقم "; // Replace with the actual phone number
+
+  String message = name + nam + phonee + phone;
+  Get.defaultDialog(
+    backgroundColor: Colors.white,
+    title: "آلية تسديد المبغ",
+    titleStyle: const TextStyle(color: AppColor.PrimaryColor, fontSize: 17),
+    middleText: message,
+    middleTextStyle: TextStyle(color: Colors.black, fontSize: 15),
+    actions: [
+      CustomElevatedButton(
+        onPressed: (() async {
+          print(prefs.getBool('isLogin'));
+          if (prefs.getBool('isLogin') == false ||
+              prefs.getBool('isLogin') == null) {
+            print('oneeeeeeeeee');
+            baskerc.app_basket_student_store();
+            Get.offNamed(AppRoute.login);
+          } else if (prefs.getBool('isLogin') == true) {
+            print('twooooo');
+
+            baskerc.isload(true);
+            Get.back();
+            String res = await baskerc.app_basket_student_store();
+            print(res);
+            if (res == "true") {
+              Get.offAllNamed(AppRoute.homePage);
+              baskerc.mycart.clear();
+            }
+          }
+        }),
+        text: "تأكيد",
+      ),
+      SizedBox(width: 10),
+      CustomElevatedButton(
+        onPressed: (() {
+          Get.back();
+        }),
+        text: "الغاء",
+      ),
+    ],
+  );
+  return Future.value(true);
+}

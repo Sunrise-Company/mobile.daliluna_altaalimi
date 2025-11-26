@@ -1,0 +1,75 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ChatStudentListTeacherController extends GetxController {
+  RxList<dynamic> dataList = <dynamic>[].obs;
+  RxList<dynamic> roomlist = <dynamic>[].obs;
+  late Sockectcontroller sockectcontroller;
+  // ChatGroupMessageStudentController chatGroupMessageStudentController =
+  // ChatGroupMessageStudentController();
+  var isloded = false.obs;
+  @override
+  void onInit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    sockectcontroller = Get.find();
+    // chatGroupMessageStudentController =
+    // Get.lazyPut(() => ChatGroupMessageStudentController());
+    if (prefs.getBool('isLogin') == false) {
+      isloded.value = true;
+      roomlist.value = [];
+      dataList.value = [];
+      return;
+    }
+    chatStudent();
+    super.onInit();
+  }
+
+  Future<void> cancelAllNotifications() async {
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin.cancelAll();
+    log('All notifications cancelled');
+  }
+
+  Future<void> chatStudent() async {
+    isloded.value = false;
+    update();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      print(token);
+      var headers = {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      final response = await http.get(
+        Uri.parse(AppLink.server + '/getListUsersStudent'),
+        headers: headers,
+      );
+      if (token == null) {
+        isloded.value = true;
+        dataList.value = [];
+      }
+      if (response.statusCode == 200) {
+        isloded.value = true;
+        final responseData = jsonDecode(response.body);
+        print(responseData);
+        dataList.value = responseData['data']['users'];
+        roomlist.value = responseData['data']['rooms'];
+        print(roomlist);
+        update();
+      } else {
+        throw Exception('Failed to load getListUsersStudent List ');
+      }
+    } catch (e) {
+      print('Error fetching getListUsersStudent List: $e');
+    }
+  }
+}

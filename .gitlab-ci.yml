@@ -1,0 +1,55 @@
+image: ghcr.io/cirruslabs/flutter:3.35.7
+
+stages:
+  - build
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .pub-cache/
+    - android/.gradle/
+    - build/
+
+variables:
+  FLUTTER_CHANNEL: "stable"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+
+before_script:
+  - 'sed -i "s/sdk: \^3\.5\.3/sdk: \">=3.3.0 <4.0.0\"/" pubspec.yaml'
+  - flutter --version
+  - flutter pub get
+
+build_apk:
+  stage: build
+  script:
+    # إنشاء مجلد android/app
+    - mkdir -p android/app
+    - if [ -n "$KEYSTORE_BASE64" ]; then echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks; fi
+
+    # التأكد من وجود keystore
+    - ls -l android/app
+
+    # إنشاء ملف key.properties بالمسار الصحيح
+    - |
+      cat > android/key.properties <<EOF
+      storePassword=$KEYSTORE_PASSWORD
+      keyPassword=$KEY_PASSWORD
+      keyAlias=$KEY_ALIAS
+      storeFile=upload-keystore.jks
+      EOF
+
+
+    - cat android/key.properties
+
+    # بناء الـ APK
+    - flutter clean
+    - flutter build apk --release
+
+    # تجهيز ملف الـ APK كـ artifact
+    - mkdir -p public
+    - cp build/app/outputs/flutter-apk/app-release.apk public/app-release.apk || true
+
+  artifacts:
+    paths:
+      - public/*.apk
+    expire_in: 1 week
