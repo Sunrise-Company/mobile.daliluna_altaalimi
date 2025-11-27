@@ -1,0 +1,146 @@
+# GitLab CI/CD Template for Flutter Apps
+# Reusable for any Flutter project
+# Version: 1.0
+
+image: ghcr.io/cirruslabs/flutter:stable
+
+stages:
+  - build
+  - notify
+
+# Performance optimizations
+variables:
+  FLUTTER_CHANNEL: "stable"
+  GRADLE_USER_HOME: "$CI_PROJECT_DIR/.gradle"
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true -Dorg.gradle.jvmargs=-Xmx4g"
+  PUB_CACHE: "$CI_PROJECT_DIR/.pub-cache"
+  ANDROID_SDK_ROOT: "/opt/android-sdk"
+
+# Cache for faster builds
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .pub-cache/
+    - .gradle/
+    - android/.gradle/
+    - android/app/.gradle/
+    - build/
+    - ~/.gradle/wrapper/
+    - ~/.gradle/caches/
+
+before_script:
+  - flutter --version
+  - flutter pub get
+
+# Main APK build job
+build_apk:
+  stage: build
+  script:
+    # Setup Android signing
+    - mkdir -p android/app
+    - if [ -n "$KEYSTORE_BASE64" ]; then echo "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks; fi
+    
+    # Create key.properties
+    - |
+      cat > android/key.properties <<EOF
+      storePassword=$KEYSTORE_PASSWORD
+      keyPassword=$KEY_PASSWORD
+      keyAlias=$KEY_ALIAS
+      storeFile=upload-keystore.jks
+      EOF
+    
+    # Optimize Gradle
+    - |
+      cat >> android/gradle.properties <<EOF
+      org.gradle.jvmargs=-Xmx4096m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
+      org.gradle.parallel=true
+      org.gradle.caching=true
+      org.gradle.configureondemand=true
+      android.enableJetifier=true
+      android.useAndroidX=true
+      EOF
+    
+    # Build APK (split per ABI for smaller files)
+    - flutter build apk --release --split-per-abi --target-platform android-arm64,android-arm
+    
+    # Prepare artifacts
+    - mkdir -p public
+    - cp build/app/outputs/flutter-apk/*.apk public/ || true
+    - echo "${CI_JOB_URL}/artifacts/browse/public/" > public/download_link.txt
+
+  artifacts:
+    name: "${CI_PROJECT_NAME}_${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - public/*.apk
+      - public/download_link.txt
+    expire_in: 30 days
+  only:
+    - main
+    - develop
+    - tags
+  when: manual
+
+# Notification job
+notify_telegram:
+  stage: notify
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache curl
+  script:
+    - |
+      # Build info
+      DOWNLOAD_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/browse/public/"
+      BUILD_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+      BRANCH_NAME=${CI_COMMIT_REF_NAME}
+      COMMIT_MSG="${CI_COMMIT_MESSAGE}"
+      
+      # APK direct links
+      APK_ARM64_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/public/app-arm64-v8a-release.apk"
+      APK_ARM_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/public/app-armeabi-v7a-release.apk"
+      
+      # Send to Telegram
+      if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+        echo "📱 Sending to Telegram..."
+        
+        # Support multiple chat IDs
+        CHAT_IDS=$(echo "$TELEGRAM_CHAT_ID" | tr ',' ' ')
+        
+        # Build message
+        TELEGRAM_MSG="*✅ ${CI_PROJECT_NAME} - Build Success!* 🎉\\n\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}📱 *Details:*\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Branch: \\`${BRANCH_NAME}\\`\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Commit: \\`${CI_COMMIT_SHORT_SHA}\\`\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Message: ${COMMIT_MSG}\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Time: ${BUILD_TIME}\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Pipeline: #${CI_PIPELINE_ID}\\n\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}📥 *Download Links:*\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}━━━━━━━━━━━━━━━━━━━━━━━━\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}📦 [ARM64 - Modern Devices](${APK_ARM64_URL})\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}📦 [ARM - Older Devices](${APK_ARM_URL})\\n\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}🗂️ [All Files](${DOWNLOAD_URL})\\n\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}⏰ Valid for 30 days"
+        
+        # Send to each chat ID
+        for chat_id in $CHAT_IDS; do
+          chat_id=$(echo "$chat_id" | xargs)
+          echo "  → Sending to: $chat_id"
+          
+          curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "{\"chat_id\": \"${chat_id}\", \"text\": \"${TELEGRAM_MSG}\", \"parse_mode\": \"Markdown\", \"disable_web_page_preview\": false}" > /dev/null
+          
+          sleep 1
+        done
+        
+        echo "✅ Sent to $(echo $CHAT_IDS | wc -w) recipient(s)"
+      else
+        echo "⚠️ Telegram not configured"
+        echo "Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in GitLab Variables"
+      fi
+  dependencies:
+    - build_apk
+  only:
+    - main
+    - develop
+    - tags
+  when: on_success
