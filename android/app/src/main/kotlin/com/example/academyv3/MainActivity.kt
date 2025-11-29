@@ -17,10 +17,9 @@ import android.media.MediaMuxer
 import java.nio.ByteBuffer
 
 class MainActivity : FlutterActivity() {
- private lateinit var displayManager: DisplayManager
+    private lateinit var displayManager: DisplayManager
     private var overlayView: View? = null
 
-   
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
             checkForExternalDisplays()
@@ -38,7 +37,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // لا نزال نستخدم FLAG_SECURE كطبقة حماية أولى (لمنع لقطات الشاشة)
-        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
         // تهيئة DisplayManager
         displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
@@ -97,73 +96,74 @@ class MainActivity : FlutterActivity() {
             (window.decorView as ViewGroup).removeView(overlayView)
         }
     }
-  override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-    super.configureFlutterEngine(flutterEngine)
 
-    MethodChannel(
-      flutterEngine.dartExecutor.binaryMessenger,
-      "com.example.muxer"
-    ).setMethodCallHandler { call, result ->
-      if (call.method == "mux") {
-        val video = call.argument<String>("video")!!
-        val audio = call.argument<String>("audio")!!
-        val out = call.argument<String>("out")!!
-        try {
-          muxMp4(video, audio, out)
-          result.success(null)
-        } catch (e: Exception) {
-          result.error("MUX_ERR", e.message, null)
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.example.muxer"
+        ).setMethodCallHandler { call, result ->
+            if (call.method == "mux") {
+                val video = call.argument<String>("video")!!
+                val audio = call.argument<String>("audio")!!
+                val out = call.argument<String>("out")!!
+                try {
+                    muxMp4(video, audio, out)
+                    result.success(null)
+                } catch (e: Exception) {
+                    result.error("MUX_ERR", e.message, null)
+                }
+            } else {
+                result.notImplemented()
+            }
         }
-      } else {
-        result.notImplemented()
-      }
-    }
-  }
-
-  private fun muxMp4(video: String, audio: String, out: String) {
-    val muxer = MediaMuxer(out, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
-    val vExt = MediaExtractor().apply { setDataSource(video) }
-    val aExt = MediaExtractor().apply { setDataSource(audio) }
-
-    fun pickTrack(prefix: String, ext: MediaExtractor): Pair<Int, MediaFormat> {
-      for (i in 0 until ext.trackCount) {
-        val f = ext.getTrackFormat(i)
-        val mime = f.getString(MediaFormat.KEY_MIME) ?: ""
-        if (mime.startsWith(prefix)) return i to f
-      }
-      throw IllegalArgumentException("Missing $prefix track")
     }
 
-    val (vSrc, vFmt) = pickTrack("video/", vExt)
-    val (aSrc, aFmt) = pickTrack("audio/", aExt)
-    vExt.selectTrack(vSrc)
-    aExt.selectTrack(aSrc)
+    private fun muxMp4(video: String, audio: String, out: String) {
+        val muxer = MediaMuxer(out, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        val vExt = MediaExtractor().apply { setDataSource(video) }
+        val aExt = MediaExtractor().apply { setDataSource(audio) }
 
-    val vDst = muxer.addTrack(vFmt)
-    val aDst = muxer.addTrack(aFmt)
-    muxer.start()
+        fun pickTrack(prefix: String, ext: MediaExtractor): Pair<Int, MediaFormat> {
+            for (i in 0 until ext.trackCount) {
+                val f = ext.getTrackFormat(i)
+                val mime = f.getString(MediaFormat.KEY_MIME) ?: ""
+                if (mime.startsWith(prefix)) return i to f
+            }
+            throw IllegalArgumentException("Missing $prefix track")
+        }
 
-    fun copy(ext: MediaExtractor, dst: Int) {
-      val buf = ByteBuffer.allocate(1 shl 20)
-      val info = MediaCodec.BufferInfo()
-      while (true) {
-        info.offset = 0
-        val size = ext.readSampleData(buf, 0)
-        if (size < 0) break
-        info.size = size
-        info.presentationTimeUs = ext.sampleTime
-        info.flags = ext.sampleFlags
-        muxer.writeSampleData(dst, buf, info)
-        ext.advance()
-      }
+        val (vSrc, vFmt) = pickTrack("video/", vExt)
+        val (aSrc, aFmt) = pickTrack("audio/", aExt)
+        vExt.selectTrack(vSrc)
+        aExt.selectTrack(aSrc)
+
+        val vDst = muxer.addTrack(vFmt)
+        val aDst = muxer.addTrack(aFmt)
+        muxer.start()
+
+        fun copy(ext: MediaExtractor, dst: Int) {
+            val buf = ByteBuffer.allocate(1 shl 20)
+            val info = MediaCodec.BufferInfo()
+            while (true) {
+                info.offset = 0
+                val size = ext.readSampleData(buf, 0)
+                if (size < 0) break
+                info.size = size
+                info.presentationTimeUs = ext.sampleTime
+                info.flags = ext.sampleFlags
+                muxer.writeSampleData(dst, buf, info)
+                ext.advance()
+            }
+        }
+
+        copy(vExt, vDst)
+        copy(aExt, aDst)
+
+        muxer.stop()
+        muxer.release()
+        vExt.release()
+        aExt.release()
     }
-
-    copy(vExt, vDst)
-    copy(aExt, aDst)
-
-    muxer.stop()
-    muxer.release()
-    vExt.release()
-    aExt.release()
-  }
 }
