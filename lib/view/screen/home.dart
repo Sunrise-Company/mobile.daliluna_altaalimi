@@ -16,7 +16,6 @@ import 'package:daliluna_altaalimi/core/function/alertinfocompany.dart';
 import 'package:daliluna_altaalimi/view/widget/customcarousels.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../widget/basketWidget.dart';
 
 class Home extends GetView<HomeController> {
@@ -513,22 +512,22 @@ class Home extends GetView<HomeController> {
                     ),
                     vertical: getValueForScreenType<double>(
                       context: context,
-                      mobile: 20,
-                      tablet: 30,
+                      mobile: 12,
+                      tablet: 20,
                     ),
                   ),
                   padding: EdgeInsets.all(
                     getValueForScreenType<double>(
                       context: context,
-                      mobile: 20,
-                      tablet: 32,
+                      mobile: 16,
+                      tablet: 24,
                     ),
                   ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppColor.PrimaryColor.withOpacity(0.1),
-                        AppColor.SecondryColor.withOpacity(0.05),
+                        AppColor.PrimaryColor.withOpacity(0.06),
+                        AppColor.SecondryColor.withOpacity(0.03),
                       ],
                       begin: Alignment.topRight,
                       end: Alignment.bottomLeft,
@@ -636,8 +635,8 @@ class Home extends GetView<HomeController> {
                 SizedBox(
                   height: getValueForScreenType<double>(
                     context: context,
-                    mobile: 32,
-                    tablet: 48,
+                    mobile: 20,
+                    tablet: 32,
                   ),
                 ),
                 Container(
@@ -714,8 +713,8 @@ class Home extends GetView<HomeController> {
                 SizedBox(
                   height: getValueForScreenType<double>(
                     context: context,
-                    mobile: 16,
-                    tablet: 24,
+                    mobile: 12,
+                    tablet: 16,
                   ),
                 ),
                 GetBuilder<HomeController>(
@@ -877,9 +876,9 @@ class Home extends GetView<HomeController> {
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
-                                mainAxisSpacing: 16,
-                                crossAxisSpacing: 16,
-                                childAspectRatio: 0.9,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                childAspectRatio: 0.95,
                               ),
                           itemBuilder: (context, index) {
                             final city = homeController.cities[index];

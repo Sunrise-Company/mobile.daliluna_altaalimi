@@ -145,7 +145,7 @@ class CustomCardHome extends StatelessWidget {
                         child: CachedNetworkImage(
                           fit: BoxFit.cover,
                           imageUrl: AppLink.image + "/" + image!,
-                          // "https://arabicacademic.com/storage/classimages/tZSTIImSEDQ3SY0mdgIQFDawF58wulwUP0IoTpVs.jpg"
+                          // "${AppLink.baseUrl}/storage/classimages/tZSTIImSEDQ3SY0mdgIQFDawF58wulwUP0IoTpVs.jpg"
                           placeholder: (context, url) => const LoadingImage(),
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error, color: Colors.white),

@@ -321,8 +321,8 @@ class CustomCarouselslider extends StatelessWidget {
       width: double.infinity,
       height: getValueForScreenType<double>(
         context: context,
-        mobile: 220,
-        tablet: 350,
+        mobile: 170,
+        tablet: 280,
       ),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -333,20 +333,20 @@ class CustomCarouselslider extends StatelessWidget {
             options: CarouselOptions(
               height: getValueForScreenType<double>(
                 context: context,
-                mobile: 220,
-                tablet: 350,
+                mobile: 170,
+                tablet: 280,
               ),
               aspectRatio: 16 / 9,
-              viewportFraction: 0.85,
+              viewportFraction: 0.9,
               initialPage: 0,
               enableInfiniteScroll: true,
               reverse: false,
               autoPlay: true,
-              autoPlayInterval: const Duration(seconds: 5),
-              autoPlayAnimationDuration: const Duration(milliseconds: 1000),
-              autoPlayCurve: Curves.easeInOut,
+              autoPlayInterval: const Duration(seconds: 4),
+              autoPlayAnimationDuration: const Duration(milliseconds: 800),
+              autoPlayCurve: Curves.easeInOutCubic,
               enlargeCenterPage: true,
-              enlargeFactor: 0.25,
+              enlargeFactor: 0.15,
               scrollDirection: Axis.horizontal,
               pauseAutoPlayOnTouch: true,
               pauseAutoPlayOnManualNavigate: true,
@@ -361,22 +361,22 @@ class CustomCarouselslider extends StatelessWidget {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 margin: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 12.0,
+                  horizontal: 6.0,
+                  vertical: 8.0,
                 ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 8),
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   child: items[index] != "-"
                       ? CachedNetworkImage(
                           imageUrl: items[index],
@@ -441,7 +441,7 @@ class CustomCarouselslider extends StatelessWidget {
           // Indicator Dots
           if (items.length > 1)
             Positioned(
-              bottom: 20,
+              bottom: 16,
               child: Obx(
                 () => Container(
                   padding: const EdgeInsets.symmetric(
@@ -449,8 +449,8 @@ class CustomCarouselslider extends StatelessWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.black.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -492,12 +492,12 @@ class CustomCarouselslider extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 60,
+              height: 50,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
-                  colors: [Colors.black.withOpacity(0.4), Colors.transparent],
+                  colors: [Colors.black.withOpacity(0.2), Colors.transparent],
                 ),
               ),
             ),
