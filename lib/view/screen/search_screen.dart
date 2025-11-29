@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:get/get.dart';
@@ -8,6 +10,8 @@ import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/controller/basket_controller.dart';
+import 'package:daliluna_altaalimi/view/widget/basketWidget.dart';
 
 import 'package:daliluna_altaalimi/linkapi.dart';
 
@@ -136,6 +140,7 @@ class SearchScreen extends StatelessWidget {
           ),
         ],
       ),
+      floatingActionButton: Obx(() => BasketWidget(heroTag: 'search_basket')),
     );
   }
 
@@ -154,6 +159,7 @@ class SearchScreen extends StatelessWidget {
         ),
       ),
       child: TextField(
+        controller: searchController.textController,
         onChanged: (value) {
           searchController.searchQuery.value = value;
           searchController.search(value);
@@ -185,8 +191,7 @@ class SearchScreen extends StatelessWidget {
             if (searchController.searchQuery.value.isNotEmpty) {
               return GestureDetector(
                 onTap: () {
-                  searchController.searchQuery.value = '';
-                  searchController.search('');
+                  searchController.clearSearch();
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(right: 12.0),
@@ -384,6 +389,8 @@ class SearchScreen extends StatelessWidget {
         return _buildTeacherItem(item);
       case 2: // Lessons
         return _buildLessonItem(item);
+      case 3: // Lectures
+        return _buildLectureItem(item);
       default:
         return SizedBox.shrink();
     }
@@ -462,7 +469,7 @@ class SearchScreen extends StatelessWidget {
                           SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              institute['city']?['name'] ?? 'غير محدد',
+                              '${institute['city']?['name'] ?? 'غير محدد'} - ${institute['address'] ?? ''}',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[600],
@@ -502,7 +509,9 @@ class SearchScreen extends StatelessWidget {
 
   void _navigateToTeacherCourses(Map<String, dynamic> teacher) {
     if (teacher['id'] == null) return;
-
+    log(
+      "${{'teacher_id': teacher['id'], 'teacher_name': teacher['name'], 'teacher_image': teacher['image'], 'subjetcsid': teacher['subject_id'] ?? 0, 'classid': teacher['class_id'] ?? 0}}",
+    );
     // Navigate to SectionSelected with teacher's sections
     Get.toNamed(
       AppRoute.sectionSelected,
@@ -517,6 +526,22 @@ class SearchScreen extends StatelessWidget {
   }
 
   Widget _buildTeacherItem(Map<String, dynamic> teacher) {
+    final lessons = teacher['lessons'] as List<dynamic>? ?? [];
+    String? instituteName;
+    String? className;
+
+    if (lessons.isNotEmpty) {
+      final firstLesson = lessons[0];
+      final classes = firstLesson['classes'];
+      if (classes != null) {
+        className = classes['name'];
+        final institute = classes['institute'];
+        if (institute != null) {
+          instituteName = institute['name'];
+        }
+      }
+    }
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -591,6 +616,31 @@ class SearchScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 6),
+                      if (instituteName != null) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.business,
+                              size: 14,
+                              color: AppColor.PrimaryColor,
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                instituteName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.PrimaryColor,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                      ],
                       Row(
                         children: [
                           Icon(
@@ -600,14 +650,29 @@ class SearchScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Expanded(
-                            child: Text(
-                              teacher['education'] ?? 'معلم',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${teacher['education'] ?? 'معلم'}${className != null ? ' - $className' : ''}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (teacher['description'] != null)
+                                  Text(
+                                    teacher['description'],
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey[500],
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
                             ),
                           ),
                         ],
@@ -719,20 +784,35 @@ class SearchScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Expanded(
-                            child: Text(
-                              'درس تعليمي',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${lesson['classes']?['name'] ?? ''} - ${lesson['classes']?['institute']?['name'] ?? ''}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.add_shopping_cart,
+                    color: AppColor.PrimaryColor,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    _addLessonToCart(lesson);
+                  },
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
@@ -745,6 +825,273 @@ class SearchScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildLectureItem(Map<String, dynamic> lecture) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            _navigateToLectureDetails(lecture);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: EdgeInsets.all(12),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: lecture['image'] != null
+                      ? CachedNetworkImage(
+                          imageUrl: '${AppLink.image}/${lecture['image']}',
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 70,
+                            height: 70,
+                            color: Colors.grey[200],
+                            child: Icon(
+                              Icons.video_library,
+                              size: 35,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 70,
+                            height: 70,
+                            color: Colors.grey[200],
+                            child: Icon(
+                              Icons.video_library,
+                              size: 35,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          width: 70,
+                          height: 70,
+                          color: Colors.grey[200],
+                          child: Icon(
+                            Icons.video_library,
+                            size: 35,
+                            color: Colors.grey,
+                          ),
+                        ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        lecture['name'] ?? '',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person,
+                            size: 14,
+                            color: AppColor.PrimaryColor,
+                          ),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              lecture['unit']?['teacher']?['name'] ??
+                                  'غير محدد',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.menu_book,
+                            size: 14,
+                            color: AppColor.PrimaryColor,
+                          ),
+                          SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              lecture['unit']?['name'] ?? '',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '${lecture['price'] ?? 0} ل.س',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColor.PrimaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.add_shopping_cart,
+                    color: AppColor.PrimaryColor,
+                    size: 24,
+                  ),
+                  onPressed: () {
+                    _addLectureToCart(lecture);
+                  },
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: AppColor.PrimaryColor,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToLectureDetails(Map<String, dynamic> lecture) async {
+    if (lecture['id'] == null) return;
+
+    try {
+      // Check if user is logged in
+      final prefs = await SharedPreferences.getInstance();
+      final studentId = prefs.getString('student_id');
+
+      // If not logged in, check for free videos
+      if (studentId == null || studentId.isEmpty) {
+        // Check if there are free videos
+        try {
+          final videos = await ApiService.fetchVideos(lecture['id']);
+          final bool hasFreeVideos = videos.any(
+            (video) => video['free_status'] == "1",
+          );
+
+          if (hasFreeVideos) {
+            Get.toNamed(
+              AppRoute.vedios,
+              arguments: {
+                "lectureid": lecture['id'],
+                'isPurchase': false,
+                'isFreePreview': true,
+              },
+            );
+          } else {
+            Get.snackbar(
+              'تسجيل الدخول مطلوب',
+              'يجب تسجيل الدخول لعرض هذا المحتوى',
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orange.shade800,
+              colorText: Colors.white,
+              duration: Duration(seconds: 3),
+            );
+          }
+        } catch (e) {
+          log("Error checking free videos: $e");
+          Get.snackbar(
+            'تسجيل الدخول مطلوب',
+            'يجب تسجيل الدخول لعرض هذا المحتوى',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.orange.shade800,
+            colorText: Colors.white,
+            duration: Duration(seconds: 3),
+          );
+        }
+        return;
+      }
+
+      // Check if user has purchased this lecture
+      final myLectures = await ApiService.fetchMyLectures(studentId);
+      final bool isPurchased = myLectures.any((s) => s['id'] == lecture['id']);
+
+      if (isPurchased) {
+        Get.toNamed(
+          AppRoute.vedios,
+          arguments: {
+            "lectureid": lecture['id'],
+            'isPurchase': true,
+            'isFreePreview': false,
+          },
+        );
+      } else {
+        // Check if there are free videos
+        try {
+          final videos = await ApiService.fetchVideos(lecture['id']);
+          final bool hasFreeVideos = videos.any(
+            (video) => video['free_status'] == "1",
+          );
+
+          if (hasFreeVideos) {
+            Get.toNamed(
+              AppRoute.vedios,
+              arguments: {
+                "lectureid": lecture['id'],
+                'isPurchase': false,
+                'isFreePreview': true,
+              },
+            );
+          } else {
+            Get.snackbar(
+              "لا يوجد محتوى مجاني",
+              "هذا القسم لا يحتوي على فيديوهات مجانية للمعاينة.",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.orange.shade800,
+              colorText: Colors.white,
+            );
+          }
+        } catch (e) {
+          log("Error in _navigateToLectureDetails: $e");
+          Get.snackbar("خطأ", "حدث خطأ أثناء التحقق من المحتوى.");
+        }
+      }
+    } catch (e) {
+      Get.snackbar(
+        'خطأ',
+        'حدث خطأ أثناء معالجة الطلب',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade800,
+        colorText: Colors.white,
+      );
+      print('Error in _navigateToLectureDetails: $e');
+    }
   }
 
   void _navigateToLessonDetails(Map<String, dynamic> lesson) async {
@@ -857,5 +1204,70 @@ class SearchScreen extends StatelessWidget {
       print('Error checking purchase: $e');
       return false;
     }
+  }
+
+  void _addLessonToCart(Map<String, dynamic> lesson) {
+    final basketController = Get.find<BasketController>();
+
+    // Extract lesson details
+    final lessonId = lesson['id']?.toString() ?? '';
+    final lessonName = lesson['name'] ?? '';
+    final lessonPrice = 0; // Lessons might not have price in search results
+
+    // Extract teacher, class, and institute info
+    final classes = lesson['classes'];
+    final className = classes?['name'] ?? '';
+    final classId = classes?['id']?.toString() ?? '';
+
+    final institute = classes?['institute'];
+    final instituteName = institute?['name'] ?? '';
+
+    // Add to basket
+    basketController.updateBasket(
+      lessonId,
+      'lesson',
+      lessonName,
+      lessonPrice,
+      '', // teacherName - not available in lesson object
+      className,
+      lessonName, // subjectName
+      '', // teacherId
+      classId,
+      lessonId, // subjectId
+      '', // maindepId
+    );
+  }
+
+  void _addLectureToCart(Map<String, dynamic> lecture) {
+    final basketController = Get.find<BasketController>();
+
+    // Extract lecture details
+    final lectureId = lecture['id']?.toString() ?? '';
+    final lectureName = lecture['name'] ?? '';
+    final lecturePrice = lecture['price'] ?? 0;
+
+    // Extract unit and teacher info
+    final unit = lecture['unit'];
+    final unitName = unit?['name'] ?? '';
+    final unitId = unit?['id']?.toString() ?? '';
+
+    final teacher = unit?['teacher'];
+    final teacherName = teacher?['name'] ?? '';
+    final teacherId = teacher?['id']?.toString() ?? '';
+
+    // Add to basket
+    basketController.updateBasket(
+      lectureId,
+      'lecture',
+      lectureName,
+      lecturePrice,
+      teacherName,
+      '', // className - not available
+      unitName, // subjectName
+      teacherId,
+      '', // classId
+      unitId, // subjectId
+      '', // maindepId
+    );
   }
 }
