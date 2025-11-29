@@ -7,10 +7,10 @@ import '../../controller/basket_controller.dart';
 import '../../core/constant/color.dart';
 import '../../core/constant/routes.dart';
 
-Widget BasketWidget({required String heroTag }){
+Widget BasketWidget({required String heroTag}) {
   late BasketController baskerc;
   baskerc = Get.put(BasketController());
-  return  FloatingActionButton(
+  return FloatingActionButton(
     heroTag: heroTag,
     backgroundColor: AppColor.SecondryColor,
     elevation: 6,

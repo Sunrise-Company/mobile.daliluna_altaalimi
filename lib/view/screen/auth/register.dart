@@ -571,61 +571,65 @@ class Register extends GetView<RegisterController> {
                               tablet: 40,
                             ),
                           ),
-                          defaultButton(
-                            context: context,
-                            text: "إنشاء الحساب",
-                            fun: () {
-                              controller.getDeviceDetails();
-                              if (controller.formstate.currentState!
-                                  .validate()) {
-                                // alertRegister();
-                                if (controller.countryselectedValue.isEmpty) {
-                                  Get.defaultDialog(
-                                    backgroundColor: AppColor.BackGround2,
-                                    title: 'تنبيه',
-                                    titleStyle: TextStyle(
-                                      color: AppColor.DeepPurple,
-                                    ),
-                                    content: Text(
-                                      'الرجاء اختيار المحافظة',
-                                      style: TextStyle(
-                                        color: AppColor.PrimaryColor,
-                                      ),
-                                    ),
-                                  );
-                                } else if (controller.gender == null) {
-                                  Get.defaultDialog(
-                                    backgroundColor: AppColor.BackGround2,
-                                    title: 'تنبيه',
-                                    titleStyle: TextStyle(
-                                      color: AppColor.DeepPurple,
-                                    ),
-                                    content: Text(
-                                      'الرجاء اختيار الجنس',
-                                      style: TextStyle(
-                                        color: AppColor.PrimaryColor,
-                                      ),
-                                    ),
-                                  );
-                                } else if (controller.isChecked == false) {
-                                  Get.defaultDialog(
-                                    backgroundColor: AppColor.BackGround2,
-                                    title: 'تنبيه',
-                                    titleStyle: TextStyle(
-                                      color: AppColor.DeepPurple,
-                                    ),
-                                    middleTextStyle: TextStyle(
-                                      color: AppColor.PrimaryColor,
-                                    ),
-                                    middleText:
-                                        'اذا كنت موافق على سياسة الخصوصية الخاصة بتطبيقنا الرجاء وضع الموافقة',
-                                  );
-                                } else {
-                                  controller.register();
-                                }
-                              }
-                            },
-                          ),
+                          controller.load
+                              ? const Center(child: LoadingImage())
+                              : defaultButton(
+                                  context: context,
+                                  text: "إنشاء الحساب",
+                                  fun: () {
+                                    controller.getDeviceDetails();
+                                    if (controller.formstate.currentState!
+                                        .validate()) {
+                                      // alertRegister();
+                                      if (controller
+                                          .countryselectedValue.isEmpty) {
+                                        Get.defaultDialog(
+                                          backgroundColor: AppColor.BackGround2,
+                                          title: 'تنبيه',
+                                          titleStyle: TextStyle(
+                                            color: AppColor.DeepPurple,
+                                          ),
+                                          content: Text(
+                                            'الرجاء اختيار المحافظة',
+                                            style: TextStyle(
+                                              color: AppColor.PrimaryColor,
+                                            ),
+                                          ),
+                                        );
+                                      } else if (controller.gender == null) {
+                                        Get.defaultDialog(
+                                          backgroundColor: AppColor.BackGround2,
+                                          title: 'تنبيه',
+                                          titleStyle: TextStyle(
+                                            color: AppColor.DeepPurple,
+                                          ),
+                                          content: Text(
+                                            'الرجاء اختيار الجنس',
+                                            style: TextStyle(
+                                              color: AppColor.PrimaryColor,
+                                            ),
+                                          ),
+                                        );
+                                      } else if (controller.isChecked ==
+                                          false) {
+                                        Get.defaultDialog(
+                                          backgroundColor: AppColor.BackGround2,
+                                          title: 'تنبيه',
+                                          titleStyle: TextStyle(
+                                            color: AppColor.DeepPurple,
+                                          ),
+                                          middleTextStyle: TextStyle(
+                                            color: AppColor.PrimaryColor,
+                                          ),
+                                          middleText:
+                                              'اذا كنت موافق على سياسة الخصوصية الخاصة بتطبيقنا الرجاء وضع الموافقة',
+                                        );
+                                      } else {
+                                        controller.register();
+                                      }
+                                    }
+                                  },
+                                ),
                         ],
                       ),
                     ),

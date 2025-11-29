@@ -231,6 +231,7 @@ import '../../core/constant/color.dart';
 import '../../core/constant/imageasset.dart';
 import '../widget/custombuttomauth.dart';
 import '../widget/customtextfromfield.dart';
+import '../widget/loadingimage.dart';
 
 class LoginTeacher extends StatelessWidget {
   LoginControllerss controller = Get.put(LoginControllerss());
@@ -366,16 +367,18 @@ class LoginTeacher extends StatelessWidget {
                         ),
 
                         GetBuilder<LoginControllerss>(
-                          builder: (controller) => defaultButton(
-                            context: context,
-                            text: "تسجيل الدخول",
-                            fun: () {
-                              if (controller.formstateteacher.currentState!
-                                  .validate()) {
-                                controller.login();
-                              }
-                            },
-                          ),
+                          builder: (controller) => controller.load.value
+                              ? const Center(child: LoadingImage())
+                              : defaultButton(
+                                  context: context,
+                                  text: "تسجيل الدخول",
+                                  fun: () {
+                                    if (controller.formstateteacher.currentState!
+                                        .validate()) {
+                                      controller.login();
+                                    }
+                                  },
+                                ),
                         ),
                       ],
                     ),

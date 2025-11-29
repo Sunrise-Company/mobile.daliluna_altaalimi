@@ -4,10 +4,28 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class UnitsSubjectController extends GetxController {
   goToLesson(int selectedItem, int app_subject_id) {
     log('eeeeeeeeeeeeeeeeeeeeeeeeeee ${selectedItem}');
+
+    // Find the name of the selected unit
+    final selectedUnit = dataList.firstWhere(
+      (element) => element['id'] == selectedItem,
+      orElse: () => {},
+    );
+    final String unitName = selectedUnit['name'] ?? 'الوحدة';
+
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(
+        title: unitName,
+        route: AppRoute.lessons,
+        arguments: {"unitsid": selectedItem, 'subject_id': app_subject_id},
+      ),
+    );
 
     Get.toNamed(
       AppRoute.lessons,

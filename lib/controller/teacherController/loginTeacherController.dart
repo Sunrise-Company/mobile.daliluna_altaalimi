@@ -107,6 +107,7 @@ class LoginControllerss extends GetxController {
   // }
   void login() async {
     load.value = true;
+    update();
 
     try {
       final response = await http.post(
@@ -168,6 +169,7 @@ class LoginControllerss extends GetxController {
       );
     } finally {
       load.value = false;
+      update();
     }
   }
 

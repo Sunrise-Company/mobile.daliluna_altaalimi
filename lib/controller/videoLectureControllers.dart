@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/services/download_service.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class VideoLecturesController extends GetxController {
     );
 
     String resolution = selectedQuality.value;
-    String url = 'https://arabicacademic.com/' + videoFile['videoPath'];
+    String url = '${AppLink.baseUrl}/' + videoFile['videoPath'];
     String localPath = await getLocalFilePath(resolution);
     bool exists = await isVideoDownloaded(resolution);
 

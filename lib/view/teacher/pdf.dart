@@ -1,5 +1,6 @@
 // ignore_for_file: must_be_immutable
 
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
@@ -52,7 +53,7 @@ class PdfsTeacher extends StatelessWidget {
                                           name: pdfs[index]['name'],
                                           isUrl: true,
                                           url:
-                                              'https://arabicacademic.com/storage/' +
+                                              '${AppLink.baseUrl}/storage/' +
                                               pdfs[index]['file'],
                                         );
                                       },

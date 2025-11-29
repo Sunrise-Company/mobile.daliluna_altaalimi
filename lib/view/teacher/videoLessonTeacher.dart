@@ -270,8 +270,7 @@ class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
                     '/VideoLecture',
                     arguments: {
                       'url':
-                          'https://arabicacademic.com/storage/' +
-                          (video['file'] ?? ''),
+                          '${AppLink.baseUrl}/storage/' + (video['file'] ?? ''),
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
                     },

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 import 'dart:io';
@@ -50,7 +51,8 @@ class VideoLessonsController extends GetxController {
       await videolessonsController.pause();
       videolessonsController.dispose();
       developer.log(
-          'Old BetterPlayerController disposed for resolution: ${selectedQuality.value}');
+        'Old BetterPlayerController disposed for resolution: ${selectedQuality.value}',
+      );
     }
 
     // تحديد ملف الفيديو بناءً على الدقة المختارة
@@ -60,7 +62,7 @@ class VideoLessonsController extends GetxController {
     );
 
     String resolution = selectedQuality.value;
-    String url = 'https://arabicacademic.com/' + videoFile['videoPath'];
+    String url = '${AppLink.baseUrl}/' + videoFile['videoPath'];
     log('url${url}');
     String localPath = await getLocalFilePath(resolution);
     bool exists = await isVideoDownloaded(resolution);
@@ -151,8 +153,9 @@ class VideoLessonsController extends GetxController {
       (file) => file['resolution'] == resolution,
       orElse: () => null,
     );
-    String videoId =
-        video != null && video['id'] != null ? video['id'].toString() : url;
+    String videoId = video != null && video['id'] != null
+        ? video['id'].toString()
+        : url;
     final filePath = '${dir.path}/video_${videoId}_$resolution.mp4';
     String progressKey = '${videoId}_$resolution';
     progressMapLess[progressKey] = '0%';
@@ -162,8 +165,11 @@ class VideoLessonsController extends GetxController {
         downloading.value = false;
         progressMapLess[progressKey] = '100%';
         isVideoDownloadedVar.value = true;
-        Get.snackbar("تنبيه", "الفيديو موجود بالفعل",
-            backgroundColor: Colors.blue);
+        Get.snackbar(
+          "تنبيه",
+          "الفيديو موجود بالفعل",
+          backgroundColor: Colors.blue,
+        );
         return filePath;
       }
 
@@ -176,7 +182,8 @@ class VideoLessonsController extends GetxController {
           progressMapLess[progressKey] =
               ((rec / total) * 100).toStringAsFixed(0) + "%";
           developer.log(
-              'progressKey: ${progressKey} ${progressMapLess[progressKey]}');
+            'progressKey: ${progressKey} ${progressMapLess[progressKey]}',
+          );
         },
       );
 
@@ -209,7 +216,8 @@ class VideoLessonsController extends GetxController {
 
   Future<void> loadVideoPlayer(bool isUrl) async {
     developer.log(
-        'Loading video player with URL: ${Get.arguments['url']}, isUrl: $isUrl');
+      'Loading video player with URL: ${Get.arguments['url']}, isUrl: $isUrl',
+    );
     isLoading.value = true;
 
     String resolution = selectedQuality.value;
@@ -228,7 +236,8 @@ class VideoLessonsController extends GetxController {
           await getLocalFilePath(resolution),
         );
         developer.log(
-            'Data source set to local file: ${await getLocalFilePath(resolution)}');
+          'Data source set to local file: ${await getLocalFilePath(resolution)}',
+        );
       } else {
         dataSource = BetterPlayerDataSource(
           BetterPlayerDataSourceType.network,
@@ -296,8 +305,11 @@ class VideoLessonsController extends GetxController {
             if (success) {
               Get.snackbar("فشل", "فشل في تنزيل الفيديو الرجاء لمحاولة مجدداً");
             } else {
-              Get.snackbar("فشل", "فشل في حذف الفيديو أو أنه غير موجود",
-                  backgroundColor: Colors.red);
+              Get.snackbar(
+                "فشل",
+                "فشل في حذف الفيديو أو أنه غير موجود",
+                backgroundColor: Colors.red,
+              );
             }
           }
         }
@@ -382,7 +394,6 @@ class VideoLessonsController extends GetxController {
   }
 }
 
-
 //Chewieeee
 // class VideoLessonsController extends GetxController {
 //   late VideoPlayerController videolessonsController;
@@ -421,7 +432,7 @@ class VideoLessonsController extends GetxController {
 //     );
 
 //     String resolution = selectedQuality.value;
-//     String url = 'https://arabicacademic.com/' + videoFile['videoPath'];
+//     String url = '${AppLink.baseUrl}/' + videoFile['videoPath'];
 //     String localPath = await getLocalFilePath(resolution);
 //     bool exists = await isVideoDownloaded(resolution);
 //     String finalPath = exists ? localPath : url;

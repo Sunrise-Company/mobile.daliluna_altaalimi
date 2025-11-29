@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
@@ -518,282 +519,326 @@ class SectionSelected extends GetView<SectionSelectedController> {
         //               : Center(child: Text("لا يوجد "))
         //           : Center(child: Loading())),
         // ),
-        body: Padding(
-          padding: const EdgeInsets.all(13.0),
-          child: GetBuilder<SectionSelectedController>(
-            builder: (controller) => controller.isLoadingtow
-                ? controller.dataList.isNotEmpty
-                      ? AnimationLimiter(
-                          child: GlowingOverscrollIndicator(
-                            axisDirection: AxisDirection.down,
-                            color: AppColor.SecondryColor,
-                            child: ListView.separated(
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
-                              itemCount: controller.dataList.length,
-                              itemBuilder: (context, index) {
-                                final item = controller.dataList[index];
-                                final isSectionFree =
-                                    item['type'].toString() == '4';
-                                final itemId = item['id'].toString();
+        body: Column(
+          children: [
+            const BreadcrumbWidget(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(13.0),
+                child: GetBuilder<SectionSelectedController>(
+                  builder: (controller) => controller.isLoadingtow
+                      ? controller.dataList.isNotEmpty
+                            ? AnimationLimiter(
+                                child: GlowingOverscrollIndicator(
+                                  axisDirection: AxisDirection.down,
+                                  color: AppColor.SecondryColor,
+                                  child: ListView.separated(
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(height: 10),
+                                    itemCount: controller.dataList.length,
+                                    itemBuilder: (context, index) {
+                                      final item = controller.dataList[index];
+                                      final isSectionFree =
+                                          item['type'].toString() == '4';
+                                      final itemId = item['id'].toString();
 
-                                return AnimationConfiguration.staggeredList(
-                                  position: index,
-                                  duration: const Duration(milliseconds: 500),
-                                  child: SlideAnimation(
-                                    horizontalOffset: 200.0,
-                                    curve: Curves.ease,
-                                    duration: const Duration(milliseconds: 600),
-                                    child: FadeInAnimation(
-                                      child: Card(
-                                        elevation: 6,
-
-                                        shadowColor: AppColor.PrimaryColor,
-                                        color: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
+                                      return AnimationConfiguration.staggeredList(
+                                        position: index,
+                                        duration: const Duration(
+                                          milliseconds: 500,
                                         ),
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
+                                        child: SlideAnimation(
+                                          horizontalOffset: 200.0,
+                                          curve: Curves.ease,
+                                          duration: const Duration(
+                                            milliseconds: 600,
                                           ),
-                                          onTap: () {
-                                            baskerc.updatemaindepId(itemId);
-                                            controller.goToSections(
-                                              itemId,
-                                              Get.arguments['subjetcsid']
-                                                  .toString(),
-                                              Get.arguments['teacher_id']
-                                                  .toString(),
-                                              item['type'].toString(),
-                                            );
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: ListTile(
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 5,
-                                                    horizontal: 10,
-                                                  ),
-                                              leading: ClipRRect(
+                                          child: FadeInAnimation(
+                                            child: Card(
+                                              elevation: 6,
+
+                                              shadowColor:
+                                                  AppColor.PrimaryColor,
+                                              color: Colors.white,
+                                              shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(10),
-                                                child: item['image'] != null
-                                                    ? CachedNetworkImage(
-                                                        imageUrl:
-                                                            AppLink.image +
-                                                            "/" +
-                                                            item['image'],
-                                                        width: 70,
-                                                        height: 70,
-                                                        fit: BoxFit.cover,
-                                                        placeholder:
-                                                            (context, url) =>
-                                                                LoadingImage(),
-                                                        errorWidget:
-                                                            (
-                                                              context,
-                                                              url,
-                                                              error,
-                                                            ) => const Icon(
-                                                              Icons.error,
-                                                            ),
-                                                      )
-                                                    : const Icon(Icons.image),
+                                                    BorderRadius.circular(20),
                                               ),
-                                              title: Text(
-                                                item['name'] ?? '',
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      getValueForScreenType<
-                                                        double
-                                                      >(
-                                                        context: context,
-                                                        mobile: 15,
-                                                        tablet: 18,
-                                                      ),
-                                                  color: AppColor.PrimaryColor,
-                                                ),
-                                              ),
-                                              subtitle: itemId != '5'
-                                                  ? Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                            top: 6,
+                                              child: InkWell(
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                                onTap: () {
+                                                  baskerc.updatemaindepId(
+                                                    itemId,
+                                                  );
+                                                  controller.goToSections(
+                                                    itemId,
+                                                    Get.arguments['subjetcsid']
+                                                        .toString(),
+                                                    Get.arguments['teacher_id']
+                                                        .toString(),
+                                                    item['type'].toString(),
+                                                  );
+                                                },
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                    8.0,
+                                                  ),
+                                                  child: ListTile(
+                                                    contentPadding:
+                                                        const EdgeInsets.symmetric(
+                                                          vertical: 5,
+                                                          horizontal: 10,
+                                                        ),
+                                                    leading: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
                                                           ),
-                                                      child: Text(
-                                                        item['app_classes_lessons_main_dep'] !=
-                                                                    null &&
-                                                                (item['app_classes_lessons_main_dep']
-                                                                        as List)
-                                                                    .isNotEmpty
-                                                            ? "السعر: ${item['app_classes_lessons_main_dep'][0]['main_price']?.toString() ?? '0'}"
-                                                            : isSectionFree
-                                                            ? 'استعراض مجاني'
-                                                            : 'السعر: 0',
-                                                        style: TextStyle(
-                                                          color: AppColor
-                                                              .DeepPurple,
-                                                          fontSize:
-                                                              getValueForScreenType<
-                                                                double
-                                                              >(
-                                                                context:
+                                                      child:
+                                                          item['image'] != null
+                                                          ? CachedNetworkImage(
+                                                              imageUrl:
+                                                                  AppLink
+                                                                      .image +
+                                                                  "/" +
+                                                                  item['image'],
+                                                              width: 70,
+                                                              height: 70,
+                                                              fit: BoxFit.cover,
+                                                              placeholder:
+                                                                  (
                                                                     context,
-                                                                mobile: 13,
-                                                                tablet: 15,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : const SizedBox.shrink(),
-                                              trailing: itemId != '5'
-                                                  ? Obx(() {
-                                                      final allSectionItem =
-                                                          item;
-                                                      final teacherId = baskerc
-                                                          .teacherId
-                                                          .value;
-                                                      final subjectId = baskerc
-                                                          .subjectId
-                                                          .value;
-                                                      final classId =
-                                                          baskerc.classId.value;
-                                                      final mainDepId = itemId;
-
-                                                      final isInMySections = controller.mysection.any((
-                                                        section,
-                                                      ) {
-                                                        final departments =
-                                                            section as Map;
-                                                        if (departments['app_classes_lessons_main_department'] !=
-                                                                null &&
-                                                            (departments['app_classes_lessons_main_department']
-                                                                    as List)
-                                                                .isNotEmpty &&
-                                                            allSectionItem['app_classes_lessons_main_dep'] !=
-                                                                null &&
-                                                            (allSectionItem['app_classes_lessons_main_dep']
-                                                                    as List)
-                                                                .isNotEmpty) {
-                                                          return departments['app_classes_lessons_main_department'][0]['main_dep_id']
-                                                                      .toString() ==
-                                                                  allSectionItem['app_classes_lessons_main_dep'][0]['main_dep_id']
-                                                                      .toString() &&
-                                                              departments['app_classes_lessons_main_department'][0]['app_teacher_id']
-                                                                      .toString() ==
-                                                                  allSectionItem['app_classes_lessons_main_dep'][0]['app_teacher_id']
-                                                                      .toString() &&
-                                                              departments['app_classes_lessons_main_department'][0]['app_class_id']
-                                                                      .toString() ==
-                                                                  allSectionItem['app_classes_lessons_main_dep'][0]['app_class_id']
-                                                                      .toString();
-                                                        }
-                                                        return false;
-                                                      });
-
-                                                      if (isInMySections) {
-                                                        return Icon(
-                                                          Icons.check_circle,
-                                                          color: AppColor
-                                                              .SecondryColor,
-                                                        );
-                                                      }
-                                                      if (isSectionFree) {
-                                                        return Icon(
-                                                          Icons.arrow_back,
-                                                          color: AppColor
-                                                              .SecondryColor,
-                                                        );
-                                                      }
-
-                                                      return IconButton(
-                                                        onPressed: () {
-                                                          baskerc
-                                                              .updatemaindepId(
-                                                                itemId,
-                                                              );
-                                                          baskerc.updateBasket(
-                                                            itemId,
-                                                            'main_dep',
-                                                            allSectionItem['name'],
-                                                            allSectionItem['app_classes_lessons_main_dep'] !=
-                                                                        null &&
-                                                                    (allSectionItem['app_classes_lessons_main_dep']
-                                                                            as List)
-                                                                        .isNotEmpty
-                                                                ? allSectionItem['app_classes_lessons_main_dep'][0]['main_price']
-                                                                : 0,
-                                                            baskerc.teacherName
-                                                                .toString(),
-                                                            baskerc.className
-                                                                .toString(),
-                                                            baskerc.subjectName
-                                                                .toString(),
-                                                            teacherId,
-                                                            classId,
-                                                            subjectId,
-                                                            mainDepId,
-                                                          );
-                                                        },
-                                                        icon: Icon(
-                                                          Icons
-                                                              .shopping_cart_rounded,
-                                                          color: AppColor
-                                                              .SecondryColor,
-                                                        ),
-                                                      );
-                                                    })
-                                                  : Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
+                                                                    url,
+                                                                  ) =>
+                                                                      LoadingImage(),
+                                                              errorWidget:
+                                                                  (
+                                                                    context,
+                                                                    url,
+                                                                    error,
+                                                                  ) => const Icon(
+                                                                    Icons.error,
+                                                                  ),
+                                                            )
+                                                          : const Icon(
+                                                              Icons.image,
                                                             ),
-                                                      ),
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 10,
-                                                            vertical: 5,
-                                                          ),
-                                                      child: Text(
-                                                        "الملف الشخصي",
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize:
-                                                              getValueForScreenType<
-                                                                double
-                                                              >(
-                                                                context:
-                                                                    context,
-                                                                mobile: 14,
-                                                                tablet: 16,
-                                                              ),
-                                                          color: AppColor
-                                                              .PrimaryColor,
-                                                        ),
+                                                    ),
+                                                    title: Text(
+                                                      item['name'] ?? '',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            getValueForScreenType<
+                                                              double
+                                                            >(
+                                                              context: context,
+                                                              mobile: 15,
+                                                              tablet: 18,
+                                                            ),
+                                                        color: AppColor
+                                                            .PrimaryColor,
                                                       ),
                                                     ),
+                                                    subtitle: itemId != '5'
+                                                        ? Padding(
+                                                            padding:
+                                                                const EdgeInsets.only(
+                                                                  top: 6,
+                                                                ),
+                                                            child: Text(
+                                                              item['app_classes_lessons_main_dep'] !=
+                                                                          null &&
+                                                                      (item['app_classes_lessons_main_dep']
+                                                                              as List)
+                                                                          .isNotEmpty
+                                                                  ? "السعر: ${item['app_classes_lessons_main_dep'][0]['main_price']?.toString() ?? '0'}"
+                                                                  : isSectionFree
+                                                                  ? 'استعراض مجاني'
+                                                                  : 'السعر: 0',
+                                                              style: TextStyle(
+                                                                color: AppColor
+                                                                    .DeepPurple,
+                                                                fontSize:
+                                                                    getValueForScreenType<
+                                                                      double
+                                                                    >(
+                                                                      context:
+                                                                          context,
+                                                                      mobile:
+                                                                          13,
+                                                                      tablet:
+                                                                          15,
+                                                                    ),
+                                                              ),
+                                                            ),
+                                                          )
+                                                        : const SizedBox.shrink(),
+                                                    trailing: itemId != '5'
+                                                        ? Obx(() {
+                                                            final allSectionItem =
+                                                                item;
+                                                            final teacherId =
+                                                                baskerc
+                                                                    .teacherId
+                                                                    .value;
+                                                            final subjectId =
+                                                                baskerc
+                                                                    .subjectId
+                                                                    .value;
+                                                            final classId =
+                                                                baskerc
+                                                                    .classId
+                                                                    .value;
+                                                            final mainDepId =
+                                                                itemId;
+
+                                                            final isInMySections = controller.mysection.any((
+                                                              section,
+                                                            ) {
+                                                              final departments =
+                                                                  section
+                                                                      as Map;
+                                                              if (departments['app_classes_lessons_main_department'] !=
+                                                                      null &&
+                                                                  (departments['app_classes_lessons_main_department']
+                                                                          as List)
+                                                                      .isNotEmpty &&
+                                                                  allSectionItem['app_classes_lessons_main_dep'] !=
+                                                                      null &&
+                                                                  (allSectionItem['app_classes_lessons_main_dep']
+                                                                          as List)
+                                                                      .isNotEmpty) {
+                                                                return departments['app_classes_lessons_main_department'][0]['main_dep_id']
+                                                                            .toString() ==
+                                                                        allSectionItem['app_classes_lessons_main_dep'][0]['main_dep_id']
+                                                                            .toString() &&
+                                                                    departments['app_classes_lessons_main_department'][0]['app_teacher_id']
+                                                                            .toString() ==
+                                                                        allSectionItem['app_classes_lessons_main_dep'][0]['app_teacher_id']
+                                                                            .toString() &&
+                                                                    departments['app_classes_lessons_main_department'][0]['app_class_id']
+                                                                            .toString() ==
+                                                                        allSectionItem['app_classes_lessons_main_dep'][0]['app_class_id']
+                                                                            .toString();
+                                                              }
+                                                              return false;
+                                                            });
+
+                                                            if (isInMySections) {
+                                                              return Icon(
+                                                                Icons
+                                                                    .check_circle,
+                                                                color: AppColor
+                                                                    .SecondryColor,
+                                                              );
+                                                            }
+                                                            if (isSectionFree) {
+                                                              return Icon(
+                                                                Icons
+                                                                    .arrow_back,
+                                                                color: AppColor
+                                                                    .SecondryColor,
+                                                              );
+                                                            }
+
+                                                            return IconButton(
+                                                              onPressed: () {
+                                                                baskerc
+                                                                    .updatemaindepId(
+                                                                      itemId,
+                                                                    );
+                                                                baskerc.updateBasket(
+                                                                  itemId,
+                                                                  'main_dep',
+                                                                  allSectionItem['name'],
+                                                                  allSectionItem['app_classes_lessons_main_dep'] !=
+                                                                              null &&
+                                                                          (allSectionItem['app_classes_lessons_main_dep']
+                                                                                  as List)
+                                                                              .isNotEmpty
+                                                                      ? allSectionItem['app_classes_lessons_main_dep'][0]['main_price']
+                                                                      : 0,
+                                                                  baskerc
+                                                                      .teacherName
+                                                                      .toString(),
+                                                                  baskerc
+                                                                      .className
+                                                                      .toString(),
+                                                                  baskerc
+                                                                      .subjectName
+                                                                      .toString(),
+                                                                  teacherId,
+                                                                  classId,
+                                                                  subjectId,
+                                                                  mainDepId,
+                                                                );
+                                                              },
+                                                              icon: Icon(
+                                                                Icons
+                                                                    .shopping_cart_rounded,
+                                                                color: AppColor
+                                                                    .SecondryColor,
+                                                              ),
+                                                            );
+                                                          })
+                                                        : Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        10,
+                                                                      ),
+                                                                ),
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      10,
+                                                                  vertical: 5,
+                                                                ),
+                                                            child: Text(
+                                                              "الملف الشخصي",
+                                                              style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize:
+                                                                    getValueForScreenType<
+                                                                      double
+                                                                    >(
+                                                                      context:
+                                                                          context,
+                                                                      mobile:
+                                                                          14,
+                                                                      tablet:
+                                                                          16,
+                                                                    ),
+                                                                color: AppColor
+                                                                    .PrimaryColor,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                  ),
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                        )
-                      : const Center(child: Text("لا يوجد"))
-                : const Center(child: CircularProgressIndicator()),
-          ),
+                                ),
+                              )
+                            : const Center(child: Text("لا يوجد"))
+                      : const Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            ),
+          ],
         ),
 
         floatingActionButton: Obx(

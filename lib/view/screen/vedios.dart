@@ -1,4 +1,5 @@
 import 'package:daliluna_altaalimi/constant.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -459,8 +460,7 @@ class Vedios extends StatelessWidget {
                     '/VideoLecture',
                     arguments: {
                       'url':
-                          'https://arabicacademic.com/storage/' +
-                          (video['file'] ?? ''),
+                          '${AppLink.baseUrl}/storage/' + (video['file'] ?? ''),
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
                     },

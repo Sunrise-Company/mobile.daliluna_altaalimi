@@ -1,3 +1,4 @@
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
@@ -7,7 +8,7 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 class ForceUpdateScreen extends StatelessWidget {
   const ForceUpdateScreen({super.key});
   void _launchUpdateUrl() async {
-    const url = 'https://arabicacademic.com/public/ArabicAcademic.apk';
+    const url = '${AppLink.baseUrl}/public/ArabicAcademic.apk';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 

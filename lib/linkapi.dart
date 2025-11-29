@@ -1,6 +1,7 @@
 class AppLink {
-  static const String server = "https://edu.daleeli-sy.com/api";
-  static const String image = "https://edu.daleeli-sy.com/storage";
+  static const String baseUrl = 'https://edu.daleeli-sy.com';
+  static const String server = "$baseUrl/api";
+  static const String image = "$baseUrl/storage";
   static const String imageteacher = "https://app.aasvs.com/storage/";
   static const String video = "https://aasvs.com/storage/";
   static const String classes = "$server/app_classess";

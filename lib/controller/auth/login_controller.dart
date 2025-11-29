@@ -57,6 +57,7 @@ class LoginController extends GetxController {
   RxString message = ''.obs;
   login() async {
     load = true;
+    update();
     await getDeviceDetails();
     await getdata();
     String responseData = await ApiService.loginStudent(data);

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -47,18 +48,18 @@ class CommentController extends GetxController {
 
   Future<void> fetchComments(type) async {
     final bool isInitialLoad = commentsList.isEmpty;
-    log('https://arabicacademic.com/api/app_comment/$lessonId/$type');
+
     try {
       if (isInitialLoad) {
         isLoading(true);
       }
       error('');
       final response = await http.get(
-        Uri.parse('https://arabicacademic.com/api/app_comment/$lessonId/$type'),
+        Uri.parse('${AppLink.baseUrl}/api/app_comment/$lessonId/$type'),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
       );
       log(
-        "Fetch Response: https://arabicacademic.com/api/app_comment/$lessonId/$type ${response.body}",
+        "Fetch Response: ${AppLink.baseUrl}/api/app_comment/$lessonId/$type ${response.body}",
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -101,7 +102,7 @@ class CommentController extends GetxController {
         : 'lesson_dep_file_id';
     try {
       final response = await http.post(
-        Uri.parse('https://arabicacademic.com/api/app_comment_store/store'),
+        Uri.parse('${AppLink.baseUrl}/api/app_comment_store/store'),
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: json.encode({
           '${type.toString() == 'lesson_lecture_file' ? 'lesson_lecture_files_id' : 'lesson_dep_file_id'}':
@@ -160,9 +161,7 @@ class CommentController extends GetxController {
   Future<void> _deleteComment(Comment comment) async {
     try {
       final response = await http.delete(
-        Uri.parse(
-          'https://arabicacademic.com/api/app_comment_delete/${comment.id}',
-        ),
+        Uri.parse('${AppLink.baseUrl}/api/app_comment_delete/${comment.id}'),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

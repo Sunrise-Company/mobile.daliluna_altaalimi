@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 //الدروس في الوجدات
 class LessonsController extends GetxController {
@@ -25,17 +27,20 @@ class LessonsController extends GetxController {
   }
 
   void navigateToSection(Map<String, dynamic> sectionItem) async {
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(BreadcrumbItem(
+      title: sectionItem['name'] ?? 'الدرس',
+      route: AppRoute.vedios,
+      arguments: {
+        "lectureid": sectionItem['id'],
+      },
+    ));
+
     final bool isPurchased = mylectures.any(
       (s) => s['id'] == sectionItem['id'],
     );
 
     if (isPurchased) {
-      // Get.toNamed(AppRoute.viewLessons, arguments: {
-      //   "lessonsectionsid": sectionItem['id'],
-      //   "lessonsectionsName": sectionItem['name'],
-      //   'isPurchase': true,
-      //   'isFreePreview': false,
-      // });
       Get.toNamed(
         AppRoute.vedios,
         arguments: {
@@ -55,12 +60,6 @@ class LessonsController extends GetxController {
         );
 
         if (hasFreeVideos) {
-          // Get.toNamed(AppRoute.viewLessons, arguments: {
-          //   "lessonsectionsid": sectionItem['id'],
-          //   "lessonsectionsName": sectionItem['name'],
-          //   'isPurchase': false,
-          //   'isFreePreview': true,
-          // });
           Get.toNamed(
             AppRoute.vedios,
             arguments: {

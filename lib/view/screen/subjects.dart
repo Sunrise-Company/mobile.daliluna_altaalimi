@@ -1,5 +1,7 @@
 // ignore_for_file: must_be_iacademyv3utable
 
+import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
@@ -9,12 +11,8 @@ import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/subjects_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/customcardsubjects.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconbasket.dart';
-import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../core/constant/routes.dart';
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 
@@ -172,37 +170,44 @@ class Subjects extends GetView<SubjectsController> {
         //               )
         //             : Center(child: Text("لا يوجد مواد"))
         //         : Loading()),
-        body: GetBuilder<SubjectsController>(
-          builder: (controller) => controller.isLoadingtow
-              ? controller.dataList.isNotEmpty
-                    ? ListView.builder(
-                        padding: EdgeInsets.only(
-                          top: getValueForScreenType<double>(
-                            context: context,
-                            mobile: 10,
-                            tablet: 20,
-                          ),
-                          bottom: 100, // لو في Floating Button
-                        ),
-                        itemCount: controller.dataList.length,
-                        itemBuilder: (context, index) {
-                          final item = controller.dataList[index];
-                          return SubjectListItem(
-                            name: item['name'],
-                            imageUrl: item['image'],
-                            onTap: () {
-                              baskerc.updatelessonName(item['name']);
-                              baskerc.updatelessonId(item['id']);
-                              controller.goToTeachers(
-                                Get.arguments['lessonid'],
-                                item['id'],
-                              );
-                            },
-                          );
-                        },
-                      )
-                    : Center(child: Text("لا يوجد مواد"))
-              : Loading(),
+        body: Column(
+          children: [
+            const BreadcrumbWidget(),
+            Expanded(
+              child: GetBuilder<SubjectsController>(
+                builder: (controller) => controller.isLoadingtow
+                    ? controller.dataList.isNotEmpty
+                          ? ListView.builder(
+                              padding: EdgeInsets.only(
+                                top: getValueForScreenType<double>(
+                                  context: context,
+                                  mobile: 10,
+                                  tablet: 20,
+                                ),
+                                bottom: 100, // لو في Floating Button
+                              ),
+                              itemCount: controller.dataList.length,
+                              itemBuilder: (context, index) {
+                                final item = controller.dataList[index];
+                                return SubjectListItem(
+                                  name: item['name'],
+                                  imageUrl: item['image'],
+                                  onTap: () {
+                                    baskerc.updatelessonName(item['name']);
+                                    baskerc.updatelessonId(item['id']);
+                                    controller.goToTeachers(
+                                      Get.arguments['lessonid'],
+                                      item['id'],
+                                    );
+                                  },
+                                );
+                              },
+                            )
+                          : Center(child: Text("لا يوجد مواد"))
+                    : Loading(),
+              ),
+            ),
+          ],
         ),
 
         floatingActionButton: Obx(

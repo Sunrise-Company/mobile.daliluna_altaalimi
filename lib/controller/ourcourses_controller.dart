@@ -8,6 +8,8 @@ import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class OurCoursesController extends GetxController {
   RxString appVersion = ''.obs;
@@ -63,6 +65,17 @@ class OurCoursesController extends GetxController {
   }
 
   goToSubjects(int selectedItem) {
+    // Find the name of the selected item
+    final selectedClass = dataList.firstWhere((element) => element['id'] == selectedItem, orElse: () => {});
+    final String className = selectedClass['name'] ?? 'الصف';
+
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(BreadcrumbItem(
+      title: className,
+      route: AppRoute.subjects,
+      arguments: {"lessonid": selectedItem},
+    ));
+
     Get.toNamed(AppRoute.subjects, arguments: {"lessonid": selectedItem});
   }
 

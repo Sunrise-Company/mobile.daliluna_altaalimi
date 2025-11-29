@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class InstitutesController extends GetxController {
   late final int cityId;
@@ -45,6 +47,13 @@ class InstitutesController extends GetxController {
       institute['id'],
       instituteName: institute['name'],
     );
+    
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(BreadcrumbItem(
+      title: institute['name'],
+      route: AppRoute.ourCourses,
+    ));
+
     Get.toNamed(AppRoute.ourCourses);
   }
 }

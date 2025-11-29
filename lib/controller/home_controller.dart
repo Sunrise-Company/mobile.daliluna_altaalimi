@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class HomeController extends GetxController {
   List<dynamic> cities = [];
@@ -37,6 +39,20 @@ class HomeController extends GetxController {
     if (city['id'] == null) {
       return;
     }
+    
+    // Add Breadcrumb
+    final breadcrumbService = Get.find<BreadcrumbService>();
+    breadcrumbService.clear(); // Start fresh from Home
+    breadcrumbService.add(BreadcrumbItem(
+      title: city['name'],
+      route: AppRoute.institutes,
+      arguments: {
+        'cityId': city['id'],
+        'cityName': city['name'],
+        'cityImage': city['image'],
+      },
+    ));
+
     Get.toNamed(
       AppRoute.institutes,
       arguments: {

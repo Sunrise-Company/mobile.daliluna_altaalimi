@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:daliluna_altaalimi/controller/chatStudnet/RecoringController.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideoPlayer.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/homeTeacherController.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/teacher/chatTeacher/groupChat/groupdetailes.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -820,7 +821,7 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
     if (rawPath.startsWith('/')) {
       rawPath = rawPath.substring(1);
     }
-    String filePath = 'https://arabicacademic.com/$rawPath';
+    String filePath = '${AppLink.baseUrl}/$rawPath';
     String fileType = fileData['type'];
     String fileName = path.basename(filePath);
 

@@ -437,16 +437,18 @@ class Login extends GetView<LoginController> {
                           ),
                         ),
                         GetBuilder<LoginController>(
-                          builder: (controller) => defaultButton(
-                            context: context,
-                            text: "تسجيل الدخول",
-                            fun: () {
-                              if (controller.formstate.currentState!
-                                  .validate()) {
-                                controller.login();
-                              }
-                            },
-                          ),
+                          builder: (controller) => controller.load
+                              ? const Center(child: LoadingImage())
+                              : defaultButton(
+                                  context: context,
+                                  text: "تسجيل الدخول",
+                                  fun: () {
+                                    if (controller.formstate.currentState!
+                                        .validate()) {
+                                      controller.login();
+                                    }
+                                  },
+                                ),
                         ),
                         SizedBox(
                           height: getValueForScreenType<double>(

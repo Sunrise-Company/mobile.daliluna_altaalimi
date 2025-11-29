@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class SectionSelectedController extends GetxController {
   @override
@@ -45,6 +47,31 @@ class SectionSelectedController extends GetxController {
     String teacher_id,
     String type,
   ) {
+    // Find the name of the selected section/course type
+    // Note: dataList contains the sections. We need to find the one matching selectedItem (which is an ID string)
+    final selectedSection = dataList.firstWhere(
+      (element) => element['id'].toString() == selectedItem,
+      orElse: () => {},
+    );
+    final String sectionName = selectedSection['name'] ?? 'القسم';
+
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(
+        title: sectionName,
+        route: selectedItem == '5'
+            ? AppRoute.lessonDetails
+            : selectedItem == '6'
+            ? AppRoute.unitsSubject
+            : AppRoute.sectionsSubject,
+        arguments: {
+          "sectionid": selectedItem,
+          'subjetcsid': subjetcsid,
+          'teacher_id': teacher_id,
+        },
+      ),
+    );
+
     log('-----------0------------');
     log(selectedItem);
     log('type $type');
@@ -104,7 +131,7 @@ class SectionSelectedController extends GetxController {
       isLoadingtow = true;
       log("sectons " + dataList.toString());
       log(
-        "sectons app_main_deps2 ${Get.arguments['classid'].toString()} ${Get.arguments['subjetcsid'].toString()}  ${Get.arguments['teacher_id'].toString()}",
+        "sectons app_main_deps2 classID: ${Get.arguments['classid'].toString()} subjetcsid:${Get.arguments['subjetcsid'].toString()}  teacher_id${Get.arguments['teacher_id'].toString()}",
       );
       update();
     } catch (error) {

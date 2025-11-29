@@ -526,7 +526,7 @@ class VideoLecture extends GetView<VideoLecturesController> {
         //                                             }
 
         //                                             String url =
-        //                                                 'https://arabicacademic.com/' +
+        //                                                 '${AppLink.baseUrl}/' +
         //                                                     video['videoPath'];
 
         //                                             try {

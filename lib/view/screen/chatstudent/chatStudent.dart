@@ -5,6 +5,7 @@ import 'package:daliluna_altaalimi/controller/chatStudnet/RecoringController.dar
 import 'package:daliluna_altaalimi/controller/chatStudnet/chat.dart';
 import 'package:daliluna_altaalimi/controller/homepage_controller.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideoPlayer.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -592,7 +593,7 @@ class ChatStudent extends StatelessWidget {
     if (rawPath.startsWith('/')) {
       rawPath = rawPath.substring(1);
     }
-    String filePath = 'https://arabicacademic.com/$rawPath';
+    String filePath = '${AppLink.baseUrl}/$rawPath';
     String fileType = fileData['type'];
     String fileName = path.basename(filePath);
 

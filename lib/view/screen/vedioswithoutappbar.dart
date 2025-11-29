@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:daliluna_altaalimi/constant.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -210,8 +211,7 @@ class VediosWithoutAppBar extends StatelessWidget {
                   Get.toNamed(
                     '/VideoLessonso',
                     arguments: {
-                      'url':
-                          'https://arabicacademic.com/storage/' + video['file'],
+                      'url': '${AppLink.baseUrl}/storage/' + video['file'],
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
                     },

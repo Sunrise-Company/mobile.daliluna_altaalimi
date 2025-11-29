@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class TeacherController extends GetxController {
   @override
@@ -12,6 +14,26 @@ class TeacherController extends GetxController {
   }
 
   goToSections(subjetcsid, teacher_id, classid) {
+    // Find the name of the selected teacher
+    final selectedTeacher = dataList.firstWhere(
+      (element) => element['id'].toString() == teacher_id.toString(),
+      orElse: () => {},
+    );
+    final String teacherName = selectedTeacher['name'] ?? 'المدرس';
+
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(
+        title: teacherName,
+        route: AppRoute.sectionSelected,
+        arguments: {
+          'subjetcsid': subjetcsid,
+          'teacher_id': teacher_id,
+          'classid': classid,
+        },
+      ),
+    );
+
     Get.toNamed(
       AppRoute.sectionSelected,
       arguments: {

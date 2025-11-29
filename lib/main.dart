@@ -3,11 +3,13 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_observer.dart';
 import 'package:daliluna_altaalimi/core/services/version_service.dart';
 import 'package:daliluna_altaalimi/data/model/version_model.dart';
 import 'package:daliluna_altaalimi/view/screen/update_app.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(BreadcrumbService()); // Initialize BreadcrumbService
   bool isEmulator = await checkIfEmulator();
 
   // SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -102,8 +105,7 @@ Future<bool> checkVersionNeedsUpdate() async {
     final String localVersion = packageInfo.buildNumber.isNotEmpty
         ? '${packageInfo.version}+${packageInfo.buildNumber}'
         : packageInfo.version;
-    log("serverVersion ${serverVersion.versionNum.toString()}");
-    log("localVersion ${localVersion}");
+
     if (isVersionOlder("${localVersion}", "${serverVersion.versionNum}")) {
       return true;
     }
@@ -170,6 +172,7 @@ class MyApp extends StatelessWidget {
       getPages: routes,
       initialBinding: BasketBinding(),
 
+      navigatorObservers: [BreadcrumbObserver()],
       home: forceUpdate ? ForceUpdateScreen() : null,
     );
   }

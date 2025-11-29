@@ -92,6 +92,7 @@ class RegisterController extends GetxController {
     load = true;
     update();
     await getdata();
+    await getdata();
     String responseData = await ApiService.registerStudent(data);
     load = false;
     Get.offAllNamed(AppRoute.homePage);

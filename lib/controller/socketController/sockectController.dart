@@ -28,7 +28,7 @@ class Sockectcontroller extends GetxController {
 
   Future<void> connectToWebSocket() async {
     log('Connecting to WebSocket...');
-    socket = IO.io('https://arabicacademic.com', <String, dynamic>{
+    socket = IO.io('${AppLink.baseUrl}', <String, dynamic>{
       'transports': ['websocket'],
       'reconnectionAttempts': 10,
       'reconnectionDelay': 500,

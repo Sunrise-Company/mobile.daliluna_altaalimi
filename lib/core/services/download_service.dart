@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:developer' as developer;
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -138,8 +139,7 @@ class DownloadController extends GetxController {
         await _handleSingleDirectDownload(link, baseVideoId);
       }
     } else if (singleFilePart != null && singleFilePart.isNotEmpty) {
-      final String fullUrl =
-          'https://arabicacademic.com/storage/' + singleFilePart;
+      final String fullUrl = '${AppLink.baseUrl}/storage/' + singleFilePart;
       await _handleSingleDirectDownload(fullUrl, baseVideoId);
     } else {
       Get.snackbar(
@@ -202,7 +202,7 @@ class DownloadController extends GetxController {
         return;
 
       final String downloadUrl =
-          'https://arabicacademic.com/' + selectedFile['videoPath'];
+          '${AppLink.baseUrl}/' + selectedFile['videoPath'];
       final String filePath = await getLocalFilePath(uniqueId);
 
       await _downloadFile(downloadUrl, filePath, uniqueId);

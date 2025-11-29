@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_iacademyv3utable
 
 import 'package:daliluna_altaalimi/controller/lesson_controller.dart';
+import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
@@ -183,229 +184,275 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
         //               )
         //             : Center(child: Text("لا يوجد وحدات "))
         //         : Loading()),
-        body: GetBuilder<UnitsSubjectController>(
-          builder: (controller) => controller.isLoading
-              ? controller.dataList.isNotEmpty
-                    ? AnimationLimiter(
-                        child: GlowingOverscrollIndicator(
-                          axisDirection: AxisDirection.down,
-                          color: AppColor.SecondryColor,
-                          child: ListView.separated(
-                            physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 10,
-                                tablet: 30,
-                              ),
-                              vertical: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 15,
-                                tablet: 30,
-                              ),
-                            ),
-                            separatorBuilder: (context, index) => SizedBox(
-                              height: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 10,
-                                tablet: 20,
-                              ),
-                            ),
-                            itemCount: controller.dataList.length,
-                            itemBuilder: (context, index) {
-                              final item = controller.dataList[index];
-                              final name = item['name'] ?? '';
-                              final price = item['price'].toString();
-
-                              return AnimationConfiguration.staggeredList(
-                                position: index,
-                                duration: const Duration(milliseconds: 500),
-                                child: SlideAnimation(
-                                  horizontalOffset: 200.0,
-                                  curve: Curves.easeInOutBack,
-                                  duration: const Duration(milliseconds: 600),
-                                  child: FadeInAnimation(
-                                    child: Card(
-                                      elevation: 6,
-                                      shadowColor: AppColor.PrimaryColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18),
+        body: Column(
+          children: [
+            const BreadcrumbWidget(),
+            Expanded(
+              child: GetBuilder<UnitsSubjectController>(
+                builder: (controller) => controller.isLoading
+                    ? controller.dataList.isNotEmpty
+                          ? AnimationLimiter(
+                              child: GlowingOverscrollIndicator(
+                                axisDirection: AxisDirection.down,
+                                color: AppColor.SecondryColor,
+                                child: ListView.separated(
+                                  physics: const BouncingScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: getValueForScreenType<double>(
+                                      context: context,
+                                      mobile: 10,
+                                      tablet: 30,
+                                    ),
+                                    vertical: getValueForScreenType<double>(
+                                      context: context,
+                                      mobile: 15,
+                                      tablet: 30,
+                                    ),
+                                  ),
+                                  separatorBuilder: (context, index) =>
+                                      SizedBox(
+                                        height: getValueForScreenType<double>(
+                                          context: context,
+                                          mobile: 10,
+                                          tablet: 20,
+                                        ),
                                       ),
-                                      color: Colors.white,
-                                      child: ListTile(
-                                        contentPadding: EdgeInsets.symmetric(
-                                          horizontal:
-                                              getValueForScreenType<double>(
-                                                context: context,
-                                                mobile: 12,
-                                                tablet: 25,
-                                              ),
-                                          vertical:
-                                              getValueForScreenType<double>(
-                                                context: context,
-                                                mobile: 8,
-                                                tablet: 15,
-                                              ),
-                                        ),
-                                        onTap: () {
-                                          controller.goToLesson(
-                                            item['id'],
-                                            item['app_lesson_id'],
-                                          );
-                                        },
-                                        leading: CircleAvatar(
-                                          radius: getValueForScreenType<double>(
-                                            context: context,
-                                            mobile: 25,
-                                            tablet: 40,
-                                          ),
-                                          backgroundColor: AppColor
-                                              .SecondryColor.withOpacity(0.5),
-                                          child: Icon(
-                                            Icons.menu_book_rounded,
-                                            color: AppColor.PrimaryColor,
-                                            size: getValueForScreenType<double>(
-                                              context: context,
-                                              mobile: 22,
-                                              tablet: 35,
-                                            ),
-                                          ),
-                                        ),
-                                        title: Text(
-                                          name,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize:
-                                                getValueForScreenType<double>(
-                                                  context: context,
-                                                  mobile: 15,
-                                                  tablet: 22,
-                                                ),
-                                            color: AppColor.PrimaryColor,
-                                          ),
-                                        ),
-                                        subtitle: Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 5.0,
-                                          ),
-                                          child: Text(
-                                            "السعر: $price ",
-                                            style: TextStyle(
-                                              color: AppColor.grey,
-                                              fontSize:
-                                                  getValueForScreenType<double>(
-                                                    context: context,
-                                                    mobile: 13,
-                                                    tablet: 18,
-                                                  ),
-                                            ),
-                                          ),
-                                        ),
-                                        trailing: Obx(() {
-                                          final isInMySections = controller
-                                              .myunits
-                                              .any((section) {
-                                                if (section != null) {
-                                                  return section['app_teacher_id']
-                                                              .toString() ==
-                                                          item['app_teacher_id']
-                                                              .toString() &&
-                                                      section['app_lesson_id']
-                                                              .toString() ==
-                                                          item['app_lesson_id']
-                                                              .toString() &&
-                                                      section['app_class_id']
-                                                              .toString() ==
-                                                          item['app_class_id']
-                                                              .toString();
-                                                }
-                                                return false;
-                                              });
+                                  itemCount: controller.dataList.length,
+                                  itemBuilder: (context, index) {
+                                    final item = controller.dataList[index];
+                                    final name = item['name'] ?? '';
+                                    final price = item['price'].toString();
 
-                                          if (isInMySections) {
-                                            return Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.check_circle,
-                                                  color: AppColor.SecondryColor,
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text(
-                                                  "تم الاشتراك",
-                                                  style: TextStyle(
-                                                    color: AppColor.DeepPurple,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize:
+                                    return AnimationConfiguration.staggeredList(
+                                      position: index,
+                                      duration: const Duration(
+                                        milliseconds: 500,
+                                      ),
+                                      child: SlideAnimation(
+                                        horizontalOffset: 200.0,
+                                        curve: Curves.easeInOutBack,
+                                        duration: const Duration(
+                                          milliseconds: 600,
+                                        ),
+                                        child: FadeInAnimation(
+                                          child: Card(
+                                            elevation: 6,
+                                            shadowColor: AppColor.PrimaryColor,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                            ),
+                                            color: Colors.white,
+                                            child: ListTile(
+                                              contentPadding:
+                                                  EdgeInsets.symmetric(
+                                                    horizontal:
                                                         getValueForScreenType<
                                                           double
                                                         >(
                                                           context: context,
-                                                          mobile: 11,
-                                                          tablet: 17,
+                                                          mobile: 12,
+                                                          tablet: 25,
+                                                        ),
+                                                    vertical:
+                                                        getValueForScreenType<
+                                                          double
+                                                        >(
+                                                          context: context,
+                                                          mobile: 8,
+                                                          tablet: 15,
                                                         ),
                                                   ),
+                                              onTap: () {
+                                                controller.goToLesson(
+                                                  item['id'],
+                                                  item['app_lesson_id'],
+                                                );
+                                              },
+                                              leading: CircleAvatar(
+                                                radius:
+                                                    getValueForScreenType<
+                                                      double
+                                                    >(
+                                                      context: context,
+                                                      mobile: 25,
+                                                      tablet: 40,
+                                                    ),
+                                                backgroundColor:
+                                                    AppColor
+                                                        .SecondryColor.withOpacity(
+                                                      0.5,
+                                                    ),
+                                                child: Icon(
+                                                  Icons.menu_book_rounded,
+                                                  color: AppColor.PrimaryColor,
+                                                  size:
+                                                      getValueForScreenType<
+                                                        double
+                                                      >(
+                                                        context: context,
+                                                        mobile: 22,
+                                                        tablet: 35,
+                                                      ),
                                                 ),
-                                              ],
-                                            );
-                                          }
-
-                                          return InkWell(
-                                            onTap: () {
-                                              baskerc.updateBasket(
-                                                item['id'].toString(),
-                                                'unit',
-                                                item['name'],
-                                                item['price'],
-                                                baskerc.teacherName.toString(),
-                                                baskerc.className.toString(),
-                                                baskerc.subjectName.toString(),
-                                                baskerc.teacherId.toString(),
-                                                baskerc.classId.toString(),
-                                                baskerc.subjectId.toString(),
-                                                baskerc.maindepId.toString(),
-                                              );
-                                              print('add success');
-                                            },
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 5,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: AppColor.SecondryColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
                                               ),
-                                              child: Text(
-                                                "اشتراك",
+                                              title: Text(
+                                                name,
                                                 style: TextStyle(
-                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
                                                   fontSize:
                                                       getValueForScreenType<
                                                         double
                                                       >(
                                                         context: context,
-                                                        mobile: 12,
-                                                        tablet: 16,
+                                                        mobile: 15,
+                                                        tablet: 22,
                                                       ),
+                                                  color: AppColor.PrimaryColor,
                                                 ),
                                               ),
+                                              subtitle: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 5.0,
+                                                ),
+                                                child: Text(
+                                                  "السعر: $price ",
+                                                  style: TextStyle(
+                                                    color: AppColor.grey,
+                                                    fontSize:
+                                                        getValueForScreenType<
+                                                          double
+                                                        >(
+                                                          context: context,
+                                                          mobile: 13,
+                                                          tablet: 18,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                              trailing: Obx(() {
+                                                final isInMySections = controller.myunits.any((
+                                                  section,
+                                                ) {
+                                                  if (section != null) {
+                                                    return section['app_teacher_id']
+                                                                .toString() ==
+                                                            item['app_teacher_id']
+                                                                .toString() &&
+                                                        section['app_lesson_id']
+                                                                .toString() ==
+                                                            item['app_lesson_id']
+                                                                .toString() &&
+                                                        section['app_class_id']
+                                                                .toString() ==
+                                                            item['app_class_id']
+                                                                .toString();
+                                                  }
+                                                  return false;
+                                                });
+
+                                                if (isInMySections) {
+                                                  return Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.check_circle,
+                                                        color: AppColor
+                                                            .SecondryColor,
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      Text(
+                                                        "تم الاشتراك",
+                                                        style: TextStyle(
+                                                          color: AppColor
+                                                              .DeepPurple,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize:
+                                                              getValueForScreenType<
+                                                                double
+                                                              >(
+                                                                context:
+                                                                    context,
+                                                                mobile: 11,
+                                                                tablet: 17,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                }
+
+                                                return InkWell(
+                                                  onTap: () {
+                                                    baskerc.updateBasket(
+                                                      item['id'].toString(),
+                                                      'unit',
+                                                      item['name'],
+                                                      item['price'],
+                                                      baskerc.teacherName
+                                                          .toString(),
+                                                      baskerc.className
+                                                          .toString(),
+                                                      baskerc.subjectName
+                                                          .toString(),
+                                                      baskerc.teacherId
+                                                          .toString(),
+                                                      baskerc.classId
+                                                          .toString(),
+                                                      baskerc.subjectId
+                                                          .toString(),
+                                                      baskerc.maindepId
+                                                          .toString(),
+                                                    );
+                                                    print('add success');
+                                                  },
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 5,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColor
+                                                          .SecondryColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      "اشتراك",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize:
+                                                            getValueForScreenType<
+                                                              double
+                                                            >(
+                                                              context: context,
+                                                              mobile: 12,
+                                                              tablet: 16,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }),
                                             ),
-                                          );
-                                        }),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      )
-                    : const Center(child: Text("لا يوجد وحدات"))
-              : const Loading(),
+                              ),
+                            )
+                          : const Center(child: Text("لا يوجد وحدات"))
+                    : const Loading(),
+              ),
+            ),
+          ],
         ),
         floatingActionButton: Obx(
           () => SizedBox(

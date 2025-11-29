@@ -2,9 +2,27 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
+import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class SubjectsController extends GetxController {
   goToTeachers(int classid, int selectedItem) {
+    // Find the name of the selected subject
+    final selectedSubject = dataList.firstWhere(
+      (element) => element['id'] == selectedItem,
+      orElse: () => {},
+    );
+    final String subjectName = selectedSubject['name'] ?? 'المادة';
+
+    // Add Breadcrumb
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(
+        title: subjectName,
+        route: AppRoute.teacher,
+        arguments: {"subjetcsid": selectedItem, 'classid': classid},
+      ),
+    );
+
     Get.toNamed(
       AppRoute.teacher,
       arguments: {"subjetcsid": selectedItem, 'classid': classid},

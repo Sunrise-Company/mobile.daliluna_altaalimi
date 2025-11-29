@@ -698,7 +698,7 @@ class ChatPage extends GetView<ChatTeacherController> {
     if (rawPath.startsWith('/')) {
       rawPath = rawPath.substring(1);
     }
-    String filePath = 'https://arabicacademic.com/$rawPath';
+    String filePath = '${AppLink.baseUrl}/$rawPath';
     String fileType = fileData['type'];
     String fileName = path.basename(filePath);
 

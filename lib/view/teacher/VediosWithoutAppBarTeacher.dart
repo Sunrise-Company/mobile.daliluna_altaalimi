@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:daliluna_altaalimi/constant.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -51,7 +52,7 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
       //                                 print(videos[index]['files']);
       //                                 Get.toNamed('/VideoLessonso', arguments: {
       //                                   'url':
-      //                                       'https://arabicacademic.com/storage//' +
+      //                                       '${AppLink.baseUrl}/storage//' +
       //                                           videos[index]['file'],
       //                                   'videoFiles': videos[index]['files']
       //                                 });
@@ -281,8 +282,7 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
                   Get.toNamed(
                     '/VideoLessonso',
                     arguments: {
-                      'url':
-                          'https://arabicacademic.com/storage/' + video['file'],
+                      'url': '${AppLink.baseUrl}/storage/' + video['file'],
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
                     },
@@ -537,7 +537,7 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
   //               } else {
   //                 Get.toNamed('/VideoLessonso', arguments: {
   //                   'url':
-  //                       'https://arabicacademic.com/storage/' + video['file'],
+  //                       '${AppLink.baseUrl}/storage/' + video['file'],
   //                   'videoFiles': video['files'],
   //                   'lesson_dep_file_id': video['id'],
   //                 });
