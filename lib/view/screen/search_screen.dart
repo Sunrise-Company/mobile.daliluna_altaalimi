@@ -145,6 +145,69 @@ class SearchScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBar(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: getValueForScreenType<double>(
+              context: context,
+              mobile: 16,
+              tablet: 24,
+            ),
+            vertical: 8,
+          ),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Obx(
+              () => DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: searchController.selectedSearchType.value,
+                  isExpanded: true,
+                  icon: Icon(
+                    Icons.arrow_drop_down,
+                    color: AppColor.PrimaryColor,
+                  ),
+                  items: searchController.searchTypes.map((String type) {
+                    return DropdownMenuItem<String>(
+                      value: type,
+                      child: Text(
+                        type,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      searchController.selectedSearchType.value = newValue;
+                      // Trigger search again if there is a query
+                      if (searchController.searchQuery.value.isNotEmpty) {
+                        searchController.search(
+                          searchController.searchQuery.value,
+                          maintainTab: true,
+                        );
+                      }
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        _buildSearchTextField(context),
+      ],
+    );
+  }
+
+  Widget _buildSearchTextField(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: getValueForScreenType<double>(

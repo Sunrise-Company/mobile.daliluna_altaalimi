@@ -8,7 +8,22 @@ class SearchController extends GetxController {
   final RxMap<String, dynamic> searchResults = <String, dynamic>{}.obs;
   final RxInt currentTabIndex = 0.obs;
 
-  final List<String> tabs = ['المعاهد', 'المدرسون', 'المواد', 'الوحدات'];
+  final RxString selectedSearchType = 'منهاج'.obs;
+  final List<String> searchTypes = [
+    'منهاج',
+    'مكثفة',
+    'تأسيس',
+    'أوراق عمل',
+    'جلسات امتحانية',
+  ];
+
+  final RxList<String> tabs = <String>[
+    'المعاهد',
+    'المدرسون',
+    'المواد',
+    'الوحدات',
+  ].obs;
+
   final TextEditingController textController = TextEditingController();
 
   @override
@@ -23,7 +38,7 @@ class SearchController extends GetxController {
     search('');
   }
 
-  Future<void> search(String query) async {
+  Future<void> search(String query, {bool maintainTab = false}) async {
     if (query.isEmpty) {
       searchResults.clear();
       return;
@@ -31,11 +46,20 @@ class SearchController extends GetxController {
 
     try {
       isLoading.value = true;
-      final results = await ApiService.search(query);
+      // Pass the selected type to the API only if on the Units/Sections tab (index 3)
+      String? type = currentTabIndex.value == 3
+          ? selectedSearchType.value
+          : null;
+      final results = await ApiService.search(query, type: type);
       searchResults.value = results;
 
-      // Automatic tab selection logic
-      currentTabIndex.value = getInitialTabIndex(results);
+      // Update tabs based on selection
+      updateTabs();
+
+      // Automatic tab selection logic only if not maintaining tab
+      if (!maintainTab) {
+        currentTabIndex.value = getInitialTabIndex(results);
+      }
     } catch (e) {
       Get.snackbar('خطأ', 'حدث خطأ أثناء البحث');
       print('Search error: $e');
@@ -44,11 +68,23 @@ class SearchController extends GetxController {
     }
   }
 
+  void updateTabs() {
+    if (selectedSearchType.value == 'منهاج') {
+      tabs.assignAll(['المعاهد', 'المدرسون', 'المواد', 'الوحدات',]);
+    } else {
+      // For other types, show 'Sections' instead of 'Units' (or as appropriate)
+      // Assuming 'Sections' (الأقسام) is the desired tab for other types
+      tabs.assignAll(['المعاهد', 'المدرسون', 'المواد', 'الأقسام']);
+    }
+  }
+
   int getInitialTabIndex(Map<String, dynamic> results) {
     final institutes = results['institutes']?['data'] ?? [];
     final lessons = results['lessons']?['data'] ?? [];
     final teachers = results['teachers']?['data'] ?? [];
     final lectures = results['lectures']?['data'] ?? [];
+    final units = results['units']?['data'] ?? [];
+    final sections = results['sections']?['data'] ?? [];
 
     // 1. If institutes not empty -> Tab 0 (Institutes)
     if (institutes.isNotEmpty) {
@@ -64,9 +100,11 @@ class SearchController extends GetxController {
       return 2;
     }
 
-    // 4. If lectures not empty -> Tab 3 (Lectures)
-    if (lectures.isNotEmpty) {
-      return 3;
+    // 4. If units/lectures/sections not empty -> Tab 3
+    if (selectedSearchType.value == 'منهاج') {
+      if (units.isNotEmpty || lectures.isNotEmpty) return 3;
+    } else {
+      if (sections.isNotEmpty) return 3;
     }
 
     // 5. If all empty -> stay on Tab 0
@@ -74,7 +112,16 @@ class SearchController extends GetxController {
   }
 
   void changeTab(int index) {
+    final oldIndex = currentTabIndex.value;
     currentTabIndex.value = index;
+
+    // If switching TO index 3, or FROM index 3, we might need to re-fetch to apply/remove type.
+    // Only if there is a search query.
+    if (searchQuery.value.isNotEmpty) {
+      if (index == 3 || oldIndex == 3) {
+        search(searchQuery.value, maintainTab: true);
+      }
+    }
   }
 
   List<dynamic> get currentResults {
@@ -86,7 +133,17 @@ class SearchController extends GetxController {
       case 2:
         return searchResults['lessons']?['data'] ?? [];
       case 3:
-        return searchResults['lectures']?['data'] ?? [];
+        if (selectedSearchType.value == 'منهاج') {
+          // Try units first, then lectures if units empty (or combine/logic as needed)
+          // Based on user request: "if he chose type 'minhaj' it will show him units"
+          return searchResults['units']?['data'] ??
+              searchResults['lectures']?['data'] ??
+              [];
+        } else {
+          // "if he chose any other section it will show him from the sections"
+          return searchResults['sections']?['data'] ?? [];
+        }
+
       default:
         return [];
     }

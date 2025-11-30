@@ -41,13 +41,19 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> search(String query) async {
+  static Future<Map<String, dynamic>> search(
+    String query, {
+    String? type,
+  }) async {
     try {
       log('Search query: $query');
       log('${AppLink.appMainSearch}?q=$query');
-      final response = await http.post(
-        Uri.parse('${AppLink.appMainSearch}?q=$query'),
-      );
+      String url = '${AppLink.appMainSearch}?q=$query';
+      if (type != null) {
+        url += '&type=$type';
+      }
+      log(url);
+      final response = await http.post(Uri.parse(url));
 
       log(response.body.toString());
       if (response.statusCode == 200) {
