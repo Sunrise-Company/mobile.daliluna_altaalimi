@@ -106,15 +106,18 @@ class StartExamControllerss extends GetxController {
       for (int i = 0; i < check.length; i++) {
         // print(questionlist[i].quesType);
         if (questionlist[i].quesType == 1) {
-          int k =
-              jsonDecode(questionlist[i].option!.myOptions.toString()).length;
+          int k = jsonDecode(
+            questionlist[i].option!.myOptions.toString(),
+          ).length;
           final List<String> list = [];
           for (int j = 0; j < k; j++) {
             if (check[i]()[jsonDecode(
-                    questionlist[i].option!.myOptions.toString())[j]] ==
+                  questionlist[i].option!.myOptions.toString(),
+                )[j]] ==
                 true) {
               list.add(
-                  jsonDecode(questionlist[i].option!.myOptions.toString())[j]);
+                jsonDecode(questionlist[i].option!.myOptions.toString())[j],
+              );
             }
           }
 
@@ -135,18 +138,20 @@ class StartExamControllerss extends GetxController {
       print(Get.arguments['id']);
       print("answerrrrrrrrr$answer");
       // print(localStorage.getString('student_id').toString());
-      Map<String, List<String>> transformedData =
-          transformSubmitListToMap(answer);
+      Map<String, List<String>> transformedData = transformSubmitListToMap(
+        answer,
+      );
 
       // print("امتحانات");
       print(student_id.toString());
       res = await http.post(
-          Uri.parse(AppLink.server + "/dashboard/student/main_exam/submit"),
-          body: {
-            "student_id": student_id.toString(),
-            "content_id": Get.arguments['id'].toString(),
-            'answer': jsonEncode(transformedData)
-          });
+        Uri.parse(AppLink.server + "/dashboard/student/main_exam/submit"),
+        body: {
+          "student_id": student_id.toString(),
+          "content_id": Get.arguments['id'].toString(),
+          'answer': jsonEncode(transformedData),
+        },
+      );
       print(jsonEncode(transformedData));
       print(res.statusCode);
 
@@ -158,14 +163,17 @@ class StartExamControllerss extends GetxController {
       print(Get.arguments['id'].toString());
       if (body['status'] == 1) {
         issubmit(false);
-        Get.snackbar('', '',
-            titleText: Text(
-              'تم الارسال  بنجاح',
-              style: TextStyle(
-                  // color: AppColor.DeepPurple,
-                  ),
-              textAlign: TextAlign.right,
-            ));
+        Get.snackbar(
+          '',
+          '',
+          titleText: Text(
+            'تم الارسال  بنجاح',
+            style: TextStyle(
+              // color: AppColor.DeepPurple,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        );
         // isload(true);
         isloded.value = false;
         fetchquiz();
@@ -174,33 +182,37 @@ class StartExamControllerss extends GetxController {
         controllerss.dataListExam.value = [];
         controllerss.isloded.value = false;
         controllerss.MainExam();
-        Get.toNamed(
-          '/homepage',
-        );
+        Get.toNamed('/homepage');
         // Get.close(3);
       } else if (body['status'] == 5) {
         issubmit(false);
 
-        Get.snackbar('', '',
-            titleText: Text(
-              'لا يمكن التقديم مرتين',
-              style: TextStyle(
-                  // color: AppColor.DeepPurple,
-                  ),
-              textAlign: TextAlign.right,
-            ));
+        Get.snackbar(
+          '',
+          '',
+          titleText: Text(
+            'لا يمكن التقديم مرتين',
+            style: TextStyle(
+              // color: AppColor.DeepPurple,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        );
         // Get.close(3);
       } else if (body['status'] == 6) {
         issubmit(false);
 
-        Get.snackbar('', '',
-            titleText: Text(
-              "انتهى الوقت",
-              style: TextStyle(
-                  // color: AppColor.DeepPurple,
-                  ),
-              textAlign: TextAlign.right,
-            ));
+        Get.snackbar(
+          '',
+          '',
+          titleText: Text(
+            "انتهى الوقت",
+            style: TextStyle(
+              // color: AppColor.DeepPurple,
+            ),
+            textAlign: TextAlign.right,
+          ),
+        );
         // Get.close(3);
       } else {
         issubmit(false);
@@ -223,6 +235,14 @@ class StartExamControllerss extends GetxController {
     // usertype = localStorage.get('type');
     print("uuuuuuser");
     print(usertype);
+    print(usertype);
+
+    if (Get.arguments == null) {
+      print("Error: Get.arguments is null");
+      Get.snackbar("Error", "Missing exam arguments");
+      return;
+    }
+
     var examid = Get.arguments['id'];
     type = Get.arguments['type'];
 
@@ -231,17 +251,23 @@ class StartExamControllerss extends GetxController {
     print(examid);
 
     print("الامتحانات");
-    respons = await http.get(Uri.parse(AppLink.server +
-        "/dashboard/student/main_exam/start/" +
-        examid.toString() +
-        "/" +
-        student_id.toString()));
+    respons = await http.get(
+      Uri.parse(
+        AppLink.server +
+            "/dashboard/student/main_exam/start/" +
+            examid.toString() +
+            "/" +
+            student_id.toString(),
+      ),
+    );
     // }
-    print('' +
-        "dashboard/student/main_exam/start/" +
-        examid.toString() +
-        "/" +
-        student_id.toString());
+    print(
+      '' +
+          "dashboard/student/main_exam/start/" +
+          examid.toString() +
+          "/" +
+          student_id.toString(),
+    );
     print(respons.body);
     print(respons.statusCode);
 
@@ -255,7 +281,7 @@ class StartExamControllerss extends GetxController {
         Get.back();
 
         Get.snackbar("لا يمكن التقديم", 'لم يتم اضافة الاسئلة ');
-// Get.toNamed('/homepage');
+        // Get.toNamed('/homepage');
 
         return;
       } else if (body['status'].toString() == '6') {
@@ -263,14 +289,14 @@ class StartExamControllerss extends GetxController {
         // Get.back();
 
         Get.snackbar("لا يمكن التقديم", 'لقد انتهى وقتك للتقديم');
-// Get.toNamed(ظ'/homepage');
+        // Get.toNamed(ظ'/homepage');
         // return;
       }
 
       testmodel = TestModel.fromJson(body);
       questionlist(testmodel.questions);
-      duration =
-          ((int.parse(testmodel.exam_period.toString()) * 60 - 10)).toInt();
+      duration = ((int.parse(testmodel.exam_period.toString()) * 60 - 10))
+          .toInt();
       print("///////////*****/");
       print(duration);
 
@@ -312,11 +338,11 @@ class StartExamControllerss extends GetxController {
           print("مؤتمت");
           //اتمتة
           var check$i = HashMap().obs;
-          for (int j = 0;
-              j <
-                  jsonDecode(questionlist[i].option!.myOptions.toString())
-                      .length;
-              j++) {
+          for (
+            int j = 0;
+            j < jsonDecode(questionlist[i].option!.myOptions.toString()).length;
+            j++
+          ) {
             // print(
             //     jsonDecode(questionlist[i].option!.myOptions.toString()).length);
             // print(jsonDecode(questionlist[i].option!.myOptions.toString())[j]
@@ -324,9 +350,10 @@ class StartExamControllerss extends GetxController {
             // print('this is the content ');
             // print(questionlist[i].section!.title);
             // print(questionlist[i].section!.type);
-            check$i()[
-                jsonDecode(questionlist[i].option!.myOptions.toString())[j]
-                    .toString()] = false;
+            check$i()[jsonDecode(
+                  questionlist[i].option!.myOptions.toString(),
+                )[j].toString()] =
+                false;
           }
           check.add(check$i);
           int checkl = check.length - 1;

@@ -13,6 +13,7 @@ import '../../../core/constant/imageasset.dart';
 import '../../widget/GetValueForScreen.dart';
 import '../../widget/customDrawer.dart';
 import '../../widget/loading.dart';
+import 'package:daliluna_altaalimi/core/constant/routes.dart';
 
 class QuizScreen extends StatelessWidget {
   MainExamControllerss controller = Get.put(MainExamControllerss());
@@ -686,7 +687,64 @@ class QuizScreen extends StatelessWidget {
                                       child: Text("لا يوجد امتحانات"),
                                     )
                             : const Center(child: CircularProgressIndicator())
-                      : const Center(child: Text("الرجاء تسجيل الدخول")),
+                      : Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.lock_outline_rounded,
+                                size: 80,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                "عذراً، يجب عليك تسجيل الدخول أولاً",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                "قم بتسجيل الدخول لعرض الامتحانات المتاحة لك",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Get.toNamed(AppRoute.login);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColor.PrimaryColor,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 30,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                ),
+                                icon: const Icon(
+                                  Icons.login_rounded,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  "تسجيل الدخول",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                 ),
               ),
             ),

@@ -250,7 +250,7 @@ class SectionsSubject extends GetView<SectionsSubjectController> {
                                       child:
                                           item['main_dep']['type'].toString() !=
                                               '4'
-                                          ? CustomListTileSection(
+                                          ? CustomListTileSectionWidget(
                                               item: item,
                                               isChecking: isChecking,
                                               onTap: () {

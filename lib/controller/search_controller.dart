@@ -47,9 +47,16 @@ class SearchController extends GetxController {
     try {
       isLoading.value = true;
       // Pass the selected type to the API only if on the Units/Sections tab (index 3)
-      String? type = currentTabIndex.value == 3
-          ? selectedSearchType.value
-          : null;
+      String? type;
+      if (currentTabIndex.value == 3) {
+        // Transform the type based on selection
+        if (selectedSearchType.value == 'منهاج') {
+          type = 'units';
+        } else {
+          type = 'lesson_deps';
+        }
+      }
+
       final results = await ApiService.search(query, type: type);
       searchResults.value = results;
 
@@ -70,7 +77,7 @@ class SearchController extends GetxController {
 
   void updateTabs() {
     if (selectedSearchType.value == 'منهاج') {
-      tabs.assignAll(['المعاهد', 'المدرسون', 'المواد', 'الوحدات',]);
+      tabs.assignAll(['المعاهد', 'المدرسون', 'المواد', 'الوحدات']);
     } else {
       // For other types, show 'Sections' instead of 'Units' (or as appropriate)
       // Assuming 'Sections' (الأقسام) is the desired tab for other types
@@ -82,9 +89,8 @@ class SearchController extends GetxController {
     final institutes = results['institutes']?['data'] ?? [];
     final lessons = results['lessons']?['data'] ?? [];
     final teachers = results['teachers']?['data'] ?? [];
-    final lectures = results['lectures']?['data'] ?? [];
     final units = results['units']?['data'] ?? [];
-    final sections = results['sections']?['data'] ?? [];
+    final lessonDeps = results['lesson_deps']?['data'] ?? [];
 
     // 1. If institutes not empty -> Tab 0 (Institutes)
     if (institutes.isNotEmpty) {
@@ -100,11 +106,11 @@ class SearchController extends GetxController {
       return 2;
     }
 
-    // 4. If units/lectures/sections not empty -> Tab 3
+    // 4. If units/lesson_deps not empty -> Tab 3
     if (selectedSearchType.value == 'منهاج') {
-      if (units.isNotEmpty || lectures.isNotEmpty) return 3;
+      if (units.isNotEmpty) return 3;
     } else {
-      if (sections.isNotEmpty) return 3;
+      if (lessonDeps.isNotEmpty) return 3;
     }
 
     // 5. If all empty -> stay on Tab 0
@@ -134,14 +140,11 @@ class SearchController extends GetxController {
         return searchResults['lessons']?['data'] ?? [];
       case 3:
         if (selectedSearchType.value == 'منهاج') {
-          // Try units first, then lectures if units empty (or combine/logic as needed)
-          // Based on user request: "if he chose type 'minhaj' it will show him units"
-          return searchResults['units']?['data'] ??
-              searchResults['lectures']?['data'] ??
-              [];
+          // For 'منهاج' type, show units
+          return searchResults['units']?['data'] ?? [];
         } else {
-          // "if he chose any other section it will show him from the sections"
-          return searchResults['sections']?['data'] ?? [];
+          // For other types (مكثفة, تأسيس, أوراق عمل, جلسات امتحانية), show lesson_deps
+          return searchResults['lesson_deps']?['data'] ?? [];
         }
 
       default:

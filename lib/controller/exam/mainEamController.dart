@@ -16,16 +16,13 @@ class MainExamControllerss extends GetxController {
   RxBool isloded = false.obs;
   Future<void> launchInBrowser(Uri url) async {
     print(url);
-    if (!await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    )) {
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $url';
     }
   }
 
   RxList<dynamic> dataListExam = <dynamic>[].obs;
-// RxListString file=[].obs;
+  // RxListString file=[].obs;
   RxList<File> file = <File>[].obs;
   RxList<String> basefile = <String>[].obs;
   RxList<String> extensions = <String>[].obs;
@@ -34,16 +31,18 @@ class MainExamControllerss extends GetxController {
   void openfile() async {
     try {
       result = await FilePicker.platform.pickFiles(
-          type: FileType.custom,
-          allowedExtensions: ['jpg', 'pdf', 'doc'],
-          allowMultiple: true);
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'pdf', 'doc'],
+        allowMultiple: true,
+      );
 
       for (int i = 0; i < result!.files.length; i++) {
         print(i);
 
         file.add(File(result!.files[i].path.toString()));
-        extensions
-            .add(p.extension(File(result!.files[i].path.toString()).path));
+        extensions.add(
+          p.extension(File(result!.files[i].path.toString()).path),
+        );
       }
     } catch (e) {
       print(e);
@@ -76,7 +75,8 @@ class MainExamControllerss extends GetxController {
       var request = http.MultipartRequest(
         'POST',
         Uri.parse(
-            'https://aasvs.com/' + "dashboard/student/upload_exam_files2"),
+          'https://aasvs.com/' + "dashboard/student/upload_exam_files2",
+        ),
       );
 
       request.fields['student_id'] = studentid.toString();
@@ -87,9 +87,7 @@ class MainExamControllerss extends GetxController {
           'file[$i]',
           file[i].path,
         );
-        print(
-          file[i].path,
-        );
+        print(file[i].path);
         request.files.add(multipartFile);
       }
       print('Uploaded files:');
@@ -121,19 +119,19 @@ class MainExamControllerss extends GetxController {
       }
     } catch (e) {
       // isConnection(false);
-      Get.snackbar('تنبيه', "لا يوجد اتصال بالانترنت",
-          dismissDirection: DismissDirection.startToEnd,
-          duration: Duration(minutes: 10),
-          mainButton: TextButton(
-            onPressed: () {
-              Get.closeCurrentSnackbar();
-              postaddjustification(itemid);
-            },
-            child: Text(
-              'إعادة',
-              style: TextStyle(color: Colors.red),
-            ),
-          ));
+      Get.snackbar(
+        'تنبيه',
+        "لا يوجد اتصال بالانترنت",
+        dismissDirection: DismissDirection.startToEnd,
+        duration: Duration(minutes: 10),
+        mainButton: TextButton(
+          onPressed: () {
+            Get.closeCurrentSnackbar();
+            postaddjustification(itemid);
+          },
+          child: Text('إعادة', style: TextStyle(color: Colors.red)),
+        ),
+      );
     }
   }
 
@@ -149,13 +147,17 @@ class MainExamControllerss extends GetxController {
 
       print("urlll");
       final response = await http.get(
-        Uri.parse(AppLink.server +
-            '/dashboard/student/main_exam/' +
-            student_id.toString()),
+        Uri.parse(
+          AppLink.server +
+              '/dashboard/student/main_exam/' +
+              student_id.toString(),
+        ),
       );
-      print(AppLink.server +
-          '/dashboard/student/main_exam/' +
-          student_id.toString());
+      print(
+        AppLink.server +
+            '/dashboard/student/main_exam/' +
+            student_id.toString(),
+      );
       print(response.body);
       if (response.statusCode == 200) {
         isloded.value = true;
@@ -163,12 +165,14 @@ class MainExamControllerss extends GetxController {
         print(responseData);
         dataListExam.value = responseData['exams'];
         print(
-            "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m");
+          "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m",
+        );
         print(dataListExam.length);
 
         print(dataListExam);
         print(
-            "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m");
+          "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m",
+        );
         update();
       } else {
         throw Exception('Failed to load exam/');
@@ -180,18 +184,14 @@ class MainExamControllerss extends GetxController {
 
   goToItem(String examid) {
     print("sss");
-    Get.toNamed('/test', arguments: {
-      "id": examid,
-    });
+    Get.toNamed('/test', arguments: {"id": examid});
     print("klklklkklkl");
     // dataList.clear();
   }
 
   goToSoltions(int examid) {
     print("sss");
-    Get.toNamed('/examsoltuions', arguments: {
-      "id": examid,
-    });
+    Get.toNamed('/examsoltuions', arguments: {"id": examid});
     print("klklklkklkl");
     // dataList.clear();
   }

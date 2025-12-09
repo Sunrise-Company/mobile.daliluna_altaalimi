@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:daliluna_altaalimi/controller/sectionssubject_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:get/get.dart';
@@ -7,16 +8,24 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:daliluna_altaalimi/controller/search_controller.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
+import 'package:daliluna_altaalimi/controller/unitssubject_controller.dart';
 import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/view/widget/basketWidget.dart';
+import 'package:daliluna_altaalimi/view/widget/customcardsections.dart';
 
 import 'package:daliluna_altaalimi/linkapi.dart';
 
 class SearchScreen extends StatelessWidget {
   final SearchController searchController = Get.put(SearchController());
+  final SectionsSubjectController sectionsController = Get.put(
+    SectionsSubjectController(),
+  );
+  final UnitsSubjectController unitsController = Get.put(
+    UnitsSubjectController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +72,12 @@ class SearchScreen extends StatelessWidget {
       body: Column(
         children: [
           _buildSearchBar(context),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: _buildTabs(context),
           ),
+          _buildFilterDropdown(context),
           Expanded(
             child: Obx(() {
               if (searchController.isLoading.value) {
@@ -145,69 +156,6 @@ class SearchScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBar(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: getValueForScreenType<double>(
-              context: context,
-              mobile: 16,
-              tablet: 24,
-            ),
-            vertical: 8,
-          ),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Obx(
-              () => DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: searchController.selectedSearchType.value,
-                  isExpanded: true,
-                  icon: Icon(
-                    Icons.arrow_drop_down,
-                    color: AppColor.PrimaryColor,
-                  ),
-                  items: searchController.searchTypes.map((String type) {
-                    return DropdownMenuItem<String>(
-                      value: type,
-                      child: Text(
-                        type,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      searchController.selectedSearchType.value = newValue;
-                      // Trigger search again if there is a query
-                      if (searchController.searchQuery.value.isNotEmpty) {
-                        searchController.search(
-                          searchController.searchQuery.value,
-                          maintainTab: true,
-                        );
-                      }
-                    }
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-        _buildSearchTextField(context),
-      ],
-    );
-  }
-
-  Widget _buildSearchTextField(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: getValueForScreenType<double>(
@@ -444,6 +392,58 @@ class SearchScreen extends StatelessWidget {
     });
   }
 
+  String? _getProvinceName(Map<String, dynamic> item) {
+    // 1. Direct city/governorate field (String or Map)
+    if (item['city'] != null) {
+      if (item['city'] is String) return item['city'];
+      if (item['city'] is Map && item['city']['name'] != null) {
+        return item['city']['name'];
+      }
+    }
+    if (item['governorate'] != null) {
+      if (item['governorate'] is String) return item['governorate'];
+      if (item['governorate'] is Map && item['governorate']['name'] != null) {
+        return item['governorate']['name'];
+      }
+    }
+
+    // 2. Nested in classes -> institute -> city
+    if (item['classes'] != null &&
+        item['classes']['institute'] != null &&
+        item['classes']['institute']['city'] != null) {
+      final city = item['classes']['institute']['city'];
+      if (city is String) return city;
+      if (city is Map && city['name'] != null) return city['name'];
+    }
+
+    // 3. Nested in lessons (for teachers)
+    if (item['lessons'] != null && (item['lessons'] as List).isNotEmpty) {
+      final firstLesson = item['lessons'][0];
+      if (firstLesson['classes'] != null &&
+          firstLesson['classes']['institute'] != null &&
+          firstLesson['classes']['institute']['city'] != null) {
+        final city = firstLesson['classes']['institute']['city'];
+        if (city is String) return city;
+        if (city is Map && city['name'] != null) return city['name'];
+      }
+    }
+
+    // 4. Nested in app_classes_lessons_main_dep (for lesson_deps/sections)
+    if (item['app_classes_lessons_main_dep'] != null &&
+        (item['app_classes_lessons_main_dep'] as List).isNotEmpty) {
+      final mainDep = item['app_classes_lessons_main_dep'][0];
+      if (mainDep['app_class'] != null &&
+          mainDep['app_class']['institute'] != null &&
+          mainDep['app_class']['institute']['city'] != null) {
+        final city = mainDep['app_class']['institute']['city'];
+        if (city is String) return city;
+        if (city is Map && city['name'] != null) return city['name'];
+      }
+    }
+
+    return null;
+  }
+
   Widget _buildResultItem(dynamic item) {
     switch (searchController.currentTabIndex.value) {
       case 0: // Institutes
@@ -452,8 +452,12 @@ class SearchScreen extends StatelessWidget {
         return _buildTeacherItem(item);
       case 2: // Lessons
         return _buildLessonItem(item);
-      case 3: // Lectures
-        return _buildLectureItem(item);
+      case 3: // Units or Lesson Deps
+        if (searchController.selectedSearchType.value == 'منهاج') {
+          return _buildUnitItem(item);
+        } else {
+          return _buildLessonDepItem(item);
+        }
       default:
         return SizedBox.shrink();
     }
@@ -572,9 +576,28 @@ class SearchScreen extends StatelessWidget {
 
   void _navigateToTeacherCourses(Map<String, dynamic> teacher) {
     if (teacher['id'] == null) return;
-    log(
-      "${{'teacher_id': teacher['id'], 'teacher_name': teacher['name'], 'teacher_image': teacher['image'], 'subjetcsid': teacher['subject_id'] ?? 0, 'classid': teacher['class_id'] ?? 0}}",
-    );
+    log(teacher.toString());
+
+    // Extract subject_id and class_id safely
+    String subjectId = (teacher['subject_id'] ?? 0).toString();
+    String classId = (teacher['class_id'] ?? 0).toString();
+
+    // Fallback extraction from lessons if top-level is missing/zero
+    if ((subjectId == '0' || classId == '0') &&
+        teacher['lessons'] != null &&
+        (teacher['lessons'] as List).isNotEmpty) {
+      final firstLesson = teacher['lessons'][0];
+
+      subjectId = firstLesson['id'].toString();
+
+      if (firstLesson['class_id'] != null) {
+        classId = firstLesson['class_id'].toString();
+      } else if (firstLesson['classes'] != null &&
+          firstLesson['classes']['id'] != null) {
+        classId = firstLesson['classes']['id'].toString();
+      }
+    }
+
     // Navigate to SectionSelected with teacher's sections
     Get.toNamed(
       AppRoute.sectionSelected,
@@ -582,8 +605,8 @@ class SearchScreen extends StatelessWidget {
         'teacher_id': teacher['id'],
         'teacher_name': teacher['name'],
         'teacher_image': teacher['image'],
-        'subjetcsid': teacher['subject_id'] ?? 0,
-        'classid': teacher['class_id'] ?? 0,
+        'subjetcsid': subjectId,
+        'classid': classId,
       },
     );
   }
@@ -704,6 +727,30 @@ class SearchScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                       ],
+                      if (_getProvinceName(teacher) != null) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: AppColor.PrimaryColor,
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                _getProvinceName(teacher)!,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                      ],
                       Row(
                         children: [
                           Icon(
@@ -774,7 +821,7 @@ class SearchScreen extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            _navigateToLessonDetails(lesson);
+            _navigateToTeacherSubject(lesson);
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
@@ -840,12 +887,6 @@ class SearchScreen extends StatelessWidget {
                       SizedBox(height: 6),
                       Row(
                         children: [
-                          Icon(
-                            Icons.book,
-                            size: 14,
-                            color: AppColor.PrimaryColor,
-                          ),
-                          SizedBox(width: 4),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,6 +900,30 @@ class SearchScreen extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
+                                if (_getProvinceName(lesson) != null) ...[
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        size: 14,
+                                        color: AppColor.PrimaryColor,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          _getProvinceName(lesson)!,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: Colors.grey[600],
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -867,16 +932,47 @@ class SearchScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.add_shopping_cart,
-                    color: AppColor.PrimaryColor,
-                    size: 24,
-                  ),
-                  onPressed: () {
-                    _addLessonToCart(lesson);
-                  },
-                ),
+
+                // Obx(() {
+                //   final isInMySections = sectionsController.mysection.any((
+                //     section,
+                //   ) {
+                //     if (section != null) {
+                //       return section['id'].toString() ==
+                //           lesson['id'].toString();
+                //     }
+                //     return false;
+                //   });
+
+                //   if (isInMySections) {
+                //     return Row(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Icon(Icons.check_circle, color: AppColor.SecondryColor),
+                //         SizedBox(width: 5),
+                //         Text(
+                //           "تم الاشتراك",
+                //           style: TextStyle(
+                //             color: AppColor.DeepPurple,
+                //             fontWeight: FontWeight.bold,
+                //             fontSize: 12,
+                //           ),
+                //         ),
+                //       ],
+                //     );
+                //   }
+
+                //   return IconButton(
+                //     icon: Icon(
+                //       Icons.add_shopping_cart,
+                //       color: AppColor.PrimaryColor,
+                //       size: 24,
+                //     ),
+                //     onPressed: () {
+                //       _addLessonToCart(lesson);
+                //     },
+                //   );
+                // }),
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
@@ -890,7 +986,11 @@ class SearchScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLectureItem(Map<String, dynamic> lecture) {
+  Widget _buildUnitItem(Map<String, dynamic> unit) {
+    final teacher = unit['teacher'];
+    final lesson = unit['lesson'];
+    final price = unit['price'] ?? 0;
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -908,7 +1008,7 @@ class SearchScreen extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            _navigateToLectureDetails(lecture);
+            _navigateToUnitDetails(unit);
           },
           borderRadius: BorderRadius.circular(12),
           child: Padding(
@@ -917,9 +1017,9 @@ class SearchScreen extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: lecture['image'] != null
+                  child: lesson != null && lesson['image'] != null
                       ? CachedNetworkImage(
-                          imageUrl: '${AppLink.image}/${lecture['image']}',
+                          imageUrl: '${AppLink.image}/${lesson['image']}',
                           width: 70,
                           height: 70,
                           fit: BoxFit.cover,
@@ -928,7 +1028,7 @@ class SearchScreen extends StatelessWidget {
                             height: 70,
                             color: Colors.grey[200],
                             child: Icon(
-                              Icons.video_library,
+                              Icons.library_books,
                               size: 35,
                               color: Colors.grey,
                             ),
@@ -938,7 +1038,7 @@ class SearchScreen extends StatelessWidget {
                             height: 70,
                             color: Colors.grey[200],
                             child: Icon(
-                              Icons.video_library,
+                              Icons.library_books,
                               size: 35,
                               color: Colors.grey,
                             ),
@@ -949,7 +1049,7 @@ class SearchScreen extends StatelessWidget {
                           height: 70,
                           color: Colors.grey[200],
                           child: Icon(
-                            Icons.video_library,
+                            Icons.library_books,
                             size: 35,
                             color: Colors.grey,
                           ),
@@ -962,7 +1062,7 @@ class SearchScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        lecture['name'] ?? '',
+                        unit['name'] ?? '',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -972,53 +1072,80 @@ class SearchScreen extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.person,
-                            size: 14,
-                            color: AppColor.PrimaryColor,
-                          ),
-                          SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              lecture['unit']?['teacher']?['name'] ??
-                                  'غير محدد',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                      if (teacher != null) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 14,
+                              color: AppColor.PrimaryColor,
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.menu_book,
-                            size: 14,
-                            color: AppColor.PrimaryColor,
-                          ),
-                          SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              lecture['unit']?['name'] ?? '',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                teacher['name'] ?? 'غير محدد',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                      if (lesson != null) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.menu_book,
+                              size: 14,
+                              color: AppColor.PrimaryColor,
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                lesson['name'] ?? '',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                      ],
+                      if (_getProvinceName(unit) != null) ...[
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: AppColor.PrimaryColor,
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                _getProvinceName(unit)!,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                      ],
                       Text(
-                        '${lecture['price'] ?? 0} ل.س',
+                        '${price.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ل.س',
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColor.PrimaryColor,
@@ -1028,16 +1155,55 @@ class SearchScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.add_shopping_cart,
-                    color: AppColor.PrimaryColor,
-                    size: 24,
-                  ),
-                  onPressed: () {
-                    _addLectureToCart(lecture);
-                  },
-                ),
+
+                // Obx(() {
+                //   final isInMySections = unitsController.myunits.any((section) {
+                //     if (section != null) {
+                //       log(section['app_teacher_id'].toString());
+                //       log(teacher!['id'].toString());
+                //       log(section['app_lesson_id'].toString());
+                //       log(lesson!['id'].toString());
+                //       log(section['app_class_id'].toString());
+                //       log(lesson!['app_class_id'].toString());
+                //       return section['app_teacher_id'].toString() ==
+                //               teacher?['id'].toString() &&
+                //           section['app_lesson_id'].toString() ==
+                //               lesson?['id'].toString() &&
+                //           section['app_class_id'].toString() ==
+                //               lesson?['app_class_id'].toString();
+                //     }
+                //     return false;
+                //   });
+
+                //   if (isInMySections) {
+                //     return Row(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Icon(Icons.check_circle, color: AppColor.SecondryColor),
+                //         SizedBox(width: 5),
+                //         Text(
+                //           "تم الاشتراك",
+                //           style: TextStyle(
+                //             color: AppColor.DeepPurple,
+                //             fontWeight: FontWeight.bold,
+                //             fontSize: 12,
+                //           ),
+                //         ),
+                //       ],
+                //     );
+                //   }
+
+                //   return IconButton(
+                //     icon: Icon(
+                //       Icons.add_shopping_cart,
+                //       color: AppColor.PrimaryColor,
+                //       size: 24,
+                //     ),
+                //     onPressed: () {
+                //       _addUnitToCart(unit);
+                //     },
+                //   );
+                // }),
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
@@ -1051,110 +1217,129 @@ class SearchScreen extends StatelessWidget {
     );
   }
 
-  void _navigateToLectureDetails(Map<String, dynamic> lecture) async {
-    if (lecture['id'] == null) return;
+  Widget _buildLessonDepItem(Map<String, dynamic> lessonDep) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: CustomListTileSectionWidget(
+        item: lessonDep,
+        isChecking: false, // No need for checking state in search
+        province: _getProvinceName(lessonDep),
+        onTap: () {
+          _navigateToLessonDepDetails(lessonDep);
+        },
+        onTapShop: () {
+          _addLessonDepToCart(lessonDep);
+        },
+        trailing: Obx(() {
+          final allSectionItem = lessonDep;
+          final isInMySections = sectionsController.mysection.any((section) {
+            final departments = section as Map;
+            if (departments['app_classes_lessons_main_department'] != null &&
+                (departments['app_classes_lessons_main_department'] as List)
+                    .isNotEmpty &&
+                allSectionItem['app_classes_lessons_main_dep'] != null &&
+                (allSectionItem['app_classes_lessons_main_dep'] as List)
+                    .isNotEmpty) {
+              return departments['app_classes_lessons_main_department'][0]['main_dep_id']
+                          .toString() ==
+                      allSectionItem['app_classes_lessons_main_dep'][0]['main_dep_id']
+                          .toString() &&
+                  departments['app_classes_lessons_main_department'][0]['app_teacher_id']
+                          .toString() ==
+                      allSectionItem['app_classes_lessons_main_dep'][0]['app_teacher_id']
+                          .toString() &&
+                  departments['app_classes_lessons_main_department'][0]['app_class_id']
+                          .toString() ==
+                      allSectionItem['app_classes_lessons_main_dep'][0]['app_class_id']
+                          .toString();
+            }
+            return false;
+          });
+
+          if (isInMySections) {
+            return Icon(Icons.check_circle, color: AppColor.SecondryColor);
+          }
+
+          return IconButton(
+            onPressed: () {
+              _addLessonDepToCart(lessonDep);
+            },
+            icon: Icon(
+              Icons.shopping_cart_rounded,
+              color: AppColor.SecondryColor,
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  void _navigateToUnitDetails(Map<String, dynamic> unit) {
+    if (unit['id'] == null) return;
+
+    final lesson = unit['lesson'];
+
+    // Navigate to lessons within the unit
+    Get.toNamed(
+      AppRoute.lessons,
+      arguments: {'unitsid': unit['id'], 'subject_id': lesson?['id'] ?? 0},
+    );
+  }
+
+  void _navigateToLessonDepDetails(Map<String, dynamic> lessonDep) async {
+    if (lessonDep['id'] == null) return;
 
     try {
-      // Check if user is logged in
-      final prefs = await SharedPreferences.getInstance();
-      final studentId = prefs.getString('student_id');
+      final videos = await ApiService.fetchSectionVideos(lessonDep['id']);
+      final bool hasFreeVideos = videos.any(
+        (video) => video['free_status'] == "1",
+      );
 
-      // If not logged in, check for free videos
-      if (studentId == null || studentId.isEmpty) {
-        // Check if there are free videos
-        try {
-          final videos = await ApiService.fetchVideos(lecture['id']);
-          final bool hasFreeVideos = videos.any(
-            (video) => video['free_status'] == "1",
-          );
-
-          if (hasFreeVideos) {
-            Get.toNamed(
-              AppRoute.vedios,
-              arguments: {
-                "lectureid": lecture['id'],
-                'isPurchase': false,
-                'isFreePreview': true,
-              },
-            );
-          } else {
-            Get.snackbar(
-              'تسجيل الدخول مطلوب',
-              'يجب تسجيل الدخول لعرض هذا المحتوى',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.orange.shade800,
-              colorText: Colors.white,
-              duration: Duration(seconds: 3),
-            );
-          }
-        } catch (e) {
-          log("Error checking free videos: $e");
-          Get.snackbar(
-            'تسجيل الدخول مطلوب',
-            'يجب تسجيل الدخول لعرض هذا المحتوى',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.orange.shade800,
-            colorText: Colors.white,
-            duration: Duration(seconds: 3),
-          );
-        }
-        return;
-      }
-
-      // Check if user has purchased this lecture
-      final myLectures = await ApiService.fetchMyLectures(studentId);
-      final bool isPurchased = myLectures.any((s) => s['id'] == lecture['id']);
-
-      if (isPurchased) {
+      // Check if main_dep type is 4 (exam sessions - always accessible)
+      if (lessonDep['main_dep']?['type']?.toString() == '4') {
         Get.toNamed(
-          AppRoute.vedios,
+          AppRoute.viewLessons,
           arguments: {
-            "lectureid": lecture['id'],
+            "lessonsectionsid": lessonDep['id'],
+            "lessonsectionsName": lessonDep['name'],
             'isPurchase': true,
             'isFreePreview': false,
           },
         );
+      } else if (hasFreeVideos) {
+        Get.toNamed(
+          AppRoute.viewLessons,
+          arguments: {
+            "lessonsectionsid": lessonDep['id'],
+            "lessonsectionsName": lessonDep['name'],
+            'isPurchase': false,
+            'isFreePreview': true,
+          },
+        );
       } else {
-        // Check if there are free videos
-        try {
-          final videos = await ApiService.fetchVideos(lecture['id']);
-          final bool hasFreeVideos = videos.any(
-            (video) => video['free_status'] == "1",
-          );
-
-          if (hasFreeVideos) {
-            Get.toNamed(
-              AppRoute.vedios,
-              arguments: {
-                "lectureid": lecture['id'],
-                'isPurchase': false,
-                'isFreePreview': true,
-              },
-            );
-          } else {
-            Get.snackbar(
-              "لا يوجد محتوى مجاني",
-              "هذا القسم لا يحتوي على فيديوهات مجانية للمعاينة.",
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.orange.shade800,
-              colorText: Colors.white,
-            );
-          }
-        } catch (e) {
-          log("Error in _navigateToLectureDetails: $e");
-          Get.snackbar("خطأ", "حدث خطأ أثناء التحقق من المحتوى.");
-        }
+        Get.snackbar(
+          "لا يوجد محتوى مجاني",
+          "هذا القسم لا يحتوي على فيديوهات مجانية للمعاينة.",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange.shade800,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
-      Get.snackbar(
-        'خطأ',
-        'حدث خطأ أثناء معالجة الطلب',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade800,
-        colorText: Colors.white,
-      );
-      print('Error in _navigateToLectureDetails: $e');
+      log("Error in _navigateToLessonDepDetails: $e");
+      Get.snackbar("خطأ", "حدث خطأ أثناء التحقق من المحتوى.");
     }
+  }
+
+  void _navigateToTeacherSubject(Map<String, dynamic> lesson) {
+    if (lesson['id'] == null) return;
+    Get.toNamed(
+      AppRoute.teacher,
+      arguments: {
+        "subjetcsid": lesson['id'].toString(),
+        'classid': lesson['classes']?['id']?.toString() ?? '0',
+      },
+    );
   }
 
   void _navigateToLessonDetails(Map<String, dynamic> lesson) async {
@@ -1301,36 +1486,151 @@ class SearchScreen extends StatelessWidget {
     );
   }
 
-  void _addLectureToCart(Map<String, dynamic> lecture) {
+  void _addUnitToCart(Map<String, dynamic> unit) {
     final basketController = Get.find<BasketController>();
 
-    // Extract lecture details
-    final lectureId = lecture['id']?.toString() ?? '';
-    final lectureName = lecture['name'] ?? '';
-    final lecturePrice = lecture['price'] ?? 0;
+    // Extract unit details
+    final unitId = unit['id']?.toString() ?? '';
+    final unitName = unit['name'] ?? '';
+    final unitPrice = unit['price'] ?? 0;
 
-    // Extract unit and teacher info
-    final unit = lecture['unit'];
-    final unitName = unit?['name'] ?? '';
-    final unitId = unit?['id']?.toString() ?? '';
+    // Extract teacher and lesson info
+    final teacher = unit['teacher'];
+    final lesson = unit['lesson'];
 
-    final teacher = unit?['teacher'];
     final teacherName = teacher?['name'] ?? '';
     final teacherId = teacher?['id']?.toString() ?? '';
+    final lessonName = lesson?['name'] ?? '';
+    final lessonId = lesson?['id']?.toString() ?? '';
+    final classId = lesson?['app_class_id']?.toString() ?? '';
 
     // Add to basket
     basketController.updateBasket(
-      lectureId,
-      'lecture',
-      lectureName,
-      lecturePrice,
+      unitId,
+      'unit', // item type
+      unitName,
+      unitPrice,
       teacherName,
-      '', // className - not available
-      unitName, // subjectName
+      '', // className - not directly available for units
+      lessonName, // subjectName
       teacherId,
-      '', // classId
-      unitId, // subjectId
+      classId,
+      lessonId, // subjectId
       '', // maindepId
     );
+
+    Get.snackbar(
+      'تمت الإضافة',
+      'تمت إضافة الوحدة إلى السلة',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColor.PrimaryColor,
+      colorText: Colors.white,
+      duration: Duration(seconds: 2),
+    );
+  }
+
+  void _addLessonDepToCart(Map<String, dynamic> lessonDep) {
+    final basketController = Get.find<BasketController>();
+
+    // Extract lesson_dep details
+    final lessonDepId = lessonDep['id']?.toString() ?? '';
+    final lessonDepName = lessonDep['name'] ?? '';
+    final lessonDepPrice = lessonDep['price'] ?? 0;
+
+    // Extract teacher, lesson, and main_dep info
+    final teacher = lessonDep['teacher'];
+    final lesson = lessonDep['lesson'];
+    final mainDep = lessonDep['main_dep'];
+
+    final teacherName = teacher?['name'] ?? '';
+    final teacherId = teacher?['id']?.toString() ?? '';
+    final lessonName = lesson?['name'] ?? '';
+    final lessonId = lesson?['id']?.toString() ?? '';
+    final classId = lesson?['app_class_id']?.toString() ?? '';
+    final mainDepId = mainDep?['id']?.toString() ?? '';
+
+    // Add to basket
+    basketController.updateBasket(
+      lessonDepId,
+      'lesson_dep', // item type
+      lessonDepName,
+      lessonDepPrice,
+      teacherName,
+      '', // className - not directly available
+      lessonName, // subjectName
+      teacherId,
+      classId,
+      lessonId, // subjectId
+      mainDepId, // maindepId
+    );
+
+    Get.snackbar(
+      'تمت الإضافة',
+      'تمت إضافة القسم إلى السلة',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: AppColor.PrimaryColor,
+      colorText: Colors.white,
+      duration: Duration(seconds: 2),
+    );
+  }
+
+  Widget _buildFilterDropdown(BuildContext context) {
+    return Obx(() {
+      // Only show dropdown if current tab is Units (index 3)
+      if (searchController.currentTabIndex.value != 3) {
+        return SizedBox.shrink();
+      }
+
+      return Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: getValueForScreenType<double>(
+            context: context,
+            mobile: 20,
+            tablet: 28,
+          ),
+          vertical: 8,
+        ),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: searchController.selectedSearchType.value,
+              isExpanded: true,
+              icon: Icon(Icons.arrow_drop_down, color: AppColor.PrimaryColor),
+              items: searchController.searchTypes.map((String type) {
+                return DropdownMenuItem<String>(
+                  value: type,
+                  child: Text(
+                    type,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  searchController.selectedSearchType.value = newValue;
+                  // Trigger search again if there is a query
+                  if (searchController.searchQuery.value.isNotEmpty) {
+                    searchController.search(
+                      searchController.searchQuery.value,
+                      maintainTab: true,
+                    );
+                  }
+                }
+              },
+            ),
+          ),
+        ),
+      );
+    });
   }
 }

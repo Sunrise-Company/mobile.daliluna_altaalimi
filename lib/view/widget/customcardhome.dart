@@ -138,22 +138,46 @@ class CustomCardHome extends StatelessWidget {
             Expanded(
               flex: 6,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: image != null
-                    ? ClipOval(
-                        // borderRadius: BorderRadius.circular(25),
-                        child: CachedNetworkImage(
-                          fit: BoxFit.cover,
-                          imageUrl: AppLink.image + "/" + image!,
-                          // "${AppLink.baseUrl}/storage/classimages/tZSTIImSEDQ3SY0mdgIQFDawF58wulwUP0IoTpVs.jpg"
-                          placeholder: (context, url) => const LoadingImage(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error, color: Colors.white),
+                padding: const EdgeInsets.all(2.0),
+                child: image != null && image != "-" && image!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: AppLink.image + "/" + image!,
+                        imageBuilder: (context, imageProvider) => Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        placeholder: (context, url) => Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey[200],
+                          ),
+                          child: const LoadingImage(),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey[200],
+                          ),
+                          child: const Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey,
+                          ),
                         ),
                       )
-                    : const Icon(
-                        Icons.image_not_supported,
-                        color: Colors.white70,
+                    : Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[200],
+                        ),
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
                       ),
               ),
             ),

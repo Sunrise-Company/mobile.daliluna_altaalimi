@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -125,20 +126,33 @@ Widget DisplayTeacher(
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(20),
                     ),
-                    child: teacher['image'] != null && teacher['image'] != "-"
-                        ? Image.network(
-                            AppLink.image + "/" + teacher['image'],
+                    child:
+                        teacher['image'] != null &&
+                            teacher['image'] != "-" &&
+                            teacher['image'].toString().isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: AppLink.image + "/" + teacher['image'],
                             width: double.infinity,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.image_not_supported,
-                                    color: Colors.white70,
-                                    size: 40,
-                                  ),
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              alignment: Alignment.center,
+                              child: CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Colors.grey[400],
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 40,
                                 ),
+                              ),
+                            ),
                           )
                         : Container(
                             color: Colors.grey[200],

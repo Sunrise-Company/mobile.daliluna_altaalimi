@@ -755,107 +755,147 @@ class Home extends GetView<HomeController> {
                       );
                     }
                     if (homeController.citiesError != null) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: getValueForScreenType<double>(
-                            context: context,
-                            mobile: 20,
-                            tablet: 40,
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 40,
                           ),
-                          vertical: 40,
-                        ),
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.red[200]!, width: 1),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.error_outline_rounded,
-                              color: Colors.red[400],
-                              size: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 48,
-                                tablet: 64,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.wifi_off_rounded,
+                                  size: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 40,
+                                    tablet: 60,
+                                  ),
+                                  color: Colors.red.shade400,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              homeController.citiesError!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColor.PrimaryColor,
-                                fontWeight: FontWeight.w600,
-                                fontSize: getValueForScreenType<double>(
+                              const SizedBox(height: 16),
+                              Text(
+                                "عذراً، حدث خطأ ما",
+                                style: TextStyle(
+                                  fontSize: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 18,
+                                    tablet: 24,
+                                  ),
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.PrimaryColor,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                homeController.citiesError!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 14,
+                                    tablet: 18,
+                                  ),
+                                  color: Colors.grey[600],
+                                  height: 1.5,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: getValueForScreenType<double>(
                                   context: context,
-                                  mobile: 15,
-                                  tablet: 18,
+                                  mobile: 200,
+                                  tablet: 300,
+                                ),
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: homeController.fetchCities,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColor.PrimaryColor,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.refresh,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "إعادة المحاولة",
+                                        style: TextStyle(
+                                          fontSize:
+                                              getValueForScreenType<double>(
+                                                context: context,
+                                                mobile: 16,
+                                                tablet: 20,
+                                              ),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton.icon(
-                              onPressed: homeController.fetchCities,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColor.PrimaryColor,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 2,
-                              ),
-                              icon: const Icon(Icons.refresh_rounded),
-                              label: const Text('إعادة المحاولة'),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     }
                     if (homeController.cities.isEmpty) {
-                      return Container(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: getValueForScreenType<double>(
-                            context: context,
-                            mobile: 20,
-                            tablet: 40,
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 60,
                           ),
-                          vertical: 60,
-                        ),
-                        padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.location_city_outlined,
-                              size: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 64,
-                                tablet: 80,
-                              ),
-                              color: AppColor.grey.withOpacity(0.5),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'لا توجد محافظات متاحة حالياً',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColor.grey,
-                                fontWeight: FontWeight.w500,
-                                fontSize: getValueForScreenType<double>(
-                                  context: context,
-                                  mobile: 15,
-                                  tablet: 18,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.location_city_rounded,
+                                  size: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 60,
+                                    tablet: 80,
+                                  ),
+                                  color: Colors.grey[400],
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 16),
+                              Text(
+                                'لا توجد محافظات متاحة حالياً',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 16,
+                                    tablet: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }

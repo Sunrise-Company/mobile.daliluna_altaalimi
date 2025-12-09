@@ -596,7 +596,13 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             10,
                                                           ),
                                                       child:
-                                                          item['image'] != null
+                                                          item['image'] !=
+                                                                  null &&
+                                                              item['image'] !=
+                                                                  "-" &&
+                                                              item['image']
+                                                                  .toString()
+                                                                  .isNotEmpty
                                                           ? CachedNetworkImage(
                                                               imageUrl:
                                                                   AppLink
@@ -617,12 +623,34 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                                     context,
                                                                     url,
                                                                     error,
-                                                                  ) => const Icon(
-                                                                    Icons.error,
+                                                                  ) => Container(
+                                                                    color: Colors
+                                                                        .grey[200],
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .center,
+                                                                    child: const Icon(
+                                                                      Icons
+                                                                          .image_not_supported,
+                                                                      color: Colors
+                                                                          .grey,
+                                                                    ),
                                                                   ),
                                                             )
-                                                          : const Icon(
-                                                              Icons.image,
+                                                          : Container(
+                                                              width: 70,
+                                                              height: 70,
+                                                              color: Colors
+                                                                  .grey[200],
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: const Icon(
+                                                                Icons
+                                                                    .image_not_supported,
+                                                                color:
+                                                                    Colors.grey,
+                                                              ),
                                                             ),
                                                     ),
                                                     title: Text(

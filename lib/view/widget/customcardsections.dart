@@ -1,21 +1,11 @@
-import 'dart:developer';
-
 import 'package:daliluna_altaalimi/controller/sectionssubject_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:responsive_builder/responsive_builder.dart';
-import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:responsive_builder/responsive_builder.dart';
 
 class CustomCardSections extends StatelessWidget {
   final String section;
@@ -216,18 +206,23 @@ class CustomCardSections extends StatelessWidget {
   }
 }
 
-class CustomListTileSection extends StatelessWidget {
+class CustomListTileSectionWidget extends StatelessWidget {
   final Map<String, dynamic> item;
   final bool isChecking;
   final void Function()? onTapShop;
   final void Function()? onTap;
+  final Widget? trailing;
+  final String? province;
 
-  const CustomListTileSection({
+  const CustomListTileSectionWidget({
     super.key,
     required this.item,
     required this.isChecking,
     this.onTapShop,
     this.onTap,
+    this.trailing,
+    this.province,
+    // Updated constructor
   });
 
   @override
@@ -293,24 +288,54 @@ class CustomListTileSection extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (province != null) ...[
+                    SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 14,
+                          color: AppColor.PrimaryColor,
+                        ),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            province!,
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 12,
+                                tablet: 14,
+                              ),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
-            trailing: Obx(() {
-              final isInMySections = controller.mysection.any(
-                (s) => s['id'].toString() == item['id'].toString(),
-              );
+            trailing:
+                trailing ??
+                Obx(() {
+                  final isInMySections = controller.mysection.any(
+                    (s) => s['id'].toString() == item['id'].toString(),
+                  );
 
-              if (isInMySections) {
-                return const Icon(Icons.check_circle, color: Colors.green);
-              } else {
-                return IconButton(
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  color: AppColor.SecondryColor,
-                  onPressed: onTapShop,
-                );
-              }
-            }),
+                  if (isInMySections) {
+                    return const Icon(Icons.check_circle, color: Colors.green);
+                  } else {
+                    return IconButton(
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                      color: AppColor.SecondryColor,
+                      onPressed: onTapShop,
+                    );
+                  }
+                }),
           ),
         ),
         if (isChecking)
