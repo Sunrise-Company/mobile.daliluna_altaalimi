@@ -4,6 +4,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
+import 'package:daliluna_altaalimi/core/constant/imageasset.dart';
+import 'package:lottie/lottie.dart';
 
 class ForceUpdateScreen extends StatelessWidget {
   const ForceUpdateScreen({super.key});
@@ -22,48 +24,40 @@ class ForceUpdateScreen extends StatelessWidget {
           preferredSize: Size.fromHeight(
             getValueForScreenType<double>(
               context: context,
-              mobile: 120,
-              tablet: 210,
+              mobile: 80,
+              tablet: 120,
             ),
           ),
-          child: Stack(
-            children: [
-              ClipPath(
-                clipper: WaveClipperOne(),
-                child: Container(
+          child: AppBar(
+            backgroundColor: AppColor.PrimaryColor,
+            elevation: 0.0,
+            automaticallyImplyLeading: false,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(
+                  getValueForScreenType<double>(
+                    context: context,
+                    mobile: 40,
+                    tablet: 60,
+                  ),
+                ),
+              ),
+            ),
+            flexibleSpace: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Image.asset(
+                  AppImageAsset.newLogoWithoutBackground,
                   height: getValueForScreenType<double>(
                     context: context,
-                    mobile: 150,
-                    tablet: 300,
+                    mobile: 60,
+                    tablet: 90,
                   ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColor.DeepPurple, AppColor.SecondryColor2],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
+                  fit: BoxFit.contain,
                 ),
               ),
-              Center(
-                child: ListTile(
-                  title: Center(
-                    child: Text(
-                      "تحديث التطبيق",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: getValueForScreenType<double>(
-                          context: context,
-                          mobile: 20,
-                          tablet: 26,
-                        ),
-                        color: AppColor.PrimaryColor,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         body: Padding(

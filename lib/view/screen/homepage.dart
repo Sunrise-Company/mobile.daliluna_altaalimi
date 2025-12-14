@@ -106,7 +106,6 @@ class HomePage extends GetView<HomePageController> {
         children: List.generate(icons.length, (index) {
           final bool isSelected = controller.selectedPage.value == index;
 
-          // 🔹 هنا نحدد حجم الأيقونة والنص بناءً على نوع الجهاز
           final double iconSize = getValueForScreenType<double>(
             context: Get.context!,
             mobile: isSelected ? 25 : 20,

@@ -138,45 +138,54 @@ class CustomCardHome extends StatelessWidget {
             Expanded(
               flex: 6,
               child: Padding(
-                padding: const EdgeInsets.all(2.0),
+                padding: const EdgeInsets.all(8.0),
                 child: image != null && image != "-" && image!.isNotEmpty
                     ? CachedNetworkImage(
                         imageUrl: AppLink.image + "/" + image!,
                         imageBuilder: (context, imageProvider) => Container(
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(15),
                             image: DecorationImage(
                               image: imageProvider,
                               fit: BoxFit.cover,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 5,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                         ),
                         placeholder: (context, url) => Container(
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white.withOpacity(0.3),
                           ),
-                          child: const LoadingImage(),
+                          child: const Center(child: LoadingImage()),
                         ),
                         errorWidget: (context, url, error) => Container(
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(15),
+                            color: Colors.white.withOpacity(0.2),
                           ),
                           child: const Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey,
+                            Icons.image_not_supported_rounded,
+                            color: Colors.white70,
+                            size: 30,
                           ),
                         ),
                       )
                     : Container(
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.white.withOpacity(0.2),
                         ),
                         child: const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
+                          Icons.image_not_supported_rounded,
+                          color: Colors.white70,
+                          size: 30,
                         ),
                       ),
               ),

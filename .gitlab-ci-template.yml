@@ -61,8 +61,8 @@ build_apk:
       EOF
     
     # Build APK (split per ABI for smaller files)
-    - flutter build apk --release --split-per-abi --target-platform android-arm64,android-arm
-    
+    # - flutter build apk --release --split-per-abi --target-platform android-arm64,android-arm
+    - flutter build appbundle
     # Prepare artifacts
     - mkdir -p public
     - cp build/app/outputs/flutter-apk/*.apk public/ || true
