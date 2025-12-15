@@ -34,16 +34,15 @@ class TeacherLessonDepsUnitContrlloer extends GetxController {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print('Response Data: $responseData');
+
         dataList.value = responseData['units'];
-        print('Data List: $dataList');
+
         isloded.value = true;
         update();
       } else {
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching studentLesson: $error');
       isloded.value = true;
       update();
       // Handle errors appropriately, e.g., show a message to the user

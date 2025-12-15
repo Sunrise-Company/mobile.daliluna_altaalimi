@@ -10,7 +10,6 @@ class HomePageController extends GetxController {
   }
 
   void changePage(int index) {
-    log(index);
     selectedPage.value = index;
   }
 }

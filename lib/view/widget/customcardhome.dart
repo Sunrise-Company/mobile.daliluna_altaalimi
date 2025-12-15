@@ -102,14 +102,17 @@ import 'package:daliluna_altaalimi/view/widget/loadingimage.dart';
 //   }
 // }
 class CustomCardHome extends StatelessWidget {
-  final String name;
+  final String? name;
   final String? image;
   final void Function()? onTap;
 
-  CustomCardHome({required this.name, this.image, this.onTap});
+  const CustomCardHome({Key? key, this.name, this.image, this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    bool hasName = name != null && name!.isNotEmpty;
+
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -136,7 +139,7 @@ class CustomCardHome extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              flex: 6,
+              flex: hasName ? 6 : 1,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: image != null && image != "-" && image!.isNotEmpty
@@ -190,32 +193,34 @@ class CustomCardHome extends StatelessWidget {
                       ),
               ),
             ),
-            const SizedBox(height: 6),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4,
-                ),
-                child: Text(
-                  name,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: getValueForScreenType<double>(
-                      context: context,
-                      mobile: 11,
-                      tablet: 16,
+            if (hasName) ...[
+              const SizedBox(height: 6),
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    name!,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: getValueForScreenType<double>(
+                        context: context,
+                        mobile: 11,
+                        tablet: 16,
+                      ),
+                      height: 1.2,
                     ),
-                    height: 1.2,
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ),
       ),

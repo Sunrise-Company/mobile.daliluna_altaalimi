@@ -576,7 +576,6 @@ class SearchScreen extends StatelessWidget {
 
   void _navigateToTeacherCourses(Map<String, dynamic> teacher) {
     if (teacher['id'] == null) return;
-    log(teacher.toString());
 
     // Extract subject_id and class_id safely
     String subjectId = (teacher['subject_id'] ?? 0).toString();
@@ -1326,7 +1325,6 @@ class SearchScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      log("Error in _navigateToLessonDepDetails: $e");
       Get.snackbar("خطأ", "حدث خطأ أثناء التحقق من المحتوى.");
     }
   }
@@ -1396,7 +1394,6 @@ class SearchScreen extends StatelessWidget {
         backgroundColor: Colors.red.shade800,
         colorText: Colors.white,
       );
-      print('Error in _navigateToLessonDetails: $e');
     }
   }
 
@@ -1449,7 +1446,6 @@ class SearchScreen extends StatelessWidget {
         return myLessons.any((lesson) => lesson['id'] == lessonId);
       }
     } catch (e) {
-      print('Error checking purchase: $e');
       return false;
     }
   }

@@ -392,12 +392,8 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
                                   onPressed: () async {
                                     if (!recorderController.isRecording.value) {
                                       await recorderController.startRecording();
-                                      recorderController.isRecording.value =
-                                          true;
                                     } else {
                                       await recorderController.stopRecording();
-                                      recorderController.isRecording.value =
-                                          false;
 
                                       Get.bottomSheet(
                                         Container(
@@ -745,9 +741,7 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
       await dio.download(fileUrl, savePath);
 
       OpenFilex.open(savePath);
-    } catch (e) {
-      print("⚠️ خطأ في تحميل أو فتح الملف: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> pickAndShowFileDialog(BuildContext context) async {
@@ -835,7 +829,6 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
       );
       return thumbnailPath;
     } catch (e) {
-      print("⚠️ خطأ في إنشاء الصورة المصغرة: $e");
       return null;
     }
   }

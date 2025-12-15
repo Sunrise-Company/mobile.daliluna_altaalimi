@@ -297,11 +297,8 @@ class ChatStudent extends StatelessWidget {
                                 onPressed: () async {
                                   if (!recorderController.isRecording.value) {
                                     await recorderController.startRecording();
-                                    recorderController.isRecording.value = true;
                                   } else {
                                     await recorderController.stopRecording();
-                                    recorderController.isRecording.value =
-                                        false;
 
                                     Get.bottomSheet(
                                       Container(
@@ -383,10 +380,8 @@ class ChatStudent extends StatelessWidget {
                     //   onPressed: () async {
                     //     if (!recorderController.isRecording.value) {
                     //       await recorderController.startRecording();
-                    //       recorderController.isRecording.value = true;
                     //     } else {
                     //       await recorderController.stopRecording();
-                    //       recorderController.isRecording.value = false;
                     //
                     //       Get.bottomSheet(
                     //         Container(
@@ -505,9 +500,7 @@ class ChatStudent extends StatelessWidget {
       await dio.download(fileUrl, savePath);
 
       OpenFilex.open(savePath);
-    } catch (e) {
-      print("⚠️ خطأ في تحميل أو فتح الملف: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> pickAndShowFileDialog(BuildContext context) async {
@@ -526,7 +519,6 @@ class ChatStudent extends StatelessWidget {
       showDialog(
         context: context,
         builder: (ctx) {
-          log(file.path.toString());
           return AlertDialog(
             backgroundColor: Colors.white,
             title: Center(
@@ -755,7 +747,6 @@ class ChatStudent extends StatelessWidget {
       );
       return thumbnailPath;
     } catch (e) {
-      print("⚠️ خطأ في إنشاء الصورة المصغرة: $e");
       return null;
     }
   }

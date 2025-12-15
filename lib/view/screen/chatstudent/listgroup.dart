@@ -1,9 +1,5 @@
-import 'dart:developer';
-
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
-import 'package:daliluna_altaalimi/controller/homepage_controller.dart';
-import 'package:daliluna_altaalimi/view/screen/chatstudent/chatlist.dart';
-import 'package:daliluna_altaalimi/view/screen/homepage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';

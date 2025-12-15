@@ -50,13 +50,10 @@ class SubjectsController extends GetxController {
   void fetchSubjects() async {
     try {
       dataList = await ApiService.fetchSubjects();
-      print("===========");
-      print(dataList);
+
       isLoadingtow = true;
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   List<dynamic> mySubjects = [];
@@ -67,12 +64,9 @@ class SubjectsController extends GetxController {
 
       mySubjects = await ApiService.fetchMySubjects(student_id);
 
-      print(mySubjects);
       isLoading = true;
 
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 }

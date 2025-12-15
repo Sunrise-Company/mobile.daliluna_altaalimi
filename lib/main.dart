@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 import 'dart:io';
 import 'dart:async';
 import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
@@ -60,13 +60,11 @@ void main() async {
           ),
         );
       } catch (e, stack) {
-        log("Error in main: $e", error: e, stackTrace: stack);
         String deviceInfo = await _getDeviceInfoString();
         _showErrorScreen("Startup Error", e.toString(), details: deviceInfo);
       }
     },
     (error, stack) {
-      log("Uncaught error: $error", error: error, stackTrace: stack);
       _showErrorScreen("Uncaught Error", error.toString());
     },
   );
@@ -185,7 +183,6 @@ Future<String?> checkIfEmulator() async {
       final String device = androidInfo.device ?? '';
 
       // Log info for debugging
-      log('Device Info - Host: $host, Device: $device');
 
       if (host.toLowerCase() == 'ubuntu' && device.toLowerCase() == 'aosp') {
         return "Host: $host, Device: $device";
@@ -205,9 +202,7 @@ Future<String?> checkIfEmulator() async {
     // 2. Generic Check (Only runs if isPhysicalDevice is false or not Android)
     bool isGenericEmulator = await EmulatorChecker.isEmulator();
     if (isGenericEmulator) return "Generic EmulatorChecker detected";
-  } catch (e) {
-    log('Error in checkIfEmulator: $e');
-  }
+  } catch (e) {}
 
   return null;
 }
@@ -251,16 +246,11 @@ Future<bool> checkVersionNeedsUpdate() async {
     if (isVersionOlder("${localVersion}", "${serverVersion.versionNum}")) {
       return true;
     }
-  } catch (e) {
-    print('Error checking version: $e');
-  }
+  } catch (e) {}
   return false;
 }
 
 bool isVersionOlder(String local, String remote) {
-  log('local   $local');
-  log('remote  $remote');
-
   (List<int>, int?) parseVersion(String version) {
     final parts = version.split('+');
     final mainVersion = parts[0];

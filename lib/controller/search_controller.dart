@@ -69,7 +69,6 @@ class SearchController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('خطأ', 'حدث خطأ أثناء البحث');
-      print('Search error: $e');
     } finally {
       isLoading.value = false;
     }

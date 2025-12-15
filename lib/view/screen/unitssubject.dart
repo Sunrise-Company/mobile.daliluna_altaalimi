@@ -406,7 +406,6 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                       baskerc.maindepId
                                                           .toString(),
                                                     );
-                                                    print('add success');
                                                   },
                                                   child: Container(
                                                     padding:

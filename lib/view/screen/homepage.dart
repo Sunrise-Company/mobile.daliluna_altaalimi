@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/listchatStudentForteacherController.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
@@ -31,8 +29,6 @@ class HomePage extends GetView<HomePageController> {
     chatStudentListTeacherController = Get.put(
       ChatStudentListTeacherController(),
     );
-
-    log('Selectd page ${controller.selectedPage.value}');
 
     return Directionality(
       textDirection: TextDirection.rtl,

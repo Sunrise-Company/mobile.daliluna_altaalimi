@@ -61,8 +61,8 @@ build_apk:
       EOF
     
     # Build APK (split per ABI for smaller files)
-    # - flutter build apk --release --split-per-abi --target-platform android-arm64,android-arm
-    - flutter build appbundle
+    - flutter build apk --release --split-per-abi --target-platform android-arm64,android-arm
+    # - flutter build appbundle
     # Prepare artifacts
     - mkdir -p public
     - cp build/app/outputs/flutter-apk/*.apk public/ || true
@@ -108,8 +108,8 @@ notify_telegram:
         # Build message
         TELEGRAM_MSG="*✅ ${CI_PROJECT_NAME} - Build Success!* 🎉\\n\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}📱 *Details:*\\n"
-        TELEGRAM_MSG="${TELEGRAM_MSG}• Branch: \\`${BRANCH_NAME}\\`\\n"
-        TELEGRAM_MSG="${TELEGRAM_MSG}• Commit: \\`${CI_COMMIT_SHORT_SHA}\\`\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Branch: *${BRANCH_NAME}*\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}• Commit: *${CI_COMMIT_SHORT_SHA}*\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}• Message: ${COMMIT_MSG}\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}• Time: ${BUILD_TIME}\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}• Pipeline: #${CI_PIPELINE_ID}\\n\\n"

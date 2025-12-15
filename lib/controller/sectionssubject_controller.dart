@@ -69,7 +69,6 @@ class SectionsSubjectController extends GetxController {
           );
         }
       } catch (e) {
-        log("Error in navigateToSection: $e");
         Get.snackbar("خطأ", "حدث خطأ أثناء التحقق من المحتوى.");
       } finally {
         checkingSectionId.value = null;
@@ -84,14 +83,11 @@ class SectionsSubjectController extends GetxController {
   void fetchSections() async {
     try {
       dataList = await ApiService.fetchLessonSections();
-      print(dataList);
+
       isLoadingtow = true;
-      print("section");
-      log('app_lesson_deps ' + dataList.toString());
+
       update();
-    } catch (error) {
-      print('Error SectionsSubjectController fetchSections : $error');
-    }
+    } catch (error) {}
   }
 
   RxList<dynamic> mysection = <dynamic>[].obs;
@@ -102,10 +98,8 @@ class SectionsSubjectController extends GetxController {
       String? student_id = prefs.getString('student_id');
       mysection.value = await ApiService.fetchMyLessonSections(student_id);
       isLoading = true;
-      log('app_my_lesson_deps ' + mysection.toString());
+
       update();
-    } catch (error) {
-      print('Error SectionsSubjectController fetchMySections: $error');
-    }
+    } catch (error) {}
   }
 }

@@ -734,9 +734,7 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
       await dio.download(fileUrl, savePath);
 
       OpenFilex.open(savePath);
-    } catch (e) {
-      print("⚠️ خطأ في تحميل أو فتح الملف: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> pickAndShowFileDialog(BuildContext context) async {
@@ -985,7 +983,6 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
       );
       return thumbnailPath;
     } catch (e) {
-      print("⚠️ خطأ في إنشاء الصورة المصغرة: $e");
       return null;
     }
   }

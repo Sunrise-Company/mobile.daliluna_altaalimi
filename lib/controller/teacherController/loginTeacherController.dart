@@ -117,10 +117,9 @@ class LoginControllerss extends GetxController {
           'password': passwordcontroler.text,
         },
       );
-      log(response.statusCode.toString());
+
       final data = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        log(response.statusCode.toString());
         isLoggedInTeacher.value = true;
         final teacherId = data['teacer_id'];
         final arabic_name = data['arabic_name'];
@@ -158,7 +157,6 @@ class LoginControllerss extends GetxController {
         );
       }
     } catch (e) {
-      print("خطأ أثناء تسجيل الدخول: $e");
       Get.snackbar(
         "خطأ غير متوقع",
         "حدث خطأ غير متوقع، الرجاء المحاولة لاحقًا.",

@@ -171,7 +171,6 @@ class LecutreTeacher extends GetView<TeacherLectureDespsContrlloer> {
                                                       ),
                                                 ),
                                             onTap: () {
-                                              print('videoLessonTeacher');
                                               Get.toNamed(
                                                 '/videoLessonTeacher',
                                                 arguments: {

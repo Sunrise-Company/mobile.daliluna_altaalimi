@@ -223,7 +223,6 @@ class MyTeacher extends GetView<TeacherController> {
                                 context,
 
                                 () {
-                                  log(controller.myTeachers[index].toString());
                                   controller.goToMySections(
                                     Get.arguments['subjetcsid'].toString(),
                                     controller.myTeachers[index]['id']

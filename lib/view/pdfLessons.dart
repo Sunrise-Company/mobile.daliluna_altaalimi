@@ -31,7 +31,6 @@ class _pdfLessonsState extends State<pdfLessons> {
   String? pdfUrl;
   @override
   void initState() {
-    print(widget.url);
     super.initState();
     // downloadPDF();
   }

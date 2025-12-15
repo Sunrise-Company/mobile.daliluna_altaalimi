@@ -14,13 +14,10 @@ class ApiService {
   static Future<List<dynamic>> fetchMainslider() async {
     final response = await http.get(Uri.parse(AppLink.app_main_slider));
     if (response.statusCode == 200) {
-      print(response.body);
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> classData = data['app_sliders'];
 
       if (classData != null) {
-        print("sssssssssssssssssssssssssssssssssssssssssssss$classData");
-
         return classData;
       } else {
         throw Exception('Classes data is null');
@@ -46,23 +43,19 @@ class ApiService {
     String? type,
   }) async {
     try {
-      log('Search query: $query');
-      log('${AppLink.appMainSearch}?q=$query');
       String url = '${AppLink.appMainSearch}?q=$query';
       if (type != null) {
         url += '&type=$type';
       }
-      log(url);
+
       final response = await http.post(Uri.parse(url));
 
-      log(response.body.toString());
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
         throw Exception('Failed to search: ${response.statusCode}');
       }
     } catch (e) {
-      log('Search error: $e');
       rethrow;
     }
   }
@@ -87,8 +80,6 @@ class ApiService {
       List<dynamic> classData = data['classes'];
 
       if (classData != null) {
-        print(classData);
-
         return classData;
       }
     } else {
@@ -101,14 +92,10 @@ class ApiService {
       Uri.parse(AppLink.myclasses + '/' + student_id.toString()),
     );
     if (response.statusCode == 200) {
-      print('20000000');
-      print(response.body);
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> classData = data['classes'];
 
       if (classData != null) {
-        print(classData);
-
         return classData;
       } else {
         throw Exception('Classes data is null');
@@ -120,22 +107,18 @@ class ApiService {
 
   static Future<List<dynamic>> fetchNotifications() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    print('--------------------88');
-    print(prefs.getString('student_id').toString());
 
     final response = await http.get(
       Uri.parse(
         AppLink.notifications + '/' + prefs.getString('student_id').toString(),
       ),
     );
-    print(response.body);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> classData = data['app_notifications'];
 
       if (classData != null) {
-        print(classData);
-
         return classData;
       } else {
         throw Exception('Classes data is null');
@@ -147,12 +130,10 @@ class ApiService {
 
   int id = Get.arguments['lessonid'];
   static Future<List<dynamic>> fetchSubjects() async {
-    log('qqqqqqqqqqqqqqqqqq');
-    print(Get.arguments['lessonid']);
     final response = await http.get(
       Uri.parse(AppLink.subjetcs + '/' + Get.arguments['lessonid'].toString()),
     );
-    print(AppLink.subjetcs + '/' + Get.arguments['lessonid'].toString());
+
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> subjectData = data['lessons'];
@@ -178,13 +159,9 @@ class ApiService {
       ),
     );
 
-    print(response.body);
     if (response.statusCode == 200) {
-      print(response.body);
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> subjectData = data['lessons'];
-      log("ssssssss" + subjectData.toString());
-      print(subjectData);
 
       if (subjectData != null) {
         return subjectData;
@@ -203,7 +180,6 @@ class ApiService {
       ),
     );
     if (response.statusCode == 200) {
-      print(AppLink.teachers + '/' + Get.arguments['subjetcsid'].toString());
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> teacherData = data['teachers'];
 
@@ -256,7 +232,7 @@ class ApiService {
             '/${classid.toString()}/${subjectid.toString()}/${teacherid.toString()}',
       ),
     );
-    print(response.body);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> sectionData = data['data'];
@@ -276,7 +252,6 @@ class ApiService {
     class_id,
     teacher_id,
   ) async {
-    print(AppLink.mysections);
     final response = await http.get(
       Uri.parse(
         AppLink.mysections +
@@ -301,7 +276,6 @@ class ApiService {
           '/' +
           teacher_id,
     );
-    print(response.body);
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
@@ -330,7 +304,7 @@ class ApiService {
             Get.arguments['teacher_id'].toString(),
       ),
     );
-    log("lessssssssssssoons");
+
     log(
       AppLink.lessons +
           '/' +
@@ -340,10 +314,8 @@ class ApiService {
           '/' +
           Get.arguments['teacher_id'].toString(),
     );
-    print("Subjjjjjjjjjjjjjjjjjjjjjjjjjjjjjest");
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
-      print("sucessssssss");
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic> lessonData = data['lesson_deps'];
 
@@ -423,7 +395,6 @@ class ApiService {
   }
 
   static Future<List<dynamic>> fetchMyUnits(String student_id) async {
-    log('ssssssssssssssssssssssssssssss');
     final response = await http.get(
       Uri.parse(
         AppLink.myunits +
@@ -435,7 +406,6 @@ class ApiService {
             student_id.toString(),
       ),
     );
-    log("saaaaaaas" + response.body.toString());
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
@@ -455,10 +425,8 @@ class ApiService {
     final response = await http.get(
       Uri.parse(AppLink.lectures + "/" + Get.arguments['unitsid'].toString()),
     );
-    print(AppLink.lectures + '/' + Get.arguments['unitsid'].toString());
-    print(response.body);
+
     if (response.statusCode == 200) {
-      print("7777777777777777777777777777");
       List<dynamic> lectureData = json.decode(response.body);
 
       if (lectureData != null) {
@@ -472,9 +440,6 @@ class ApiService {
   }
 
   static Future<List<dynamic>> fetchMyLectures(student_id) async {
-    print('0000000000hhhhhhhhhhhhhhhhhhhh00');
-    print(Get.arguments['subject_id'].toString());
-    log(Get.arguments['unitsid'].toString());
     print(
       AppLink.mylectures +
           "/" +
@@ -497,7 +462,6 @@ class ApiService {
       ),
     );
 
-    print(response.statusCode);
     if (response.statusCode == 200) {
       List<dynamic> lectureData = json.decode(response.body);
 
@@ -516,11 +480,9 @@ class ApiService {
       Uri.parse(AppLink.app_lectures_files + "/" + lectureID.toString()),
     );
 
-    log(AppLink.app_lectures_files + "/" + lectureID.toString());
-
     if (response.statusCode == 200) {
       List<dynamic> lectureData = json.decode(response.body)['videos'];
-      log(json.decode(response.body).toString());
+
       if (lectureData != null) {
         return lectureData;
       } else {
@@ -541,7 +503,6 @@ class ApiService {
       Map<String, dynamic> data = json.decode(response.body);
 
       if (data != null) {
-        print('99999999999999999999999999999999999999999');
         return data;
       } else {
         throw Exception('teacherInfo data is null');
@@ -552,7 +513,6 @@ class ApiService {
   }
 
   static Future<String> registerStudent(Map body) async {
-    print(body);
     try {
       final response = await http.post(
         Uri.parse(AppLink.registerStudent),
@@ -595,7 +555,6 @@ class ApiService {
         throw Exception('فشل في التسجيل');
       }
     } catch (e) {
-      print("خطأ أثناء التسجيل: $e");
       Get.snackbar(
         "خطأ غير متوقع",
         "حدث خطأ غير متوقع، الرجاء المحاولة لاحقًا.",
@@ -605,7 +564,6 @@ class ApiService {
   }
 
   static Future<String> loginStudent(Map body) async {
-    print(body);
     try {
       final response = await http.post(
         Uri.parse(AppLink.loginStudent),
@@ -654,7 +612,6 @@ class ApiService {
         throw Exception('فشل في تسجيل الدخول');
       }
     } catch (e) {
-      print("خطأ أثناء تسجيل الدخول: $e");
       Get.snackbar(
         "خطأ غير متوقع",
         "حدث خطأ غير متوقع، الرجاء المحاولة لاحقًا.",
@@ -680,9 +637,8 @@ class ApiService {
         "Authorization": "Some token",
       },
     );
-    print('000050705470407047064064=08=7-96=9');
+
     if (response.statusCode == 200) {
-      print('save Token successssssssss');
       return '';
     } else {
       throw Exception('Failed to fetch teacherInfo');
@@ -693,13 +649,9 @@ class ApiService {
     final response = await http.get(
       Uri.parse(AppLink.app_lesson_deps_files + "/" + selectedItem.toString()),
     );
-    print(response.body);
-    log(AppLink.app_lesson_deps_files + "/" + selectedItem.toString());
-    print('111111111111111111111');
+
     if (response.statusCode == 200) {
       List<dynamic> lectureData = json.decode(response.body)['videos'];
-      print('iiiiiiiiiiiiiii0');
-      print(lectureData);
 
       if (lectureData != null) {
         return lectureData;
@@ -712,17 +664,12 @@ class ApiService {
   }
 
   static Future fetchSectionFiles(int selectedItem) async {
-    print('9999999999999');
     final response = await http.get(
       Uri.parse(AppLink.app_lesson_deps_files + "/" + selectedItem.toString()),
     );
-    print(response.body);
-    print('111111111111111111111');
+
     if (response.statusCode == 200) {
-      print('2222222222222222');
       List<dynamic> lectureData = json.decode(response.body)['files'];
-      print('iiiiiiiiiiiiiii0');
-      print(lectureData);
 
       if (lectureData != null) {
         return lectureData;
@@ -738,13 +685,11 @@ class ApiService {
     final response = await http.get(
       Uri.parse(AppLink.app_company_informations),
     );
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      print(data);
 
       if (data != null) {
-        print('99999999999999999999999999999999999999999');
         return data;
       } else {
         throw Exception('teacherInfo data is null');
@@ -760,7 +705,6 @@ class ApiService {
       Map<String, dynamic> data = json.decode(response.body);
 
       if (data != null) {
-        print('99999999999999999999999999999999999999999');
         return data;
       } else {
         throw Exception('teacherInfo data is null');
@@ -776,7 +720,6 @@ class ApiService {
       Map<String, dynamic> data = json.decode(response.body);
 
       if (data != null) {
-        print('batoul================');
         return data;
       } else {
         throw Exception('device info data is null');
@@ -789,7 +732,7 @@ class ApiService {
   static Future<String> app_basket_student_store(List body) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? student_id = prefs.getString('student_id');
-    print(student_id);
+
     Map<String, dynamic> data = {};
 
     for (int i = 0; i < body.length; i++) {
@@ -802,16 +745,13 @@ class ApiService {
       data['data[$i][maindepId]'] = body[i]['maindepId'].toString();
       data['data[$i][itemPrice]'] = body[i]['itemPrice'].toString();
     }
-    print(data);
+
     final response = await http.post(
       Uri.parse(AppLink.app_basket_student_store + '/' + student_id.toString()),
       body: data,
     );
-    print(json.encode(body));
-    print(jsonDecode(response.body));
-    print('baskettttttttttttttttttttttttt=08=7-96=9');
+
     if (response.statusCode == 200) {
-      print(jsonDecode(response.body));
       return jsonDecode(response.body)['status'];
     } else {
       throw Exception('Failed to fetch teacherInfo');

@@ -34,7 +34,6 @@ class InstitutesController extends GetxController {
       errorMessage = null;
     } catch (e) {
       errorMessage = 'تعذر تحميل المعاهد، حاول مجدداً';
-      print('Error fetching institutes $e');
     } finally {
       isLoading = false;
       update();
@@ -47,14 +46,12 @@ class InstitutesController extends GetxController {
       institute['id'],
       instituteName: institute['name'],
     );
-    
+
     // Add Breadcrumb
-    Get.find<BreadcrumbService>().add(BreadcrumbItem(
-      title: institute['name'],
-      route: AppRoute.ourCourses,
-    ));
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(title: institute['name'], route: AppRoute.ourCourses),
+    );
 
     Get.toNamed(AppRoute.ourCourses);
   }
 }
-

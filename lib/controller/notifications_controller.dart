@@ -14,17 +14,13 @@ class NotificationsController extends GetxController {
   RxBool isLoading = false.obs;
   fetchNotifications() async {
     try {
-      print('ooooooooooooooooooooo');
       dataList = await ApiService.fetchNotifications();
       dataList.forEach((element) {
         notfs.add(element);
       });
       isLoading.value = true;
-      print(notfs);
-      print('---------------');
+
       return notfs;
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 }

@@ -25,13 +25,10 @@ class LessonDetailsController extends GetxController {
   fetchTeacherInfo() async {
     try {
       dataList = await ApiService.fetchTeacherInfo();
-      print('dataaaaaaaaaaaaaaa');
-      print(dataList);
+
       isLoading = true;
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   late VideoPlayerController videoPlayerController;

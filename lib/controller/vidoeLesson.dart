@@ -63,7 +63,7 @@ class VideoLessonsController extends GetxController {
 
     String resolution = selectedQuality.value;
     String url = '${AppLink.baseUrl}/' + videoFile['videoPath'];
-    log('url${url}');
+
     String localPath = await getLocalFilePath(resolution);
     bool exists = await isVideoDownloaded(resolution);
     String finalPath = exists ? localPath : url;
@@ -230,7 +230,6 @@ class VideoLessonsController extends GetxController {
       // إعداد مصدر البيانات
       BetterPlayerDataSource dataSource;
       if (isDownloaded) {
-        log('aaaaa');
         dataSource = BetterPlayerDataSource(
           BetterPlayerDataSourceType.file,
           await getLocalFilePath(resolution),

@@ -88,7 +88,6 @@ class testPage extends GetView<StartExamControllerss> {
                           controller.positions.refresh();
                           controller.positions[page] = 0;
                           controller.activePage(page);
-                          print(controller.activePage);
                         },
                         itemCount: controller.pages.length,
                         itemBuilder: (BuildContext context, int index) {

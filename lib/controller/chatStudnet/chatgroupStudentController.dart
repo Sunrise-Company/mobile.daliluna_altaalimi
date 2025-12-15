@@ -46,7 +46,6 @@ class ChatGroupMessageStudentController extends GetxController {
     });
     GetMessages();
     sockectcontroller.socket.on('sendChatToClient', (data) {
-      log('studenttttttttttttttttttt استلام رسالة جديدة: ${data['msg']}');
       bool isDuplicate = messageList.any(
         (msg) => msg['message_id'] == data['message_id'],
       );
@@ -75,7 +74,6 @@ class ChatGroupMessageStudentController extends GetxController {
 
   @override
   void onClose() {
-    log('receiverId ${receiverId.value}');
     markChatAsRead(receiverId.toString());
     super.onClose();
   }
@@ -89,10 +87,9 @@ class ChatGroupMessageStudentController extends GetxController {
   }
 
   Future<void> markChatAsRead(String chatId) async {
-    log('chatId.toString()${chatId}');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    log(token.toString());
+
     try {
       final response = await http.post(
         Uri.parse('${AppLink.server}/ReadGroupMessagesForStudent'),
@@ -102,9 +99,8 @@ class ChatGroupMessageStudentController extends GetxController {
         },
         body: jsonEncode({'receiver_id': chatId}),
       );
-      print(response.body);
+
       if (response.statusCode == 200) {
-        log("تمت قراءة المحادثة بنجاح!");
         ChatStudentListTeacherController chatStudentListTeacherController =
             Get.find();
         chatStudentListTeacherController.chatStudent();
@@ -118,9 +114,7 @@ class ChatGroupMessageStudentController extends GetxController {
           " ChatGroupMessageStudentController فشل في تحديث حالة المحادثة: ${response.body}",
         );
       }
-    } catch (e) {
-      log("ChatGroupMessageStudentController خطأ أثناء تحديث المحادثة: $e");
-    }
+    } catch (e) {}
   }
 
   void sendMessage({
@@ -235,8 +229,6 @@ class ChatGroupMessageStudentController extends GetxController {
         update();
       }
     } catch (e) {
-      log('ChatGroupMessageStudentController خطأ أثناء إرسال الرسالة: $e');
-
       messageList.removeWhere((msg) => msg['message_id'] == tempMessageId);
       update();
     }
@@ -248,7 +240,7 @@ class ChatGroupMessageStudentController extends GetxController {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
-      print(token);
+
       var headers = {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
@@ -261,10 +253,9 @@ class ChatGroupMessageStudentController extends GetxController {
       if (response.statusCode == 200) {
         isloded.value = true;
         final responseData = jsonDecode(response.body);
-        print(responseData);
+
         dataList.value = responseData['data'];
 
-        print(dataList);
         update();
       } else {
         throw Exception(
@@ -323,7 +314,6 @@ class ChatGroupMessageStudentController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error get messages ChatGroupMessageStudentController: $e');
     } finally {
       isloded.value = true;
       isLoadingMore.value = false;

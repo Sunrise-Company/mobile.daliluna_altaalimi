@@ -99,17 +99,12 @@ class ChatGroupMessageTeacherController extends GetxController {
         body: jsonEncode({'receiver_id': chatId}),
       );
       if (response.statusCode == 200) {
-        print("تمت قراءة المحادثة بنجاح!");
         ListStudentChatController chatStudentListTeacherController = Get.find();
         chatStudentListTeacherController.chatStudent();
 
         update();
-      } else {
-        print("فشل في تحديث حالة المحادثة: ${response.body}");
-      }
-    } catch (e) {
-      print("خطأ أثناء تحديث المحادثة: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -117,14 +112,11 @@ class ChatGroupMessageTeacherController extends GetxController {
   Future<void> cancelNotification() async {
     // إلغاء كل الإشعارات المتعلقة بهذه المحادثة
     await flutterLocalNotificationsPlugin.cancelAll();
-    print("تم مسح الإشعارات عند فتح المحادثة");
   }
 
   @override
   void onReady() {
     super.onReady();
-
-    print('Socket still connected when moving to other screens');
   }
 
   void sendMessage({
@@ -237,7 +229,6 @@ class ChatGroupMessageTeacherController extends GetxController {
         update();
       }
     } catch (e) {
-      log('ChatGroupMessageTeacherController خطأ أثناء إرسال الرسالة: $e');
       messageList.removeWhere((msg) => msg['message_id'] == tempMessageId);
       update();
     }
@@ -272,9 +263,7 @@ class ChatGroupMessageTeacherController extends GetxController {
           'Failed to load user list ChatGroupMessageTeacherController',
         );
       }
-    } catch (e) {
-      print('Error fetching user list ChatGroupMessageTeacherController: $e');
-    }
+    } catch (e) {}
   }
 
   Future<void> GetMessages({bool isLoadMore = false}) async {
@@ -322,7 +311,6 @@ class ChatGroupMessageTeacherController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error fetching messages ChatGroupMessageTeacherController: $e');
     } finally {
       isloded.value = true;
       isLoadingMore.value = false;

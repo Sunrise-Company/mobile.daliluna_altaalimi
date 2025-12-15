@@ -50,7 +50,6 @@ class ViewLessonController extends GetxController {
         isFreePreviewMode = false;
       }
     } catch (error) {
-      log('Error fetching section content ViewLessonController: $error');
     } finally {
       isLoadingvideo = false;
       isLoadingfile = false;

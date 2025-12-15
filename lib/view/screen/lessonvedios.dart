@@ -16,7 +16,6 @@ class LessonVedios extends GetView<LessonVediosController> {
   late ChewieController _chewieController;
   @override
   Widget build(BuildContext context) {
-    print("ddddddddddddddddddddd");
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(

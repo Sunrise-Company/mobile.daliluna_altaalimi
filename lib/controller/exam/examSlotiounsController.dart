@@ -31,12 +31,15 @@ class FetchSoltoinsExamControllerss extends GetxController {
       var studentId = localStorage.getString("student_id"); // Fetch student ID
       var quizId = Get.arguments['id']; // Get quiz ID from arguments
 
-      var response = await http.get(Uri.parse(
-          AppLink.server + '/dashboard/student/view_quize/$quizId/$studentId'));
+      var response = await http.get(
+        Uri.parse(
+          AppLink.server + '/dashboard/student/view_quize/$quizId/$studentId',
+        ),
+      );
 
       print(
-          'Fetching URL:${AppLink.server}/dashboard/student/view_quize/$quizId/$studentId');
-      print('Response Status Code: ${response.statusCode}');
+        'Fetching URL:${AppLink.server}/dashboard/student/view_quize/$quizId/$studentId',
+      );
 
       if (response.statusCode == 200) {
         var body = jsonDecode(response.body);
@@ -50,7 +53,6 @@ class FetchSoltoinsExamControllerss extends GetxController {
         dataListExam.value = body['questions']; // Parse JSON into model
       }
     } catch (e) {
-      print(e);
       // Get.snackbar(
       //     "Connection Error", "Please check your internet connection.");
     } finally {

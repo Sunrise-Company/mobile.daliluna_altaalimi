@@ -47,7 +47,7 @@ class ChatStudentMessageController extends GetxController {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     senderId = prefs.getString('student_id');
     token = prefs.getString('token');
-    log('senderid ${senderId}');
+
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
@@ -59,7 +59,6 @@ class ChatStudentMessageController extends GetxController {
 
     GetMessages();
     sockectcontroller.socket.on('sendChatToClient', (data) {
-      log('student استلام رسالة جديدة: ${data.toString()}');
       bool isDuplicate = dataList.any(
         (msg) => msg['message_id'] == data['message_id'],
       );
@@ -94,7 +93,6 @@ class ChatStudentMessageController extends GetxController {
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.cancelAll();
-    log('All notifications cancelled');
   }
 
   Future<void> markChatAsRead(String chatId) async {
@@ -110,7 +108,6 @@ class ChatStudentMessageController extends GetxController {
         },
       );
       if (response.statusCode == 200) {
-        print("ChatStudentMessageController تمت قراءة المحادثة بنجاح!");
         ChatStudentListTeacherController chatStudentListTeacherController =
             Get.find();
         chatStudentListTeacherController.chatStudent();
@@ -121,9 +118,7 @@ class ChatStudentMessageController extends GetxController {
           "ChatStudentMessageController فشل في تحديث حالة المحادثة: ${response.body}",
         );
       }
-    } catch (e) {
-      print("ChatStudentMessageController خطأ أثناء تحديث المحادثة: $e");
-    }
+    } catch (e) {}
   }
 
   @override
@@ -152,7 +147,7 @@ class ChatStudentMessageController extends GetxController {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
       };
-      log('${receiverId}');
+
       final response = await http.get(
         Uri.parse(
           "${AppLink.server}/getMessagesStudent/${receiverId}?page=${currentPage.value}",
@@ -162,7 +157,7 @@ class ChatStudentMessageController extends GetxController {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        log('response.body ${response.body}');
+
         List newData = responseData['data']['data'];
         int perPage = responseData['data']['per_page'];
 
@@ -177,7 +172,6 @@ class ChatStudentMessageController extends GetxController {
         throw Exception('Failed to load messages');
       }
     } catch (e) {
-      print('Error fetching messages: $e');
     } finally {
       isloded.value = true;
       isLoadingMore.value = false;
@@ -191,7 +185,7 @@ class ChatStudentMessageController extends GetxController {
     required String receiverId,
   }) async {
     if ((text?.trim().isEmpty ?? true) && file == null) return;
-    log('send ${receiverId}');
+
     if (!sockectcontroller.isSocketConnected.value) {
       return;
     }
@@ -302,7 +296,6 @@ class ChatStudentMessageController extends GetxController {
         update();
       }
     } catch (e) {
-      log('ChatStudentMessageController خطأ أثناء إرسال الرسالة: $e');
       dataList.removeWhere((msg) => msg['message_id'] == tempMessageId);
       update();
     }
@@ -324,9 +317,7 @@ class ChatStudentMessageController extends GetxController {
       isRecording.value = true;
       _startTime = DateTime.now();
       updateDuration();
-    } else {
-      print('Permission to record audio was denied.');
-    }
+    } else {}
   }
 
   void updateDuration() {

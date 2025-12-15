@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-import 'dart:developer';
 import 'dart:io';
 import 'package:daliluna_altaalimi/download_service.dart';
 import 'package:daliluna_altaalimi/view/widget/comments_widget.dart';
@@ -7,7 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
 import 'package:better_player/better_player.dart';
@@ -95,14 +93,12 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     setState(() {
       _isFullScreen = !_isFullScreen;
       if (_isFullScreen) {
-        log('FullScreen');
         SystemChrome.setPreferredOrientations([
           DeviceOrientation.landscapeRight,
           DeviceOrientation.landscapeLeft,
         ]);
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       } else {
-        log('not full');
         SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
         SystemChrome.setEnabledSystemUIMode(
@@ -155,8 +151,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       options.sort((a, b) => b.streamInfo.size.compareTo(a.streamInfo.size));
 
       if (mounted) setState(() => _prefetchedQualities = options);
-    } catch (e, stackTrace) {
-      dev.log("Failed to prefetch qualities: $e  $stackTrace");
+      // Failed to prefetch qualities
     } finally {
       if (mounted) setState(() => _isFetchingQualities = false);
       yt.close();
@@ -164,15 +159,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   }
 
   Future<void> _downloadVideo() async {
-    final hasPermission = await _handlePermissions();
-    if (!hasPermission) {
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Storage permission is required.')),
-        );
-      return;
-    }
-
     if (_prefetchedQualities == null || _prefetchedQualities!.isEmpty) {
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
@@ -228,7 +214,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   }
 
   void _initializeWebView() {
-    dev.log(widget.videoId.toString());
     const String finalJsCommands = """
        function cleanPlayer() {
          const css = `.ytp-chrome-top, .ytp-youtube-button, .ytp-impression-link, .iv-branding,
@@ -271,8 +256,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
     final String embedUrl =
         'https://www.youtube.com/embed/${widget.videoId}?playsinline=1&modestbranding=1&iv_load_policy=3&fs=1&rel=0&origin=https://www.google.com';
-
-    dev.log(embedUrl.toString());
 
     final Map<String, String> headers = {
       'User-Agent':
@@ -324,47 +307,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         ),
       )
       ..loadRequest(Uri.parse(embedUrl), headers: headers);
-  }
-
-  Future<bool> _handlePermissions() async {
-    PermissionStatus status;
-    if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      if (androidInfo.version.sdkInt >= 33) {
-        status = await Permission.videos.request();
-      } else {
-        status = await Permission.storage.request();
-      }
-    } else {
-      status = await Permission.storage.request();
-    }
-    if (status.isGranted || status.isLimited) return true;
-    if (status.isPermanentlyDenied && mounted) _showSettingsDialog();
-    return false;
-  }
-
-  void _showSettingsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Permission Required'),
-        content: const Text(
-          'Storage permission has been permanently denied. Please go to your device settings to enable it.',
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: const Text('Open Settings'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _deleteVideo() async {

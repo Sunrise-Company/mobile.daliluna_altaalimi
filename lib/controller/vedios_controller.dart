@@ -43,7 +43,6 @@ class VediosController extends GetxController {
         isFreePreviewMode = false;
       }
     } catch (error) {
-      log('Error fetching section content: $error');
     } finally {
       isLoadingvideo = false;
 

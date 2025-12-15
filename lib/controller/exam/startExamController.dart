@@ -88,7 +88,6 @@ class StartExamControllerss extends GetxController {
   }
 
   itemChange(String key, int index) {
-    print(check[index]()[key].toString());
     check.refresh();
     check[index]()[key] == true
         ? check[index]()[key] = false
@@ -126,7 +125,7 @@ class StartExamControllerss extends GetxController {
         }
         // ignore: unused_local_variable
         var res = jsonEncode(answer);
-        print("-----------------------------------");
+
         // print(jsonDecode(res)[0]['id']);
       }
 
@@ -134,16 +133,13 @@ class StartExamControllerss extends GetxController {
       var res;
       String? student_id = localStorage.getString('student_id');
 
-      print(jsonEncode(answer));
-      print(Get.arguments['id']);
-      print("answerrrrrrrrr$answer");
       // print(localStorage.getString('student_id').toString());
       Map<String, List<String>> transformedData = transformSubmitListToMap(
         answer,
       );
 
       // print("امتحانات");
-      print(student_id.toString());
+
       res = await http.post(
         Uri.parse(AppLink.server + "/dashboard/student/main_exam/submit"),
         body: {
@@ -152,15 +148,9 @@ class StartExamControllerss extends GetxController {
           'answer': jsonEncode(transformedData),
         },
       );
-      print(jsonEncode(transformedData));
-      print(res.statusCode);
 
-      print(AppLink.server + "/dashboard/student/main_exam/submit");
       var body = json.decode(res.body);
-      print(body);
-      print(res.statusCode);
 
-      print(Get.arguments['id'].toString());
       if (body['status'] == 1) {
         issubmit(false);
         Get.snackbar(
@@ -221,9 +211,7 @@ class StartExamControllerss extends GetxController {
 
         // Get.close(3);
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
   fetchquiz() async {
@@ -233,12 +221,8 @@ class StartExamControllerss extends GetxController {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     String? student_id = localStorage.getString('student_id');
     // usertype = localStorage.get('type');
-    print("uuuuuuser");
-    print(usertype);
-    print(usertype);
 
     if (Get.arguments == null) {
-      print("Error: Get.arguments is null");
       Get.snackbar("Error", "Missing exam arguments");
       return;
     }
@@ -247,10 +231,7 @@ class StartExamControllerss extends GetxController {
     type = Get.arguments['type'];
 
     var respons;
-    print(student_id);
-    print(examid);
 
-    print("الامتحانات");
     respons = await http.get(
       Uri.parse(
         AppLink.server +
@@ -268,14 +249,11 @@ class StartExamControllerss extends GetxController {
           "/" +
           student_id.toString(),
     );
-    print(respons.body);
-    print(respons.statusCode);
 
-    print("/////////");
     var body = json.decode(respons.body);
     if (respons.statusCode == 200) {
       isloded.value = true;
-      print(isload);
+
       if (body['status'] == 0) {
         // Get.back();
         Get.back();
@@ -297,11 +275,8 @@ class StartExamControllerss extends GetxController {
       questionlist(testmodel.questions);
       duration = ((int.parse(testmodel.exam_period.toString()) * 60 - 10))
           .toInt();
-      print("///////////*****/");
-      print(duration);
 
       for (int i = 0; i < questionlist.length; i++) {
-        print(i);
         AnswerModel answerModel = new AnswerModel();
         AudioModel audioModel = new AudioModel();
         answerModel.questionid = questionlist[i].id;
@@ -318,7 +293,6 @@ class StartExamControllerss extends GetxController {
             player.onDurationChanged.listen((Duration d) {
               durations()[i] = d.inMilliseconds;
               durations.refresh;
-              print(durations[i]);
             });
           } else {
             audioModel.duration = 0;
@@ -333,9 +307,7 @@ class StartExamControllerss extends GetxController {
         isplaying.add(iaplay$i);
         positions.add(position$i);
 
-        print(questionlist[i].quesType);
         if (questionlist[i].quesType == 1) {
-          print("مؤتمت");
           //اتمتة
           var check$i = HashMap().obs;
           for (
@@ -360,16 +332,13 @@ class StartExamControllerss extends GetxController {
 
           pages.add(StartExam(type: 1, index: i, ckechid: checkl));
         } else {
-          print("غير مؤتمت");
           var check$i = HashMap().obs;
           check$i()["answer$i"] = " ";
           check.add(check$i);
           pages.add(StartExam(type: 2, index: i, ckechid: 0));
         }
       }
-    } else {
-      print("oooo");
-    }
+    } else {}
     isload(false);
   }
 }

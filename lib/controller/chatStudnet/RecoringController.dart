@@ -224,12 +224,8 @@ class RecorderController extends GetxController {
 
         _startTime = DateTime.now();
         updateDuration();
-      } catch (e) {
-        print('Error starting recording: $e');
-      }
-    } else {
-      print('Permission to record audio was denied.');
-    }
+      } catch (e) {}
+    } else {}
   }
 
   Future<void> stopRecording() async {
@@ -244,9 +240,7 @@ class RecorderController extends GetxController {
 
       isRecording.value = false;
       currentDuration.value = '00:00';
-    } catch (e) {
-      print('Error stopping recording: $e');
-    }
+    } catch (e) {}
   }
 
   void deleteRecording() {
@@ -326,7 +320,6 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
         });
       }
     } catch (e) {
-      print("Error initializing audio: $e");
       if (!mounted) return; // ✅ حماية إضافية
       setState(() => _isLoading = false);
     }

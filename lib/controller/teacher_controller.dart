@@ -62,12 +62,10 @@ class TeacherController extends GetxController {
   void fetchTachers() async {
     try {
       dataList = await ApiService.fetchTachers();
-      print(dataList);
+
       isLoadingtow = true;
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   List<dynamic> myTeachers = [];
@@ -76,11 +74,9 @@ class TeacherController extends GetxController {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? student_id = prefs.getString('student_id');
       myTeachers = await ApiService.fetchMyTachers(student_id);
-      print(myTeachers);
+
       isLoading = true;
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 }

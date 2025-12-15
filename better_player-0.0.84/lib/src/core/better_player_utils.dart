@@ -59,7 +59,6 @@ class BetterPlayerUtils {
   static void log(String logMessage) {
     if (!kReleaseMode) {
       // ignore: avoid_print
-      print(logMessage);
     }
   }
 }

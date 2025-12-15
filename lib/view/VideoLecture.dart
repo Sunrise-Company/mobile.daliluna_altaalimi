@@ -47,10 +47,7 @@ class VideoLecture extends GetView<VideoLecturesController> {
         String? videoId;
         try {
           videoId = VideoId(url).value;
-          log(videoId);
-        } catch (e) {
-          print('Could not parse YouTube URL: $e');
-        }
+        } catch (e) {}
 
         if (videoId != null) {
           Get.put(VideoLecturesController());

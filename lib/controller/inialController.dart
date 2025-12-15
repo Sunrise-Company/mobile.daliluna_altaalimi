@@ -19,10 +19,10 @@ class InialController extends GetxController {
   isteacher() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? teacher_id = prefs.getInt('teacher_id');
-    print(teacher_id);
+
     await Future.delayed(Duration(seconds: 2));
     isLoading.value = false; // Set loading to false after checking
-    print("fffffff");
+
     if (teacher_id != null) {
       Get.toNamed('/homepageTeacher');
     } else {

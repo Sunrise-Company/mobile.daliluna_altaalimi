@@ -15,13 +15,9 @@ import 'package:get/get.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart' as path;
-
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../controller/teacherController/chat/chatTeacherController.dart';
 import '../../../core/constant/color.dart';
@@ -611,9 +607,7 @@ class ChatPage extends GetView<ChatTeacherController> {
       await dio.download(fileUrl, savePath);
 
       OpenFilex.open(savePath);
-    } catch (e) {
-      print("⚠️ خطأ في تحميل أو فتح الملف: $e");
-    }
+    } catch (e) {}
   }
 
   Future<void> pickAndShowFileDialog(BuildContext context) async {
@@ -862,7 +856,6 @@ class ChatPage extends GetView<ChatTeacherController> {
       );
       return thumbnailPath;
     } catch (e) {
-      print("⚠️ خطأ في إنشاء الصورة المصغرة: $e");
       return null;
     }
   }

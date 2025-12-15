@@ -38,23 +38,20 @@ class TeacherVideosLessonContrlloer extends GetxController {
         isloded.value = true;
 
         final responseData = jsonDecode(response.body);
-        print(responseData);
+
         dataList.value = responseData['app_lecture_file'];
 
-        print(dataList);
         update();
       } else {
         throw Exception('Failed to load studentLesson');
       }
     } catch (error) {
-      print('Error fetching studentLesson: $error');
       // Handle errors appropriately, e.g., show a message to the user
     }
   }
 
   // @override
   goToItem(int lessonId) {
-    print("sss");
     Get.toNamed(
       '/conatine_lesson',
       arguments: {
@@ -62,7 +59,7 @@ class TeacherVideosLessonContrlloer extends GetxController {
         "id": lessonId,
       },
     );
-    print("klklklkklkl");
+
     // dataList.clear();
   }
 }

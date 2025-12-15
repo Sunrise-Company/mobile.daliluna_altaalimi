@@ -15,7 +15,6 @@ import '../../linkapi.dart';
 class MainExamControllerss extends GetxController {
   RxBool isloded = false.obs;
   Future<void> launchInBrowser(Uri url) async {
-    print(url);
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw 'Could not launch $url';
     }
@@ -37,16 +36,12 @@ class MainExamControllerss extends GetxController {
       );
 
       for (int i = 0; i < result!.files.length; i++) {
-        print(i);
-
         file.add(File(result!.files[i].path.toString()));
         extensions.add(
           p.extension(File(result!.files[i].path.toString()).path),
         );
       }
-    } catch (e) {
-      print(e);
-    }
+    } catch (e) {}
   }
 
   @override
@@ -87,13 +82,12 @@ class MainExamControllerss extends GetxController {
           'file[$i]',
           file[i].path,
         );
-        print(file[i].path);
+
         request.files.add(multipartFile);
       }
-      print('Uploaded files:');
 
       request.fields['extension'] = jsonEncode(extensions);
-      print(request);
+
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
       var body = jsonDecode(responseBody);
@@ -106,7 +100,7 @@ class MainExamControllerss extends GetxController {
         extensions.clear();
         isloded.value = false;
         onInit();
-        print("sucesss");
+
         // Get.offNamed(AppRoutes.finalexam);
       } else {
         // fileloading(false);
@@ -139,13 +133,11 @@ class MainExamControllerss extends GetxController {
     isloded.value = false;
     dataListExam.value = [];
     try {
-      print("dataListExam");
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? student_id = prefs.getString('student_id');
       // SharedPreferences prefss = await SharedPreferences.getInstance();
       // var groupsid = prefss.get('group_id');
 
-      print("urlll");
       final response = await http.get(
         Uri.parse(
           AppLink.server +
@@ -158,18 +150,16 @@ class MainExamControllerss extends GetxController {
             '/dashboard/student/main_exam/' +
             student_id.toString(),
       );
-      print(response.body);
+
       if (response.statusCode == 200) {
         isloded.value = true;
         final responseData = jsonDecode(response.body);
-        print(responseData);
+
         dataListExam.value = responseData['exams'];
         print(
           "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m",
         );
-        print(dataListExam.length);
 
-        print(dataListExam);
         print(
           "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m",
         );
@@ -177,22 +167,18 @@ class MainExamControllerss extends GetxController {
       } else {
         throw Exception('Failed to load exam/');
       }
-    } catch (e) {
-      print('Error fetching exams: $e');
-    }
+    } catch (e) {}
   }
 
   goToItem(String examid) {
-    print("sss");
     Get.toNamed('/test', arguments: {"id": examid});
-    print("klklklkklkl");
+
     // dataList.clear();
   }
 
   goToSoltions(int examid) {
-    print("sss");
     Get.toNamed('/examsoltuions', arguments: {"id": examid});
-    print("klklklkklkl");
+
     // dataList.clear();
   }
 }

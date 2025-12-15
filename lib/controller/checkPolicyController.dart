@@ -24,15 +24,9 @@ class checkPolicyController extends GetxController {
   }
 
   checkVersionnum() {
-    print("--------------------jjj------------------");
-    print(oldnum == newnum);
-    print(oldnum);
-    print(newnum);
     if (oldnum == newnum) {
-      print('yyyyyyyyyy');
       Get.toNamed('/checkPolicy');
     } else {
-      print('xxxxxxxxxxxx');
       Get.toNamed('/updateApp');
     }
   }
@@ -42,8 +36,7 @@ class checkPolicyController extends GetxController {
       var response;
       response = await http.get(Uri.parse('${AppLink.server}/app_version_num'));
       var body = json.decode(response.body);
-      log('==============');
-      print(body['version_num']);
+
       oldnum(body['version_num']);
       checkVersionnum();
     } catch (e) {
@@ -69,8 +62,7 @@ class checkPolicyController extends GetxController {
   getNewVersionnum() async {
     final PackageInfo info = await PackageInfo.fromPlatform();
     currentVersion = double.parse(info.version.trim().replaceAll(".", ""));
-    print('--------------');
-    print(currentVersion);
+
     newnum(currentVersion.toString());
   }
 }

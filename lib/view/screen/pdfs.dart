@@ -43,7 +43,6 @@ class Pdfs extends StatelessWidget {
                         CustomCardSubject(
                           text: pdfs[index]['name'],
                           onTap: () {
-                            print(pdfs[index]['file']);
                             pdfs[index]['file'] != null
                                 ? Navigator.push(
                                     context,

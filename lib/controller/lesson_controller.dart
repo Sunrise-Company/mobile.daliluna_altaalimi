@@ -28,13 +28,13 @@ class LessonsController extends GetxController {
 
   void navigateToSection(Map<String, dynamic> sectionItem) async {
     // Add Breadcrumb
-    Get.find<BreadcrumbService>().add(BreadcrumbItem(
-      title: sectionItem['name'] ?? 'الدرس',
-      route: AppRoute.vedios,
-      arguments: {
-        "lectureid": sectionItem['id'],
-      },
-    ));
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(
+        title: sectionItem['name'] ?? 'الدرس',
+        route: AppRoute.vedios,
+        arguments: {"lectureid": sectionItem['id']},
+      ),
+    );
 
     final bool isPurchased = mylectures.any(
       (s) => s['id'] == sectionItem['id'],
@@ -53,7 +53,7 @@ class LessonsController extends GetxController {
       if (checkingSectionId.value != null) return;
       try {
         checkingSectionId.value = sectionItem['id'];
-        log("checkingSectionId.value" + checkingSectionId.value.toString());
+
         final videos = await ApiService.fetchVideos(sectionItem['id']);
         final bool hasFreeVideos = videos.any(
           (video) => video['free_status'] == "1",
@@ -78,7 +78,6 @@ class LessonsController extends GetxController {
           );
         }
       } catch (e) {
-        log("Error in navigateToSection: $e");
         Get.snackbar("خطأ", "حدث خطأ أثناء التحقق من المحتوى.");
       } finally {
         checkingSectionId.value = null;
@@ -90,14 +89,11 @@ class LessonsController extends GetxController {
   void fetchLectures() async {
     try {
       dataList = await ApiService.fetchLectures();
-      print("===========");
-      print(dataList);
+
       isloadedlesson = true;
-      log('lecture ' + dataList.toString());
+
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   void fetchMyLectures() async {
@@ -105,14 +101,10 @@ class LessonsController extends GetxController {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? student_id = prefs.getString('student_id');
       mylectures.value = await ApiService.fetchMyLectures(student_id);
-      print("===========");
-      print(mylectures);
+
       isloaded = true;
 
-      log('my lecture ' + mylectures.toString());
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 }

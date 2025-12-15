@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'dart:developer' as dev;
+
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
 import 'dart:math';
 
@@ -78,7 +78,6 @@ class DownloadService {
   Future<void> startDownload(String videoId, DownloadOption option) async {
     if (_tasks[videoId]?.status == DownloadStatus.downloading ||
         _tasks[videoId]?.status == DownloadStatus.merging) {
-      dev.log('Download for $videoId already in progress.');
       return;
     }
 
@@ -132,17 +131,15 @@ class DownloadService {
         await _muxMp4(vTmp, aTmp, outPath);
         await File(vTmp)
             .delete()
-            .catchError((e) => dev.log("Error deleting tmp video: $e"));
+            .catchError((e) {});
         await File(aTmp)
             .delete()
-            .catchError((e) => dev.log("Error deleting tmp audio: $e"));
+            .catchError((e) {});
       }
 
       task.status = DownloadStatus.completed;
       task.statusText = 'Download complete!';
       _notifyUpdates();
-
-      dev.log('Download for $videoId completed successfully.');
 
       Future.delayed(const Duration(seconds: 5), () {
         if (_tasks[videoId]?.status == DownloadStatus.completed) {
@@ -151,7 +148,6 @@ class DownloadService {
         }
       });
     } catch (e, stack) {
-      dev.log('Download failed for $videoId: $e', stackTrace: stack);
       task.status = DownloadStatus.failed;
       task.statusText = 'Download failed.';
       _notifyUpdates();

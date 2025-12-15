@@ -499,7 +499,6 @@ class _YoutubeVideoCardState extends State<YoutubeVideoCard> {
       }
       return "0:00";
     } catch (e) {
-      print('Network Error fetching YouTube data: $e');
       return "0:00";
     }
   }

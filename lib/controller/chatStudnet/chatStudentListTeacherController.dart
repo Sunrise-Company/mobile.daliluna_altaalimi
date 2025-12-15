@@ -35,7 +35,6 @@ class ChatStudentListTeacherController extends GetxController {
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.cancelAll();
-    log('All notifications cancelled');
   }
 
   Future<void> chatStudent() async {
@@ -44,7 +43,7 @@ class ChatStudentListTeacherController extends GetxController {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
-      print(token);
+
       var headers = {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
@@ -60,16 +59,14 @@ class ChatStudentListTeacherController extends GetxController {
       if (response.statusCode == 200) {
         isloded.value = true;
         final responseData = jsonDecode(response.body);
-        print(responseData);
+
         dataList.value = responseData['data']['users'];
         roomlist.value = responseData['data']['rooms'];
-        print(roomlist);
+
         update();
       } else {
         throw Exception('Failed to load getListUsersStudent List ');
       }
-    } catch (e) {
-      print('Error fetching getListUsersStudent List: $e');
-    }
+    } catch (e) {}
   }
 }

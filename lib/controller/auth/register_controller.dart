@@ -21,8 +21,7 @@ class RegisterController extends GetxController {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     id = androidInfo.id; // Corrected line
-    print("ffffffff");
-    print(id);
+
     update();
     // print('Device ID: ${id}');
   }
@@ -35,7 +34,6 @@ class RegisterController extends GetxController {
 
   String? gender;
   void onClickRadioButton(value) {
-    print(value);
     gender = value;
     update();
   }
@@ -68,8 +66,6 @@ class RegisterController extends GetxController {
 
   Map<String, String> data = Map();
   getdata() {
-    print(phone.text);
-    print(password.text);
     data = {
       "arabic_name": usernameAr.text,
       "english_name": usernameEn.text,
@@ -100,14 +96,12 @@ class RegisterController extends GetxController {
     if (responseData == true) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setBool('isLogin', true);
-      print(prefs.getBool('isLoign'));
+
       update();
     }
   }
 
   saveToken(String token) async {
-    print('rrrrrrrrrrrrrrr');
-
     String responseData = await ApiService.saveToken(token);
     if (responseData == true) {
       update();
@@ -120,11 +114,9 @@ class RegisterController extends GetxController {
   void fetchAppPolicy() async {
     try {
       appPolicy = await ApiService.fetchAppPolicy();
-      print(appPolicy);
+
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   @override

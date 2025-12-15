@@ -168,9 +168,6 @@ class DownloadController extends GetxController {
     List<dynamic> files,
     String baseVideoId,
   ) async {
-    print(files.toString());
-    print(baseVideoId);
-
     final List<dynamic> validFiles = files.where((f) {
       return f is Map && f['resolution'] != null && f['videoPath'] != null;
     }).toList();

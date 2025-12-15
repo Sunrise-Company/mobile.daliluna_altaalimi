@@ -20,7 +20,6 @@ class LoginController extends GetxController {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     id = androidInfo.id; // Corrected line
     update();
-    log('Device ID: ${id}');
   }
 
   bool isshowpassword = true;
@@ -49,7 +48,6 @@ class LoginController extends GetxController {
       "password": password.text,
       "device_id": id.toString(),
     };
-    print(id.toString());
   }
 
   bool load = false;
@@ -61,10 +59,7 @@ class LoginController extends GetxController {
     await getDeviceDetails();
     await getdata();
     String responseData = await ApiService.loginStudent(data);
-    print('------------------');
-    print(responseData);
 
-    print('------------------');
     load = false;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -77,16 +72,13 @@ class LoginController extends GetxController {
         : isLoginsuccess(true);
 
     checkIfLogin();
-    print("${responseData}xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+
     message(responseData.toString());
 
     update();
-    print(responseData);
-    print(isLoginsuccess);
   }
 
   updateisLoginsuccess() {
-    print('3333333333333333333');
     isLoginsuccess(true);
     update();
   }

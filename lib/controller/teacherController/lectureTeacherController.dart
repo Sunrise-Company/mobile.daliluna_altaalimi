@@ -39,16 +39,14 @@ class TeacherLectureDespsContrlloer extends GetxController {
         isloded.value = true;
 
         final responseData = jsonDecode(response.body);
-        print(responseData);
+
         dataList.value = responseData;
 
-        print(dataList);
         update();
       } else {
         throw Exception('Failed to load studentLesson');
       }
     } catch (error) {
-      print('Error fetching studentLesson: $error');
       // Handle errors appropriately, e.g., show a message to the user
     }
   }
@@ -56,7 +54,6 @@ class TeacherLectureDespsContrlloer extends GetxController {
   @override
   // ignore: override_on_non_overriding_member
   goToItem(int lessonId) {
-    print("sss");
     Get.toNamed(
       '/conatine_lesson',
       arguments: {
@@ -64,7 +61,7 @@ class TeacherLectureDespsContrlloer extends GetxController {
         "id": lessonId,
       },
     );
-    print("klklklkklkl");
+
     // dataList.clear();
   }
 }

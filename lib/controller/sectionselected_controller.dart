@@ -24,8 +24,6 @@ class SectionSelectedController extends GetxController {
     int teacher_id,
     int class_id,
   ) {
-    print('-----------mysection------------');
-    print(selectedItem);
     Get.toNamed(
       selectedItem == 5
           ? AppRoute.lessonDetails
@@ -72,12 +70,6 @@ class SectionSelectedController extends GetxController {
       ),
     );
 
-    log('-----------0------------');
-    log(selectedItem);
-    log('type $type');
-    log(subjetcsid);
-    log(teacher_id);
-    log('-----------1------------');
     if (type.toString() != '4') {
       if (selectedItem == '5') {
         Get.toNamed(
@@ -89,7 +81,6 @@ class SectionSelectedController extends GetxController {
           },
         );
       } else if (selectedItem == '6') {
-        print('unittt');
         Get.toNamed(
           AppRoute.unitsSubject,
           arguments: {
@@ -129,14 +120,12 @@ class SectionSelectedController extends GetxController {
         Get.arguments['teacher_id'].toString(),
       );
       isLoadingtow = true;
-      log("sectons " + dataList.toString());
+
       log(
         "sectons app_main_deps2 classID: ${Get.arguments['classid'].toString()} subjetcsid:${Get.arguments['subjetcsid'].toString()}  teacher_id${Get.arguments['teacher_id'].toString()}",
       );
       update();
-    } catch (error) {
-      print('Error fetchSections: $error');
-    }
+    } catch (error) {}
   }
 
   List<dynamic> mysection = [];
@@ -149,15 +138,13 @@ class SectionSelectedController extends GetxController {
         Get.arguments['classid'],
         Get.arguments['teacher_id'],
       );
-      log('mysection ' + mysection.toString());
+
       log(
         "mysection app_my_main_deps ${Get.arguments['subjetcsid']}   ${student_id} ${Get.arguments['classid'].toString()}  ${Get.arguments['teacher_id']}",
       );
       // log("mysection app_my_main_deps ${Get.arguments['subjetcsid']}   ${student_id}");
       isLoading = true;
       update();
-    } catch (error) {
-      print('Error fetchMySections: $error');
-    }
+    } catch (error) {}
   }
 }

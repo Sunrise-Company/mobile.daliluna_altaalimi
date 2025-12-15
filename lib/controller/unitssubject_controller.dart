@@ -9,8 +9,6 @@ import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
 class UnitsSubjectController extends GetxController {
   goToLesson(int selectedItem, int app_subject_id) {
-    log('eeeeeeeeeeeeeeeeeeeeeeeeeee ${selectedItem}');
-
     // Find the name of the selected unit
     final selectedUnit = dataList.firstWhere(
       (element) => element['id'] == selectedItem,
@@ -34,8 +32,6 @@ class UnitsSubjectController extends GetxController {
   }
 
   goToMyLesson(int selectedItem, int app_subject_id) {
-    print('eeeeeeeeeeeeeeeeeeeeeeeeeee');
-    log(app_subject_id.toString());
     Get.toNamed(
       AppRoute.mylessons,
       arguments: {"unitsid": selectedItem, 'subject_id': app_subject_id},
@@ -56,17 +52,12 @@ class UnitsSubjectController extends GetxController {
 
   void fetchUnits() async {
     try {
-      print(Get.arguments['sectionid'].toString());
-      print(Get.arguments['teacher_id'].toString());
-      print('***********8');
       dataList = await ApiService.fetchUnits();
 
       isLoading = true;
-      log('units' + dataList.toString());
+
       update();
-    } catch (error) {
-      print('units Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   RxList<dynamic> myunits = [].obs;
@@ -78,14 +69,10 @@ class UnitsSubjectController extends GetxController {
       String? student_id = prefs.getString('student_id');
 
       myunits.value = await ApiService.fetchMyUnits(student_id.toString());
-      print("===========");
 
       isLoadingtow = true;
 
-      log('myunits' + myunits.toString());
       update();
-    } catch (error) {
-      print('my units Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 }

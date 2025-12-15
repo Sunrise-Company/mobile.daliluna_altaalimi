@@ -22,13 +22,10 @@ class OurCoursesController extends GetxController {
   deviceInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion(packageInfo.version).obs;
-    print(appVersion);
-    print(deviceinfo['version_num']);
+
     if (appVersion == deviceinfo['version_num']) {
-      print('---------------------------------');
       isUpdate(0).obs;
     } else {
-      print('0999999999999999999');
       isUpdate(1).obs;
     }
   }
@@ -39,18 +36,9 @@ class OurCoursesController extends GetxController {
   fetchDeviceInfo() async {
     try {
       deviceinfo = await ApiService.fetchdeviceinfo();
-      print("ooooooooooooooooooooooooo1;");
-      print(deviceinfo);
-      print("+++++++++++++++++++");
-      print(appVersion);
-      print(deviceinfo['version_num'].toString());
-      print(appVersion == deviceinfo['version_num']);
-      print(isUpdate);
-      print(appVersion == deviceinfo['version_num']);
+
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   void onInit() async {
@@ -66,21 +54,25 @@ class OurCoursesController extends GetxController {
 
   goToSubjects(int selectedItem) {
     // Find the name of the selected item
-    final selectedClass = dataList.firstWhere((element) => element['id'] == selectedItem, orElse: () => {});
+    final selectedClass = dataList.firstWhere(
+      (element) => element['id'] == selectedItem,
+      orElse: () => {},
+    );
     final String className = selectedClass['name'] ?? 'الصف';
 
     // Add Breadcrumb
-    Get.find<BreadcrumbService>().add(BreadcrumbItem(
-      title: className,
-      route: AppRoute.subjects,
-      arguments: {"lessonid": selectedItem},
-    ));
+    Get.find<BreadcrumbService>().add(
+      BreadcrumbItem(
+        title: className,
+        route: AppRoute.subjects,
+        arguments: {"lessonid": selectedItem},
+      ),
+    );
 
     Get.toNamed(AppRoute.subjects, arguments: {"lessonid": selectedItem});
   }
 
   goToMySubjects(int selectedItem) async {
-    log(selectedItem.toString());
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? student_id = prefs.getString('student_id');
     Get.toNamed(
@@ -95,7 +87,6 @@ class OurCoursesController extends GetxController {
     try {
       sliders = await ApiService.fetchMainslider();
       sliders.forEach((element) {
-        print("elementttttttttttttttttttttttttttttttt$element");
         slider.add(AppLink.image + '/' + element);
       });
       update();
@@ -144,8 +135,6 @@ class OurCoursesController extends GetxController {
           ),
         ),
       );
-
-      print('Error fetching classes: $error');
     }
   }
 
@@ -200,28 +189,22 @@ class OurCoursesController extends GetxController {
         "تعذر تحميل البرامج الدراسية، تحقق من اتصالك بالانترنت",
         dismissDirection: DismissDirection.startToEnd,
       );
-      print('Error fetching classes: $error');
     }
   }
 
   List<dynamic> myClassess = [];
   void fetchmyClassess() async {
     try {
-      print('myyyyyyyy');
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('isLogin') == true) {
         String? student_id = prefs.getString('student_id');
 
         myClassess = await ApiService.fetchmyClassess(student_id);
 
-        print('555555iiiiiiiiiiii');
-        print(myClassess);
         isLoadingcourses = true;
         update();
       }
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   bool get hasSelectedInstitute => selectedInstituteId != null;

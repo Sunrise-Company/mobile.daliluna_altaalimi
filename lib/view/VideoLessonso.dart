@@ -28,10 +28,7 @@ class VideoLessons extends GetView<VideoLessonsController> {
         String? videoId;
         try {
           videoId = VideoId(url).value;
-          log(videoId);
-        } catch (e) {
-          print('Could not parse YouTube URL: $e');
-        }
+        } catch (e) {}
 
         if (videoId != null) {
           return YoutubePlayer(

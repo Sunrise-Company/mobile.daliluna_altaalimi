@@ -398,9 +398,7 @@ class SubjectTeacher extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          onTap: () {
-                                            print(item['id'].toString());
-                                          },
+                                          onTap: () {},
                                         ),
                                       ),
                                     ),

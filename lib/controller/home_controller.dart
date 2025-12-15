@@ -28,7 +28,6 @@ class HomeController extends GetxController {
       citiesError = null;
     } catch (error) {
       citiesError = 'تعذر تحميل المحافظات، حاول مجدداً';
-      print('Error fetching cities: $error');
     } finally {
       isLoadingCities = false;
       update();
@@ -39,19 +38,21 @@ class HomeController extends GetxController {
     if (city['id'] == null) {
       return;
     }
-    
+
     // Add Breadcrumb
     final breadcrumbService = Get.find<BreadcrumbService>();
     breadcrumbService.clear(); // Start fresh from Home
-    breadcrumbService.add(BreadcrumbItem(
-      title: city['name'],
-      route: AppRoute.institutes,
-      arguments: {
-        'cityId': city['id'],
-        'cityName': city['name'],
-        'cityImage': city['image'],
-      },
-    ));
+    breadcrumbService.add(
+      BreadcrumbItem(
+        title: city['name'],
+        route: AppRoute.institutes,
+        arguments: {
+          'cityId': city['id'],
+          'cityName': city['name'],
+          'cityImage': city['image'],
+        },
+      ),
+    );
 
     Get.toNamed(
       AppRoute.institutes,

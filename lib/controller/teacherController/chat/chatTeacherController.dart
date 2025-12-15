@@ -40,7 +40,6 @@ class ChatTeacherController extends GetxController {
     });
     GetMessages();
     sockectcontroller.socket.on('sendChatToClient', (data) {
-      log('teacher استلام رسالة جديدة: ${data.toString()}');
       bool isDuplicate = dataList.any(
         (msg) => msg['message_id'] == data['message_id'],
       );
@@ -88,10 +87,9 @@ class ChatTeacherController extends GetxController {
   RxBool hasMoreData = true.obs;
 
   Future<void> markChatAsRead(String chatId) async {
-    log(chatId.toString());
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('tokenTeacher');
-    log(token.toString());
+
     try {
       final response = await http.patch(
         Uri.parse('${AppLink.server}/private_teacher/read/$chatId'),
@@ -102,18 +100,12 @@ class ChatTeacherController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        print("تمت قراءة المحادثة بنجاح!");
-
         ListStudentChatController listStudentChatController = Get.find();
         listStudentChatController.chatStudent();
         // GetMessages();
         update();
-      } else {
-        print("فشل في تحديث حالة المحادثة: ${response.body}");
-      }
-    } catch (e) {
-      print("خطأ أثناء تحديث المحادثة: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   @override
@@ -123,7 +115,6 @@ class ChatTeacherController extends GetxController {
   }
 
   Future<void> GetMessages({bool isLoadMore = false}) async {
-    log('TTTTTTTTTTTTTTTTTTTTTT');
     if (isLoadMore && !hasMoreData.value) return;
     if (!isLoadMore) {
       isloded.value = false;
@@ -165,7 +156,6 @@ class ChatTeacherController extends GetxController {
         throw Exception('Failed to load messages chatteacherController');
       }
     } catch (e) {
-      print('Error fetching messages chatteacherController: $e');
     } finally {
       isloded.value = true;
       isLoadingMore.value = false;
@@ -197,7 +187,6 @@ class ChatTeacherController extends GetxController {
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.cancelAll();
-    log('All notifications cancelled');
   }
 
   void sendMessage({
@@ -206,7 +195,7 @@ class ChatTeacherController extends GetxController {
     required String receiverId,
   }) async {
     if ((text?.trim().isEmpty ?? true) && file == null) return;
-    log('send ${receiverId}');
+
     if (!sockectcontroller.isSocketConnected.value) {
       return;
     }
@@ -311,12 +300,10 @@ class ChatTeacherController extends GetxController {
           });
         }
       } else {
-        log('فشل إرسال الرسالة: ${response.reasonPhrase}');
         dataList.removeWhere((msg) => msg['message_id'] == tempMessageId);
         update();
       }
     } catch (e) {
-      log('خطأ أثناء إرسال الرسالة: $e');
       dataList.removeWhere((msg) => msg['message_id'] == tempMessageId);
       update();
     }

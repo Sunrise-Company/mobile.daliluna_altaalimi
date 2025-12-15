@@ -44,7 +44,7 @@ class TeacherLessonDepsFileContrlloer extends GetxController {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print('Response Data: $responseData');
+
         dataListfile.value = responseData['files'];
 
         dataListvidoe.value = responseData['videos'];
@@ -54,7 +54,6 @@ class TeacherLessonDepsFileContrlloer extends GetxController {
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching studentLesson: $error');
       isloded.value = false; // في حالة الخطأ، توقف التحميل
       update();
       // Handle errors appropriately, e.g., show a message to the user

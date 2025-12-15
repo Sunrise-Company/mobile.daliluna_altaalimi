@@ -86,7 +86,6 @@ class CommentController extends GetxController {
         throw Exception('Failed to load comments');
       }
     } catch (e) {
-      log("Fetch Error: $e");
       error('لا يوجد تعليقات بعد');
     } finally {
       isLoading(false);
@@ -114,7 +113,7 @@ class CommentController extends GetxController {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
-        log(responseData.toString());
+
         final newComment = Comment.fromJson({
           'id': responseData['comment']['id'],
           'user_id': responseData['comment']['user_id'],
@@ -146,8 +145,6 @@ class CommentController extends GetxController {
         throw Exception('Server error: ${response.body}');
       }
     } catch (e, stack) {
-      log("Add Comment Error: $e  $stack");
-
       commentInputController.text = commentText;
       Get.snackbar(
         'خطأ',
@@ -176,7 +173,6 @@ class CommentController extends GetxController {
         throw Exception('Failed to delete comment');
       }
     } catch (e) {
-      log("Delete Error: $e");
       Get.snackbar(
         'خطأ',
         'حدث خطأ أثناء حذف التعليق',

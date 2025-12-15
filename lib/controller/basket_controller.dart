@@ -68,8 +68,6 @@ class BasketController extends GetxController {
     String subjectId,
     String maindepId,
   ) {
-    print(count);
-
     bool itemExists = mycart.any(
       (element) =>
           element['id'] == itemId &&
@@ -92,12 +90,10 @@ class BasketController extends GetxController {
         'subjectId': subjectId,
         'maindepId': maindepId,
       });
-      print(mycart);
+
       count = count + itemPrice;
       update();
     } else {
-      print("العنصر موجود بالفعل لنفس الأستاذ والمادة");
-
       Get.snackbar(
         'تنبيه',
         '!تم إضافة هذا العنصر بالفعل   ',
@@ -149,9 +145,8 @@ class BasketController extends GetxController {
   }
 
   app_basket_student_store() async {
-    print('rrrrrrrrrrrrrrr');
     String responseData = await ApiService.app_basket_student_store(mycart);
-    print(responseData);
+
     return responseData;
     // if (true) {
     //   print('8888888888888');
@@ -180,21 +175,17 @@ class BasketController extends GetxController {
         Uri.parse(AppLink.server + '/app_transfer_information'),
       );
 
-      print("Baskeeeeeeeeeeeeeeeeeeeeeet");
-      print(response.statusCode);
-      print(response.body);
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print('Response Data: $responseData');
+
         dataList.value = responseData['app_transfer_information'];
-        print('Data List: $dataList');
+
         isloded.value = true;
         update();
       } else {
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching studentLesson: $error');
       isloded.value = true;
       update();
       // Handle errors appropriately, e.g., show a message to the user
@@ -204,11 +195,9 @@ class BasketController extends GetxController {
   void fetchcompanyInformations() async {
     try {
       companyInformations = await ApiService.fetchCompanyInformations();
-      print(companyInformations);
+
       update();
-    } catch (error) {
-      print('Error fetching classes: $error');
-    }
+    } catch (error) {}
   }
 
   @override

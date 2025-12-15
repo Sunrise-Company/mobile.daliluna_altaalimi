@@ -11,7 +11,7 @@ Future<bool> alertPaidMethod(String nam, String phone) async {
   baskerc = Get.put(BasketController());
 
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  print(prefs.getBool('isLogin'));
+
   String name =
       'يرجى تحويل المبلغ المستحق عن طريق الهرم  '; // Replace with the actual name
   String phonee = "عبر الرقم "; // Replace with the actual phone number
@@ -26,19 +26,15 @@ Future<bool> alertPaidMethod(String nam, String phone) async {
     actions: [
       CustomElevatedButton(
         onPressed: (() async {
-          print(prefs.getBool('isLogin'));
           if (prefs.getBool('isLogin') == false ||
               prefs.getBool('isLogin') == null) {
-            print('oneeeeeeeeee');
             baskerc.app_basket_student_store();
             Get.offNamed(AppRoute.login);
           } else if (prefs.getBool('isLogin') == true) {
-            print('twooooo');
-
             baskerc.isload(true);
             Get.back();
             String res = await baskerc.app_basket_student_store();
-            print(res);
+
             if (res == "true") {
               Get.offAllNamed(AppRoute.homePage);
               baskerc.mycart.clear();
