@@ -20,62 +20,65 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runZonedGuarded(
-    () async {
-      Get.put(BreadcrumbService()); // Initialize BreadcrumbService
 
-      // 1. Check Emulator (Blocking) - The ONLY error screen we want
-      try {
-        String? emulatorReason = await checkIfEmulator().timeout(
-          const Duration(seconds: 5),
-          onTimeout: () => null,
-        );
+  // Prevent "Red Screen of Death"
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return const Material(color: Colors.transparent, child: SizedBox.shrink());
+  };
 
-        if (emulatorReason != null) {
-          String deviceInfo = await _getDeviceInfoString();
-          _showErrorScreen(
-            "Emulator Detected",
-            "Reason: $emulatorReason",
-            details: deviceInfo,
-            isWarning: true,
-          );
-          return;
-        }
-      } catch (e) {
-        // Ignore emulator check internal errors
-        debugPrint("Emulator check error: $e");
-      }
+  // Log Flutter errors instead of showing them
+  FlutterError.onError = (FlutterErrorDetails details) {
+    debugPrint("Flutter Framework Error: ${details.exception}");
+  };
 
-      // 2. Initialize Notifications (Non-blocking)
-      try {
-        await _initializeNotifications();
-      } catch (e) {
-        debugPrint("Notification init failed: $e");
-      }
+  Get.put(BreadcrumbService()); // Initialize BreadcrumbService
 
-      // 3. Check Version (Non-blocking)
-      bool shouldUpdate = false;
-      try {
-        shouldUpdate = await checkVersionNeedsUpdate().timeout(
-          const Duration(seconds: 5),
-          onTimeout: () => false,
-        );
-      } catch (e) {
-        debugPrint("Version check failed: $e");
-      }
+  // 1. Check Emulator (Blocking) - The ONLY error screen we want
+  try {
+    String? emulatorReason = await checkIfEmulator().timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => null,
+    );
 
-      // 4. Run App
-      runApp(
-        DevicePreview(
-          enabled: false, // فقط في وضع التطوير
-          builder: (context) => MyApp(forceUpdate: shouldUpdate),
-        ),
+    if (emulatorReason != null) {
+      String deviceInfo = await _getDeviceInfoString();
+      _showErrorScreen(
+        "Emulator Detected",
+        "Reason: $emulatorReason",
+        details: deviceInfo,
+        isWarning: true,
       );
-    },
-    (error, stack) {
-      // Suppress UI error screen for uncaught errors
-      debugPrint("Uncaught Error: $error");
-    },
+      return;
+    }
+  } catch (e) {
+    // Ignore emulator check internal errors
+    debugPrint("Emulator check error: $e");
+  }
+
+  // 2. Initialize Notifications (Non-blocking)
+  try {
+    await _initializeNotifications();
+  } catch (e) {
+    debugPrint("Notification init failed: $e");
+  }
+
+  // 3. Check Version (Non-blocking)
+  bool shouldUpdate = false;
+  try {
+    shouldUpdate = await checkVersionNeedsUpdate().timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => false,
+    );
+  } catch (e) {
+    debugPrint("Version check failed: $e");
+  }
+
+  // 4. Run App
+  runApp(
+    DevicePreview(
+      enabled: false, // فقط في وضع التطوير
+      builder: (context) => MyApp(forceUpdate: shouldUpdate),
+    ),
   );
 }
 

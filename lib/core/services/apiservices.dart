@@ -15,7 +15,7 @@ class ApiService {
     final response = await http.get(Uri.parse(AppLink.app_main_slider));
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> classData = data['app_sliders'];
+      List<dynamic>? classData = data['app_sliders'];
 
       if (classData != null) {
         return classData;
@@ -77,7 +77,7 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> classData = data['classes'];
+      List<dynamic>? classData = data['classes'];
 
       if (classData != null) {
         return classData;
@@ -95,7 +95,7 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> classData = data['classes'];
+      List<dynamic>? classData = data['classes'];
 
       if (classData != null) {
         return classData;
@@ -118,7 +118,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> classData = data['app_notifications'];
+      List<dynamic>? classData = data['app_notifications'];
 
       if (classData != null) {
         return classData;
@@ -138,7 +138,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> subjectData = data['lessons'];
+      List<dynamic>? subjectData = data['lessons'];
 
       if (subjectData != null) {
         return subjectData;
@@ -163,7 +163,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> subjectData = data['lessons'];
+      List<dynamic>? subjectData = data['lessons'];
 
       if (subjectData != null) {
         return subjectData;
@@ -183,7 +183,7 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> teacherData = data['teachers'];
+      List<dynamic>? teacherData = data['teachers'];
 
       if (teacherData != null) {
         return teacherData;
@@ -207,7 +207,7 @@ class ApiService {
     );
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> teacherData = data['teachers'];
+      List<dynamic>? teacherData = data['teachers'];
 
       if (teacherData != null) {
         return teacherData;
@@ -237,7 +237,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> sectionData = data['data'];
+      List<dynamic>? sectionData = data['data'];
 
       if (sectionData != null) {
         return sectionData;
@@ -282,7 +282,7 @@ class ApiService {
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
 
-      List<dynamic> sectionData = data['main_deps'];
+      List<dynamic>? sectionData = data['main_deps'];
 
       if (sectionData != null) {
         return sectionData;
@@ -319,7 +319,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> lessonData = data['lesson_deps'];
+      List<dynamic>? lessonData = data['lesson_deps'];
 
       if (lessonData != null) {
         return lessonData;
@@ -359,7 +359,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> lessonData = data['lesson_deps'];
+      List<dynamic>? lessonData = data['lesson_deps'];
 
       if (lessonData != null) {
         return lessonData;
@@ -384,7 +384,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> unitData = data['units'];
+      List<dynamic>? unitData = data['units'];
 
       if (unitData != null) {
         return unitData;
@@ -411,7 +411,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> unitData = data['units'];
+      List<dynamic>? unitData = data['units'];
 
       if (unitData != null) {
         return unitData;
@@ -429,7 +429,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> lectureData = json.decode(response.body);
+      List<dynamic>? lectureData = json.decode(response.body);
 
       if (lectureData != null) {
         return lectureData;
@@ -465,7 +465,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> lectureData = json.decode(response.body);
+      List<dynamic>? lectureData = json.decode(response.body);
 
       if (lectureData != null) {
         return lectureData;
@@ -483,7 +483,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> lectureData = json.decode(response.body)['videos'];
+      List<dynamic>? lectureData = json.decode(response.body)['videos'];
 
       if (lectureData != null) {
         return lectureData;
@@ -653,7 +653,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> lectureData = json.decode(response.body)['videos'];
+      List<dynamic>? lectureData = json.decode(response.body)['videos'];
 
       if (lectureData != null) {
         return lectureData;
@@ -671,7 +671,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> lectureData = json.decode(response.body)['files'];
+      List<dynamic>? lectureData = json.decode(response.body)['files'];
 
       if (lectureData != null) {
         return lectureData;
