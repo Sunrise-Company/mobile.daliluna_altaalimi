@@ -19,13 +19,13 @@ import 'package:emulator_checker/emulator_checker.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Fix: Initialize in root zone
+  WidgetsFlutterBinding.ensureInitialized();
   runZonedGuarded(
     () async {
       Get.put(BreadcrumbService()); // Initialize BreadcrumbService
 
+      // 1. Check Emulator (Blocking) - The ONLY error screen we want
       try {
-        // 1. Check Emulator (Blocking)
         String? emulatorReason = await checkIfEmulator().timeout(
           const Duration(seconds: 5),
           onTimeout: () => null,
@@ -41,30 +41,40 @@ void main() async {
           );
           return;
         }
+      } catch (e) {
+        // Ignore emulator check internal errors
+        debugPrint("Emulator check error: $e");
+      }
 
-        // 2. Initialize Notifications (Blocking)
+      // 2. Initialize Notifications (Non-blocking)
+      try {
         await _initializeNotifications();
+      } catch (e) {
+        debugPrint("Notification init failed: $e");
+      }
 
-        // 3. Check Version (Blocking)
-        final shouldUpdate = await checkVersionNeedsUpdate().timeout(
+      // 3. Check Version (Non-blocking)
+      bool shouldUpdate = false;
+      try {
+        shouldUpdate = await checkVersionNeedsUpdate().timeout(
           const Duration(seconds: 5),
           onTimeout: () => false,
         );
-
-        // 4. Run App
-        runApp(
-          DevicePreview(
-            enabled: false, //!kReleaseMode, // فقط في وضع التطوير
-            builder: (context) => MyApp(forceUpdate: shouldUpdate),
-          ),
-        );
-      } catch (e, stack) {
-        String deviceInfo = await _getDeviceInfoString();
-        _showErrorScreen("Startup Error", e.toString(), details: deviceInfo);
+      } catch (e) {
+        debugPrint("Version check failed: $e");
       }
+
+      // 4. Run App
+      runApp(
+        DevicePreview(
+          enabled: false, // فقط في وضع التطوير
+          builder: (context) => MyApp(forceUpdate: shouldUpdate),
+        ),
+      );
     },
     (error, stack) {
-      _showErrorScreen("Uncaught Error", error.toString());
+      // Suppress UI error screen for uncaught errors
+      debugPrint("Uncaught Error: $error");
     },
   );
 }

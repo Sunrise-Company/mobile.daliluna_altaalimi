@@ -31,6 +31,12 @@ class VideoLecturesController extends GetxController {
   void onInit() {
     super.onInit();
     videoFiles = Get.arguments['videoFiles'];
+
+    String url = Get.arguments['url'] as String;
+    if (url.contains('youtube.com') || url.contains('youtu.be')) {
+      return;
+    }
+
     if (videoFiles.isNotEmpty) {
       selectedQuality.value = videoFiles.last['resolution'].toString();
     }

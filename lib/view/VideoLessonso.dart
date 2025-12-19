@@ -23,8 +23,31 @@ class VideoLessons extends GetView<VideoLessonsController> {
     final List<dynamic>? videoFiles = Get.arguments['videoFiles'];
     final int lessonId = Get.arguments['lesson_dep_file_id'];
 
+    if (_isYoutubeLink(url)) {
+      String? videoId;
+      try {
+        videoId = VideoId(url).value;
+      } catch (e) {}
+
+      if (videoId != null) {
+        return YoutubePlayer(
+          videoId: videoId,
+          lessonId: lessonId,
+          type: 'lesson_dep_file',
+        );
+      } else {
+        return Scaffold(
+          appBar: AppBar(title: const Text("Error")),
+          body: const Center(child: Text("Invalid or unsupported video link.")),
+        );
+      }
+    }
+
     if (videoFiles == null || videoFiles.isEmpty) {
+      // This part might be redundant now if _isYoutubeLink handles it,
+      // but logic for empty videoFiles might need to just return error if not youtube.
       if (_isYoutubeLink(url)) {
+        // Already handled above
         String? videoId;
         try {
           videoId = VideoId(url).value;

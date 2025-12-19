@@ -1,12 +1,10 @@
-import 'dart:developer';
 import 'package:daliluna_altaalimi/controller/videoLectureControllers.dart';
 import 'package:daliluna_altaalimi/view/screen/ytPlayer.dart';
-import 'package:daliluna_altaalimi/view/widget/comments_widget.dart';
+
 import 'package:flutter/material.dart';
 // import 'package:gradients/gradients.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class _ErrorScreen extends StatelessWidget {
@@ -42,6 +40,26 @@ class VideoLecture extends GetView<VideoLecturesController> {
     final List<dynamic>? videoFiles = Get.arguments['videoFiles'];
     final int lessonId = Get.arguments['lesson_dep_file_id'];
 
+    if (_isYoutubeLink(url)) {
+      String? videoId;
+      try {
+        videoId = VideoId(url).value;
+      } catch (e) {}
+
+      if (videoId != null) {
+        return YoutubePlayer(
+          videoId: videoId,
+          lessonId: lessonId,
+          type: 'lesson_lecture_file',
+        );
+      } else {
+        return Scaffold(
+          appBar: AppBar(title: const Text("Error")),
+          body: const Center(child: Text("Invalid or unsupported video link.")),
+        );
+      }
+    }
+
     if (videoFiles == null || videoFiles.isEmpty) {
       if (_isYoutubeLink(url)) {
         String? videoId;
@@ -50,7 +68,14 @@ class VideoLecture extends GetView<VideoLecturesController> {
         } catch (e) {}
 
         if (videoId != null) {
-          Get.put(VideoLecturesController());
+          // This block is now redundant but kept for structure if needed,
+          // though the top block covers it.
+          // We can just keep the non-youtube check here or simply proceed.
+          // Since we already checked _isYoutubeLink above, we can assume it's NOT a youtube link here?
+          // No, if the above check is false, then we come here.
+          // But if videoFiles is empty and it is NOT a youtube link, then what?
+          // It continues to Get.put, then likely fails or shows empty.
+
           return YoutubePlayer(
             videoId: videoId,
             lessonId: lessonId,

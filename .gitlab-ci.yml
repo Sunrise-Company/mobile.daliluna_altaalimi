@@ -9,3 +9,10 @@ include:
 variables:
   # APP_NAME: "Daliluna Altaalimi"
   # FLUTTER_VERSION: "stable"
+
+before_script:
+  # Patch invalid SDK version in pubspec.yaml (Temporary CI Fix)
+  # The repo has >=3.9.0 which is invalid/future, so we patch it to >=3.0.0 for CI to work
+  - sed -i 's/>=3.9.0/>=3.0.0/g' pubspec.yaml
+  - flutter --version
+  - flutter pub get
