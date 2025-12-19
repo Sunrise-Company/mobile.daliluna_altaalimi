@@ -60,25 +60,29 @@ build_apk:
       android.useAndroidX=true
       EOF
     
-    # Build APK (split per ABI for smaller files)
-    - flutter build apk --release --split-per-abi --target-platform android-arm64,android-arm
-    # - flutter build appbundle
+    # Build Universl APK (No Split)
+    - flutter build apk --release
+    
+    # Build App Bundle (AAB)
+    - flutter build appbundle --release
+    
     # Prepare artifacts
     - mkdir -p public
     - cp build/app/outputs/flutter-apk/*.apk public/ || true
+    - cp build/app/outputs/bundle/release/*.aab public/ || true
     - echo "${CI_JOB_URL}/artifacts/browse/public/" > public/download_link.txt
 
   artifacts:
     name: "${CI_PROJECT_NAME}_${CI_COMMIT_SHORT_SHA}"
     paths:
       - public/*.apk
+      - public/*.aab
       - public/download_link.txt
     expire_in: 30 days
   only:
     - main
     - develop
     - tags
-  when: manual
 
 # Notification job
 notify_telegram:
@@ -94,9 +98,9 @@ notify_telegram:
       BRANCH_NAME=${CI_COMMIT_REF_NAME}
       COMMIT_MSG="${CI_COMMIT_MESSAGE}"
       
-      # APK direct links
-      APK_ARM64_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/public/app-arm64-v8a-release.apk"
-      APK_ARM_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/public/app-armeabi-v7a-release.apk"
+      # Direct links
+      APK_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/public/app-release.apk"
+      AAB_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/public/app-release.aab"
       
       # Send to Telegram
       if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
@@ -115,8 +119,8 @@ notify_telegram:
         TELEGRAM_MSG="${TELEGRAM_MSG}• Pipeline: #${CI_PIPELINE_ID}\\n\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}📥 *Download Links:*\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}━━━━━━━━━━━━━━━━━━━━━━━━\\n"
-        TELEGRAM_MSG="${TELEGRAM_MSG}📦 [ARM64 - Modern Devices](${APK_ARM64_URL})\\n"
-        TELEGRAM_MSG="${TELEGRAM_MSG}📦 [ARM - Older Devices](${APK_ARM_URL})\\n\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}📦 [Universal APK](${APK_URL})\\n"
+        TELEGRAM_MSG="${TELEGRAM_MSG}📦 [App Bundle (AAB)](${AAB_URL})\\n\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}🗂️ [All Files](${DOWNLOAD_URL})\\n\\n"
         TELEGRAM_MSG="${TELEGRAM_MSG}⏰ Valid for 30 days"
         

@@ -81,6 +81,8 @@ class ApiService {
 
       if (classData != null) {
         return classData;
+      } else {
+        return [];
       }
     } else {
       throw Exception('Failed to fetch classes');
