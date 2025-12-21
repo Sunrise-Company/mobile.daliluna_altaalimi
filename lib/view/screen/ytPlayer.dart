@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:better_player_plus/better_player_plus.dart';
 import 'package:daliluna_altaalimi/download_service.dart';
+
 import 'package:daliluna_altaalimi/view/widget/comments_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +9,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
-import 'package:better_player/better_player.dart';
+// import 'package:better_player/better_player.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class YoutubePlayer extends StatefulWidget {
@@ -194,9 +196,13 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         const BetterPlayerConfiguration(
           autoPlay: true,
           looping: true,
-          fullScreenByDefault: true,
+          fullScreenByDefault: false,
+          autoDetectFullscreenDeviceOrientation: false,
           allowedScreenSleep: false,
           fit: BoxFit.contain,
+          controlsConfiguration: BetterPlayerControlsConfiguration(
+            enableFullscreen: true,
+          ),
         ),
       );
       _betterPlayerController!.setupDataSource(dataSource);
@@ -204,7 +210,23 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
           _initializePlayer();
         }
+        // else if (event.betterPlayerEventType ==
+        //     BetterPlayerEventType.openFullscreen) {
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     _toggleFullScreen();
+        //   });
+        // } else if (event.betterPlayerEventType ==
+        //     BetterPlayerEventType.hideFullscreen) {
+        //   WidgetsBinding.instance.addPostFrameCallback((_) {
+        //     _toggleFullScreen();
+        //   });
+        // }
       });
+      if (mounted) {
+        setState(() {
+          _isPlayerReady = true; // Fix here
+        });
+      }
     } else {
       _initializeWebView();
     }
@@ -426,19 +448,20 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                               ),
                       ),
                       const SizedBox(width: 8),
-                      Material(
-                        color: Colors.black.withOpacity(0.5),
-                        shape: const CircleBorder(),
-                        child: IconButton(
-                          icon: Icon(
-                            _isFullScreen
-                                ? Icons.fullscreen_exit
-                                : Icons.fullscreen,
-                            color: Colors.white,
+                      if (_localVideoPath == null)
+                        Material(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: const CircleBorder(),
+                          child: IconButton(
+                            icon: Icon(
+                              _isFullScreen
+                                  ? Icons.fullscreen_exit
+                                  : Icons.fullscreen,
+                              color: Colors.white,
+                            ),
+                            onPressed: _toggleFullScreen,
                           ),
-                          onPressed: _toggleFullScreen,
                         ),
-                      ),
                     ],
                   ),
                 )

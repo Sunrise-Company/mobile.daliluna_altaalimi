@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
 import 'dart:math';
 
@@ -15,19 +14,20 @@ class DownloadOption {
   final ytd.AudioOnlyStreamInfo? audioStream;
 
   DownloadOption.muxed(ytd.MuxedStreamInfo stream)
-      : streamInfo = stream,
-        videoStream = null,
-        audioStream = null,
-        label =
-            '${stream.videoResolution.height}p - ${_formatBytes(stream.size.totalBytes)}';
+    : streamInfo = stream,
+      videoStream = null,
+      audioStream = null,
+      label =
+          '${stream.videoResolution.height}p - ${_formatBytes(stream.size.totalBytes)}';
 
   DownloadOption.separate(
-      ytd.VideoOnlyStreamInfo video, ytd.AudioOnlyStreamInfo audio)
-      : streamInfo = video,
-        videoStream = video,
-        audioStream = audio,
-        label =
-            '${video.videoResolution.height}p - ${_formatBytes(video.size.totalBytes + audio.size.totalBytes)} (MP4)';
+    ytd.VideoOnlyStreamInfo video,
+    ytd.AudioOnlyStreamInfo audio,
+  ) : streamInfo = video,
+      videoStream = video,
+      audioStream = audio,
+      label =
+          '${video.videoResolution.height}p - ${_formatBytes(video.size.totalBytes + audio.size.totalBytes)} (MP4)';
 
   bool get isMuxed => videoStream == null;
 
@@ -82,9 +82,10 @@ class DownloadService {
     }
 
     final task = DownloadTask(
-        videoId: videoId,
-        status: DownloadStatus.downloading,
-        statusText: 'Starting download...');
+      videoId: videoId,
+      status: DownloadStatus.downloading,
+      statusText: 'Starting download...',
+    );
     _tasks[videoId] = task;
     _notifyUpdates();
 
@@ -92,8 +93,10 @@ class DownloadService {
       final outPath = await _getLocalFilePath(videoId);
 
       if (option.isMuxed) {
-        await _downloadUrl(option.streamInfo.url.toString(), outPath,
-            (received, total) {
+        await _downloadUrl(option.streamInfo.url.toString(), outPath, (
+          received,
+          total,
+        ) {
           task.progress = received / total;
           task.statusText =
               'Downloading... ${(task.progress * 100).toStringAsFixed(0)}%';
@@ -129,12 +132,8 @@ class DownloadService {
         _notifyUpdates();
 
         await _muxMp4(vTmp, aTmp, outPath);
-        await File(vTmp)
-            .delete()
-            .catchError((e) {});
-        await File(aTmp)
-            .delete()
-            .catchError((e) {});
+        await File(vTmp).delete().catchError((e) {});
+        await File(aTmp).delete().catchError((e) {});
       }
 
       task.status = DownloadStatus.completed;
@@ -161,7 +160,10 @@ class DownloadService {
   }
 
   Future<void> _downloadUrl(
-      String url, String path, Function(int, int) onProgress) async {
+    String url,
+    String path,
+    Function(int, int) onProgress,
+  ) async {
     await _dio.download(url, path, onReceiveProgress: onProgress);
   }
 
@@ -171,7 +173,10 @@ class DownloadService {
   }
 
   Future<void> _muxMp4(
-      String videoPath, String audioPath, String outPath) async {
+    String videoPath,
+    String audioPath,
+    String outPath,
+  ) async {
     await _muxChannel.invokeMethod('mux', {
       'video': videoPath,
       'audio': audioPath,

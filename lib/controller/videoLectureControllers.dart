@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:better_player_plus/better_player_plus.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/services/download_service.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
@@ -9,12 +10,11 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'dart:developer' as developer;
-import 'package:better_player/better_player.dart';
 
 var progressMapLec = <String, String>{}.obs;
 
 class VideoLecturesController extends GetxController {
-  late BetterPlayerController betterPlayerController;
+  BetterPlayerController? betterPlayerController;
 
   var downloading = false.obs;
   var progress = 0.0.obs;
@@ -44,9 +44,9 @@ class VideoLecturesController extends GetxController {
   }
 
   void loadVideoPath() async {
-    if (betterPlayerController.isVideoInitialized() == true) {
+    if (betterPlayerController?.isVideoInitialized() == true) {
       lastPosition =
-          await betterPlayerController.videoPlayerController?.position;
+          await betterPlayerController?.videoPlayerController?.position;
     }
 
     final videoFile = videoFiles.firstWhere(
@@ -64,7 +64,7 @@ class VideoLecturesController extends GetxController {
     videoPath.value = finalPath;
     Get.arguments['url'] = finalPath;
 
-    betterPlayerController.pause();
+    betterPlayerController?.pause();
     loadVideoPlayer(!exists);
   }
 
@@ -113,11 +113,11 @@ class VideoLecturesController extends GetxController {
         betterPlayerDataSource: dataSource,
       );
 
-      betterPlayerController.addEventsListener((event) async {
+      betterPlayerController!.addEventsListener((event) async {
         if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
           isLoading.value = false;
           if (lastPosition != null) {
-            betterPlayerController.seekTo(lastPosition!);
+            betterPlayerController!.seekTo(lastPosition!);
             developer.log('Seeked to last position: $lastPosition');
           }
           developer.log('Video player initialized successfully');
@@ -152,10 +152,10 @@ class VideoLecturesController extends GetxController {
           }
         }
       });
-      await betterPlayerController.setupDataSource(dataSource);
+      await betterPlayerController!.setupDataSource(dataSource);
 
       if (lastPosition != null) {
-        betterPlayerController.seekTo(lastPosition!);
+        betterPlayerController!.seekTo(lastPosition!);
       }
     } catch (e) {
       isError.value = true;
@@ -282,7 +282,7 @@ class VideoLecturesController extends GetxController {
   @override
   void onClose() {
     developer.log('Closing VideoLecturesController');
-    betterPlayerController.dispose();
+    betterPlayerController?.dispose();
     super.onClose();
   }
 }

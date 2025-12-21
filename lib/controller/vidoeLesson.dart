@@ -1,25 +1,21 @@
 import 'dart:developer';
 
+import 'package:better_player_plus/better_player_plus.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-
 import 'package:path_provider/path_provider.dart';
 
 import 'package:dio/dio.dart';
 import 'dart:developer' as developer;
-import 'package:better_player/better_player.dart';
 
 // var progressString = ''.obs;
 var progressMapLess = <String, String>{}.obs;
 
 class VideoLessonsController extends GetxController {
-  late BetterPlayerController videolessonsController;
+  BetterPlayerController? videolessonsController;
 
   // Rx variables for Obx
   var downloading = false.obs;
@@ -51,11 +47,11 @@ class VideoLessonsController extends GetxController {
 
   void loadVideoPath() async {
     // إيقاف وتحرير المشغل القديم إذا كان موجودًا
-    if (videolessonsController.isVideoInitialized() == true) {
+    if (videolessonsController?.isVideoInitialized() == true) {
       lastPosition =
-          await videolessonsController.videoPlayerController?.position;
-      await videolessonsController.pause();
-      videolessonsController.dispose();
+          await videolessonsController?.videoPlayerController?.position;
+      await videolessonsController?.pause();
+      videolessonsController?.dispose();
       developer.log(
         'Old BetterPlayerController disposed for resolution: ${selectedQuality.value}',
       );
@@ -280,11 +276,11 @@ class VideoLessonsController extends GetxController {
       );
 
       // إضافة مستمع للأحداث
-      videolessonsController.addEventsListener((event) async {
+      videolessonsController!.addEventsListener((event) async {
         if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
           isLoading.value = false;
           if (lastPosition != null) {
-            videolessonsController.seekTo(lastPosition!);
+            videolessonsController!.seekTo(lastPosition!);
             developer.log('Seeked to last position: $lastPosition');
           }
           developer.log('Video player initialized successfully');
@@ -321,7 +317,7 @@ class VideoLessonsController extends GetxController {
       });
 
       // تهيئة مصدر البيانات
-      await videolessonsController.setupDataSource(dataSource);
+      await videolessonsController!.setupDataSource(dataSource);
       developer.log('Data source set up successfully');
     } catch (e) {
       isLoading.value = false;
@@ -394,7 +390,7 @@ class VideoLessonsController extends GetxController {
   @override
   void onClose() {
     developer.log('Closing VideoLessonsController');
-    videolessonsController.dispose();
+    videolessonsController!.dispose();
     super.onClose();
   }
 }

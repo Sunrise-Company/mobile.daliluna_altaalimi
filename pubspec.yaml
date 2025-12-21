@@ -1,7 +1,7 @@
 name: daliluna_altaalimi
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -15,8 +15,10 @@ dependencies:
   # Your other dependencies
   audioplayers: ^6.1.0
   badges: ^3.1.2
-  better_player:
-    path: better_player-0.0.84/
+  # better_player:
+  #   path: better_player-0.0.84/
+  better_player_plus: ^1.1.5
+
   cached_network_image: ^3.4.1
   carousel_slider: ^5.0.0
   chewie: ^1.10.0
@@ -50,7 +52,7 @@ dependencies:
   just_audio: ^0.9.36
   lottie: ^3.0.0
   open_filex: ^4.7.0
-  package_info_plus: ^8.1.0
+  package_info_plus: ^9.0.0
   path_provider: ^2.1.5
   permission_handler: ^11.3.1
   readmore: ^3.0.0
