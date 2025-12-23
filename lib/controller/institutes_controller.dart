@@ -5,6 +5,8 @@ import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
 import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
+import 'basket_controller.dart';
+
 class InstitutesController extends GetxController {
   late final int cityId;
   late final String cityName;
@@ -13,7 +15,9 @@ class InstitutesController extends GetxController {
   List<dynamic> institutes = [];
   bool isLoading = true;
   String? errorMessage;
-
+//////////////
+final BasketController basketController =
+      Get.find<BasketController>();
   late final OurCoursesController coursesController;
 
   @override
@@ -46,7 +50,13 @@ class InstitutesController extends GetxController {
       institute['id'],
       instituteName: institute['name'],
     );
+    ///////////
+    final String id = institute['id'].toString();
 
+    // تحديث id المعهد في السلة
+    basketController.updateInstituteId(id);
+    print("raghad ${basketController.instituteId}");
+    ///////////////////
     // Add Breadcrumb
     Get.find<BreadcrumbService>().add(
       BreadcrumbItem(title: institute['name'], route: AppRoute.ourCourses),

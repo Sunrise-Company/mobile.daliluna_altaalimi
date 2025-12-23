@@ -225,6 +225,9 @@ class ApiService {
     String teacherid,
   ) async {
     log(
+     'print دورات'
+    );
+    log(
       AppLink.sections +
           '/${classid.toString()}/${subjectid.toString()}/${teacherid.toString()}',
     );
@@ -694,7 +697,7 @@ class ApiService {
       if (data != null) {
         return data;
       } else {
-        throw Exception('teacherInfo data is null');
+
       }
     } else {
       throw Exception('Failed to fetch teacherInfo');

@@ -273,6 +273,7 @@ class SectionsSubject extends GetView<SectionsSubjectController> {
                                                   baskerc.classId.toString(),
                                                   baskerc.subjectId.toString(),
                                                   baskerc.maindepId.toString(),
+                                                    baskerc.instituteId.toString()
                                                 );
                                               },
                                             )

@@ -89,7 +89,7 @@ class LessonsController extends GetxController {
   void fetchLectures() async {
     try {
       dataList = await ApiService.fetchLectures();
-
+print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz$dataList");
       isloadedlesson = true;
 
       update();
