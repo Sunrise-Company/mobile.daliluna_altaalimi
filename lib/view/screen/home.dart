@@ -32,6 +32,7 @@ class Home extends GetView<HomeController> {
     if (!Get.isRegistered<HomeController>()) {
       Get.put(HomeController());
     }
+
     return WillPopScope(
       onWillPop: alertExitApp,
       child: Directionality(
@@ -931,9 +932,11 @@ class Home extends GetView<HomeController> {
                                 child: FadeInAnimation(
                                   child: _CityCard(
                                     city: city,
-                                    onTap: () => homeController.goToInstitutes(
-                                      Map<String, dynamic>.from(city),
-                                    ),
+                                    controller: Get.find<HomeController>(),
+                                    onTap: () {}
+                                    //     homeController.goToInstitutes(
+                                    //   Map<String, dynamic>.from(city),
+                                    // ),
                                   ),
                                 ),
                               ),
@@ -1008,41 +1011,7 @@ class Home extends GetView<HomeController> {
                 tablet: 80, // الارتفاع على التابلت
               ),
               child: BasketWidget(heroTag: 'one'),
-              // FloatingActionButton(
-              //   heroTag: 'unique_tag_1',
-              //               backgroundColor: AppColor.SecondryColor,
-              //               elevation: 6,
-              //               onPressed: () {
-              //                 Get.toNamed(AppRoute.basket);
-              //               },
-              //               child: Stack(
-              // alignment: Alignment.center,
-              // children: [
-              //   const Icon(Icons.shopping_cart, color: Colors.white, size: 28),
-              //   Positioned(
-              //     right: 0,
-              //     top: 5,
-              //     child: Container(
-              //       padding: const EdgeInsets.all(4),
-              //       decoration: const BoxDecoration(
-              //         color: Colors.redAccent,
-              //         shape: BoxShape.circle,
-              //       ),
-              //       child: Text(
-              //         baskerc.mycart.isNotEmpty
-              //             ? baskerc.mycart.length.toString()
-              //             : "0",
-              //         style: const TextStyle(
-              //           color: Colors.white,
-              //           fontSize: 10,
-              //           fontWeight: FontWeight.bold,
-              //         ),
-              //       ),
-              //     ),
-              //   ),
-              // ],
-              //               ),
-              //             ),
+
             ),
           ),
         ),
@@ -1055,17 +1024,21 @@ class Home extends GetView<HomeController> {
 class _CityCard extends StatelessWidget {
   final Map<String, dynamic> city;
   final VoidCallback onTap;
-
-  const _CityCard({required this.city, required this.onTap});
+  final HomeController controller;
+  const _CityCard({required this.city, required this.onTap,required this.controller,});
 
   @override
   Widget build(BuildContext context) {
+
     return CustomCardHome(
       name: city['name'] ?? '',
       image: city['image'],
-      onTap: () => Get.find<HomeController>().goToInstitutes(
+      onTap: () => controller.goToInstitutes(
         Map<String, dynamic>.from(city),
       ),
+      // onTap: () => Get.find<HomeController>().goToInstitutes(
+      //   Map<String, dynamic>.from(city),
+      // ),
     );
   }
 }
