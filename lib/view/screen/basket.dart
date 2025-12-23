@@ -178,7 +178,7 @@ class Basket extends StatelessWidget {
                                   : item['itemType'] == 'section'
                                   ? 'قسم كامل'
                                   : 'درس كامل';
-
+print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${baskerc.mycart[index]}");
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -372,8 +372,7 @@ class Basket extends StatelessWidget {
                           child: InkWell(
                             onTap: () {
                               alertPaidMethod(
-                                baskerc.dataList['name'],
-                                baskerc.dataList['phone'],
+                                baskerc.dataList['message'],
                               );
                             },
                             child: Row(

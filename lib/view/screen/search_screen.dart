@@ -1259,15 +1259,7 @@ class SearchScreen extends StatelessWidget {
             return Icon(Icons.check_circle, color: AppColor.SecondryColor);
           }
 
-          return IconButton(
-            onPressed: () {
-              _addLessonDepToCart(lessonDep);
-            },
-            icon: Icon(
-              Icons.shopping_cart_rounded,
-              color: AppColor.SecondryColor,
-            ),
-          );
+          return SizedBox();
         }),
       ),
     );
@@ -1478,7 +1470,9 @@ class SearchScreen extends StatelessWidget {
       '', // teacherId
       classId,
       lessonId, // subjectId
-      '', // maindepId
+      '',
+      ///////////////
+      ''
     );
   }
 
@@ -1512,7 +1506,10 @@ class SearchScreen extends StatelessWidget {
       teacherId,
       classId,
       lessonId, // subjectId
-      '', // maindepId
+      '',
+      ////////////////////,
+      '',
+      // maindepId
     );
 
     Get.snackbar(
@@ -1558,6 +1555,8 @@ class SearchScreen extends StatelessWidget {
       classId,
       lessonId, // subjectId
       mainDepId, // maindepId
+      ////////////////,
+      ''
     );
 
     Get.snackbar(

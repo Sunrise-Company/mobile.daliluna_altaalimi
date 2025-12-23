@@ -6,17 +6,10 @@ import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/view/widget/customelevatedbutton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<bool> alertPaidMethod(String nam, String phone) async {
+Future<bool> alertPaidMethod(String message) async {
   late BasketController baskerc;
   baskerc = Get.put(BasketController());
-
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  String name =
-      'يرجى تحويل المبلغ المستحق عن طريق الهرم  '; // Replace with the actual name
-  String phonee = "عبر الرقم "; // Replace with the actual phone number
-
-  String message = name + nam + phonee + phone;
   Get.defaultDialog(
     backgroundColor: Colors.white,
     title: "آلية تسديد المبغ",
@@ -36,6 +29,7 @@ Future<bool> alertPaidMethod(String nam, String phone) async {
             String res = await baskerc.app_basket_student_store();
 
             if (res == "true") {
+              Get.snackbar('تمت عملية الشراء بنجاح', 'شكراً لك',  backgroundColor: AppColor.BackGround3,);
               Get.offAllNamed(AppRoute.homePage);
               baskerc.mycart.clear();
             }

@@ -16,6 +16,9 @@ class BasketController extends GetxController {
   RxString classId = ''.obs;
   RxString subjectId = ''.obs;
   RxString maindepId = ''.obs;
+  //////////
+   RxString instituteId = ''.obs;
+  //  RxString InsName = ''.obs;
 
   RxList mycart = [].obs;
   getcount() {
@@ -23,83 +26,71 @@ class BasketController extends GetxController {
   }
 
   RxBool isload = false.obs;
-
-  //   updateBasket(
-  //       String itemId,
-  //       String itemType,
-  //       String itemName,
-  //       int itemPrice,
-  //       String teacherName,
-  //       String className,
-  //       String subjectName,
-  //       String teacherId,
-  //       String classId,
-  //       String subjectId,
-  //       String maindepId) {
-  //     print(count);
-  // // print()
-  //     mycart.add({
-  //       'id': itemId,
-  //       'itemType': itemType,
-  //       'itemName': itemName,
-  //       'itemPrice': itemPrice,
-  //       'teacherName': teacherName,
-  //       'className': className,
-  //       'subjectName': subjectName,
-  //       'teacherId': teacherId,
-  //       'classId': classId,
-  //       'subjectId': subjectId,
-  //       'maindepId': maindepId
-  //     });
-  //     print(mycart);
-  //     count = count + itemPrice;
-  //     update();
-  //   }
   updateBasket(
-    String itemId,
-    String itemType,
-    String itemName,
-    int itemPrice,
-    String teacherName,
-    String className,
-    String subjectName,
-    String teacherId,
-    String classId,
-    String subjectId,
-    String maindepId,
-  ) {
+      String itemId,
+      String itemType,
+      String itemName,
+      int itemPrice,
+      String teacherName,
+      String className,
+      String subjectName,
+      String teacherId,
+      String classId,
+      String subjectId,
+      String maindepId,
+      String instituteId,
+      ) {
+    // 1️⃣ هل العنصر نفسه موجود؟
     bool itemExists = mycart.any(
-      (element) =>
-          element['id'] == itemId &&
+          (element) =>
+      element['id'] == itemId &&
           element['teacherId'] == teacherId &&
           element['subjectId'] == subjectId &&
           element['classId'] == classId,
     );
 
-    if (!itemExists) {
-      mycart.add({
-        'id': itemId,
-        'itemType': itemType,
-        'itemName': itemName,
-        'itemPrice': itemPrice,
-        'teacherName': teacherName,
-        'className': className,
-        'subjectName': subjectName,
-        'teacherId': teacherId,
-        'classId': classId,
-        'subjectId': subjectId,
-        'maindepId': maindepId,
-      });
+    // 2️⃣ هل في عناصر من معهد مختلف؟
+    bool existsDifferentInstitute = mycart.isNotEmpty &&
+        mycart.any(
+              (element) => element['instituteId'] != instituteId,
+        );
 
-      count = count + itemPrice;
-      update();
-    } else {
+    if (existsDifferentInstitute) {
       Get.snackbar(
         'تنبيه',
-        '!تم إضافة هذا العنصر بالفعل   ',
+        ' لا يمكن الإضافة من أكثر من معهد اشتري من كل معهد على حدى',
         backgroundColor: AppColor.BackGround3,
       );
+      return;
     }
+
+    if (itemExists) {
+      Get.snackbar(
+        'تنبيه',
+        'تم إضافة هذا العنصر بالفعل',
+        backgroundColor: AppColor.BackGround3,
+      );
+      return;
+    }
+
+    // ✅ الإضافة
+    mycart.add({
+      'id': itemId,
+      'itemType': itemType,
+      'itemName': itemName,
+      'itemPrice': itemPrice,
+      'teacherName': teacherName,
+      'className': className,
+      'subjectName': subjectName,
+      'teacherId': teacherId,
+      'classId': classId,
+      'subjectId': subjectId,
+      'maindepId': maindepId,
+      'instituteId': instituteId,
+    });
+
+    count = count + itemPrice;
+    update();
   }
 
   updateteacherName(newteacherName) {
@@ -130,10 +121,17 @@ class BasketController extends GetxController {
   updatelessonId(newsubjectId) {
     subjectId(newsubjectId.toString());
     update();
+
   }
 
   updatemaindepId(newmaindepId) {
     maindepId(newmaindepId.toString());
+    update();
+  }
+
+  updateInstituteId(newInstituteId) {
+    instituteId(newInstituteId.toString());
+    getAppinfo();
     update();
   }
 
@@ -146,8 +144,9 @@ class BasketController extends GetxController {
 
   app_basket_student_store() async {
     String responseData = await ApiService.app_basket_student_store(mycart);
-
+print('ccccccccccccccccccccccc$responseData');
     return responseData;
+
     // if (true) {
     //   print('8888888888888');
     //   Get.back();
@@ -172,23 +171,25 @@ class BasketController extends GetxController {
     isloded.value = false;
     try {
       final response = await http.get(
-        Uri.parse(AppLink.server + '/app_transfer_information'),
+        Uri.parse(
+          AppLink.server +
+              '/app_transfer_information/${instituteId.value}',
+        ),
       );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        dataList.value = {
+          'message': responseData['message'],
+        };
 
-        dataList.value = responseData['app_transfer_information'];
-
-        isloded.value = true;
-        update();
-      } else {
+      }
+      else {
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
       isloded.value = true;
       update();
-      // Handle errors appropriately, e.g., show a message to the user
     }
   }
 
@@ -202,7 +203,7 @@ class BasketController extends GetxController {
 
   @override
   void onInit() {
-    getAppinfo();
+    // getAppinfo();
     fetchcompanyInformations();
     super.onInit();
   }
