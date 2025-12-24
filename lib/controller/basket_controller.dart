@@ -17,7 +17,7 @@ class BasketController extends GetxController {
   RxString subjectId = ''.obs;
   RxString maindepId = ''.obs;
   //////////
-   RxString instituteId = ''.obs;
+  RxString instituteId = ''.obs;
   //  RxString InsName = ''.obs;
 
   RxList mycart = [].obs;
@@ -27,33 +27,32 @@ class BasketController extends GetxController {
 
   RxBool isload = false.obs;
   updateBasket(
-      String itemId,
-      String itemType,
-      String itemName,
-      int itemPrice,
-      String teacherName,
-      String className,
-      String subjectName,
-      String teacherId,
-      String classId,
-      String subjectId,
-      String maindepId,
-      String instituteId,
-      ) {
+    String itemId,
+    String itemType,
+    String itemName,
+    int itemPrice,
+    String teacherName,
+    String className,
+    String subjectName,
+    String teacherId,
+    String classId,
+    String subjectId,
+    String maindepId,
+    String instituteId,
+  ) {
     // 1️⃣ هل العنصر نفسه موجود؟
     bool itemExists = mycart.any(
-          (element) =>
-      element['id'] == itemId &&
+      (element) =>
+          element['id'] == itemId &&
           element['teacherId'] == teacherId &&
           element['subjectId'] == subjectId &&
           element['classId'] == classId,
     );
 
     // 2️⃣ هل في عناصر من معهد مختلف؟
-    bool existsDifferentInstitute = mycart.isNotEmpty &&
-        mycart.any(
-              (element) => element['instituteId'] != instituteId,
-        );
+    bool existsDifferentInstitute =
+        mycart.isNotEmpty &&
+        mycart.any((element) => element['instituteId'] != instituteId);
 
     if (existsDifferentInstitute) {
       Get.snackbar(
@@ -62,6 +61,47 @@ class BasketController extends GetxController {
         backgroundColor: AppColor.BackGround3,
       );
       return;
+    }
+
+    // 3️⃣ التحقق من تعارض الوحدات والأقسام (Units vs Sections)
+    // إذا كان العنصر المضاف هو 'unit' أو 'section' (يعتبران أجزاء فرعية/Children)
+    if (itemType == 'unit' || itemType == 'section') {
+      // نتحقق مما إذا كان القسم الرئيسي (Parent) موجوداً في السلة
+      bool mainSectionExists = mycart.any(
+        (element) =>
+            (element['itemType'] == 'section' ||
+                element['itemType'] == 'main_dep') &&
+            element['id'] == maindepId,
+      );
+
+      if (mainSectionExists) {
+        Get.snackbar(
+          'تنبيه',
+          'لا يمكن إضافة هذا العنصر لأن القسم الرئيسي موجود بالسلة',
+          backgroundColor: AppColor.BackGround3,
+        );
+        return;
+      }
+    }
+
+    // إذا كان العنصر المضاف هو 'main_dep' أو 'section' (يعتبران أقسام رئيسية/Parents)
+    if (itemType == 'section' || itemType == 'main_dep') {
+      // نتحقق مما إذا كانت هناك وحدات تابعة له في السلة (Children)
+      bool childExists = mycart.any(
+        (element) =>
+            (element['itemType'] == 'unit' ||
+                element['itemType'] == 'section') &&
+            element['maindepId'] == itemId,
+      );
+
+      if (childExists) {
+        Get.snackbar(
+          'تنبيه',
+          'لا يمكن إضافة القسم لأن هناك أجزاء تابعة له في السلة',
+          backgroundColor: AppColor.BackGround3,
+        );
+        return;
+      }
     }
 
     if (itemExists) {
@@ -121,7 +161,6 @@ class BasketController extends GetxController {
   updatelessonId(newsubjectId) {
     subjectId(newsubjectId.toString());
     update();
-
   }
 
   updatemaindepId(newmaindepId) {
@@ -144,7 +183,7 @@ class BasketController extends GetxController {
 
   app_basket_student_store() async {
     String responseData = await ApiService.app_basket_student_store(mycart);
-print('ccccccccccccccccccccccc$responseData');
+    print('ccccccccccccccccccccccc$responseData');
     return responseData;
 
     // if (true) {
@@ -172,19 +211,14 @@ print('ccccccccccccccccccccccc$responseData');
     try {
       final response = await http.get(
         Uri.parse(
-          AppLink.server +
-              '/app_transfer_information/${instituteId.value}',
+          AppLink.server + '/app_transfer_information/${instituteId.value}',
         ),
       );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        dataList.value = {
-          'message': responseData['message'],
-        };
-
-      }
-      else {
+        dataList.value = {'message': responseData['message']};
+      } else {
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
