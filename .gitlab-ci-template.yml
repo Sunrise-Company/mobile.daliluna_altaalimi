@@ -2,7 +2,7 @@
 # Reusable for any Flutter project
 # Version: 1.0
 
-image: ghcr.io/cirruslabs/flutter:stable
+image: ghcr.io/cirruslabs/flutter:3.35.7
 
 stages:
   - build
