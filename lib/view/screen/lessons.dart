@@ -491,7 +491,11 @@ class Lessons extends GetView<LessonsController> {
                                                               .toString(),
                                                           baskerc.maindepId
                                                               .toString(),
-                                                          baskerc.instituteId.toString()
+                                                          baskerc.instituteId
+                                                              .toString(),
+                                                          controller
+                                                              .dataList[index]['app_unit_id']
+                                                              .toString(),
                                                         );
                                                         print(
                                                           'lesson add success',
