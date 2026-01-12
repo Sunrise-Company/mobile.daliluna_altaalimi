@@ -1,7 +1,7 @@
 name: daliluna_altaalimi
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.0.0+4
+version: 1.0.0+9
 
 environment:
   sdk: ">=3.9.0 <4.0.0"
@@ -26,14 +26,14 @@ dependencies:
   cupertino_icons: ^1.0.8
   curved_labeled_navigation_bar: ^2.0.2
   curved_navigation_bar: ^1.0.6
-  device_info_plus: ^11.1.0
+  device_info_plus: ^12.3.0
   dio: ^5.9.0
   dropdown_button2: ^2.3.9
   file_picker: ^8.0.0
   firebase_core: ^4.1.0
   firebase_messaging: ^16.0.1
   flutter_cache_manager: ^3.4.1
-  flutter_cached_pdfview: ^0.4.3
+  syncfusion_flutter_pdfviewer: ^32.1.21
   flutter_custom_clippers: ^2.1.0
   flutter_date_pickers: ^0.4.3
   flutter_form_builder: ^10.2.0
@@ -56,9 +56,9 @@ dependencies:
   path_provider: ^2.1.5
   permission_handler: ^11.3.1
   readmore: ^3.0.0
-  record: ^5.1.2
+  record: ^5.0.0
   responsive_builder: ^0.7.1
-  shared_preferences: 2.2.3
+  shared_preferences: ^2.2.3
   shimmer: ^3.0.0
   socket_io_client: ^3.0.2
   url_launcher: ^6.3.1
@@ -74,6 +74,16 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+
+dependency_overrides:
+  archive: ^3.6.1
+  url_launcher_android: ^6.3.13
+  # Fix GetX backgroundColor issue with newer Flutter versions
+  get: ^4.6.6
+  # Fix platform package packageRoot issue
+  platform: ^3.1.5
+  # Fix record compatibility by using older platform interface
+  record_platform_interface: 1.0.1
 
 flutter_launcher_icons:
   android: true

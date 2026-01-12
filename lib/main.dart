@@ -33,6 +33,35 @@ void main() async {
 
   Get.put(BreadcrumbService()); // Initialize BreadcrumbService
 
+  // ═══════════════════════════════════════════════════════════════
+  // 🧪 DEBUG MODE: Test Error Screen Without Real Device
+  // ═══════════════════════════════════════════════════════════════
+  // Set to null to disable, or choose from:
+  // - "emulator_path"    : Test LDPlayer detection
+  // - "ubuntu_aosp"      : Test Ubuntu/AOSP detection
+  // - "explicit_emulator": Test explicit emulator signatures
+  // - "test_keys"        : Test test-keys detection
+  // - "generic"          : Test generic fingerprint
+  // - "generic_checker"  : Test generic EmulatorChecker
+  // ═══════════════════════════════════════════════════════════════
+  const String? DEBUG_ERROR_SCREEN_MODE =
+      null; // Change to test different scenarios
+
+  if (DEBUG_ERROR_SCREEN_MODE != null) {
+    String deviceInfo = await _getDeviceInfoString();
+    String testReason = _getDebugErrorReason(DEBUG_ERROR_SCREEN_MODE);
+    String arabicReason = _translateEmulatorReason(testReason);
+
+    _showErrorScreen(
+      "تم اكتشاف محاكي",
+      arabicReason,
+      details: deviceInfo,
+      isWarning: true,
+    );
+    return;
+  }
+  // ═══════════════════════════════════════════════════════════════
+
   // 1. Check Emulator (Blocking) - The ONLY error screen we want
   try {
     String? emulatorReason = await checkIfEmulator().timeout(
@@ -42,9 +71,13 @@ void main() async {
 
     if (emulatorReason != null) {
       String deviceInfo = await _getDeviceInfoString();
+
+      // Translate the reason to Arabic for better user understanding
+      String arabicReason = _translateEmulatorReason(emulatorReason);
+
       _showErrorScreen(
-        "Emulator Detected",
-        "Reason: $emulatorReason",
+        "تم اكتشاف محاكي",
+        arabicReason,
         details: deviceInfo,
         isWarning: true,
       );
@@ -82,23 +115,137 @@ void main() async {
   );
 }
 
+String _getDebugErrorReason(String mode) {
+  // Generate test error reasons for debugging
+  switch (mode) {
+    case "emulator_path":
+      return "Found emulator path: /storage/emulated/0/Android/data/com.android.ld.appstore (STRONG EVIDENCE)";
+    case "ubuntu_aosp":
+      return "Host: ubuntu, Device: aosp (STRONG EVIDENCE)";
+    case "explicit_emulator":
+      return "Explicit emulator signature in product/model (STRONG EVIDENCE)";
+    case "test_keys":
+      return "Fingerprint contains test-keys (unknown brand)";
+    case "generic":
+      return "Fingerprint contains 'generic' (unknown brand)";
+    case "generic_checker":
+      return "Generic EmulatorChecker detected (non-physical, unknown brand)";
+    default:
+      return "Unknown debug mode: $mode";
+  }
+}
+
+String _translateEmulatorReason(String reason) {
+  // Translate emulator detection reasons to Arabic
+  if (reason.contains('Found emulator path')) {
+    return '''
+تم اكتشاف مسارات خاصة بالمحاكيات على هذا الجهاز.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا التطبيق لا يعمل على المحاكيات (Emulators) لأسباب أمنية.
+يرجى استخدام جهاز حقيقي (هاتف أو تابلت) لتشغيل التطبيق.
+''';
+  } else if (reason.contains('Ubuntu') && reason.contains('AOSP')) {
+    return '''
+تم اكتشاف توليفة Ubuntu/AOSP المميزة للمحاكيات.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا التطبيق لا يعمل على المحاكيات لأسباب أمنية.
+يرجى استخدام جهاز حقيقي لتشغيل التطبيق.
+''';
+  } else if (reason.contains('Explicit emulator signature')) {
+    return '''
+تم اكتشاف علامات واضحة تدل على أن هذا محاكي وليس جهاز حقيقي.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا التطبيق لا يعمل على المحاكيات (Android SDK/Emulator) لأسباب أمنية.
+يرجى استخدام جهاز حقيقي لتشغيل التطبيق.
+''';
+  } else if (reason.contains('test-keys')) {
+    return '''
+تم اكتشاف "test-keys" في بصمة النظام من جهاز غير معروف.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا قد يشير إلى محاكي أو ROM معدل على جهاز غير معروف.
+إذا كنت تستخدم جهاز حقيقي، يرجى التواصل مع الدعم الفني.
+''';
+  } else if (reason.contains('generic')) {
+    return '''
+تم اكتشاف بصمة "generic" في النظام من جهاز غير معروف.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا قد يشير إلى محاكي.
+إذا كنت تستخدم جهاز حقيقي، يرجى التواصل مع الدعم الفني.
+''';
+  } else if (reason.contains('Generic EmulatorChecker')) {
+    return '''
+تم اكتشاف هذا الجهاز كمحاكي من خلال الفحص العام.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا التطبيق لا يعمل على المحاكيات لأسباب أمنية.
+يرجى استخدام جهاز حقيقي (هاتف أو تابلت) لتشغيل التطبيق.
+''';
+  }
+
+  // Default fallback
+  return '''
+تم اكتشاف أن هذا الجهاز قد يكون محاكي.
+
+🔍 التفاصيل التقنية:
+$reason
+
+⚠️ هذا التطبيق لا يعمل على المحاكيات لأسباب أمنية.
+إذا كنت تستخدم جهاز حقيقي، يرجى التواصل مع الدعم الفني وإرسال لقطة شاشة لهذه الرسالة.
+''';
+}
+
 Future<String> _getDeviceInfoString() async {
   if (Platform.isAndroid) {
     var androidInfo = await DeviceInfoPlugin().androidInfo;
     return '''
-Device: ${androidInfo.device}
-Host: ${androidInfo.host}
-Model: ${androidInfo.model}
-Product: ${androidInfo.product}
-Hardware: ${androidInfo.hardware}
-Brand: ${androidInfo.brand}
-IsPhysical: ${androidInfo.isPhysicalDevice}
-Tags: ${androidInfo.tags}
-Type: ${androidInfo.type}
-Fingerprint: ${androidInfo.fingerprint}
+╔════════════════════════════════════════╗
+║        معلومات الجهاز - Device Info   ║
+╚════════════════════════════════════════╝
+
+📱 الجهاز الأساسي:
+   • العلامة التجارية: ${androidInfo.brand}
+   • الموديل: ${androidInfo.model}
+   • الجهاز: ${androidInfo.device}
+   • المنتج: ${androidInfo.product}
+
+🔧 المواصفات التقنية:
+   • المصنّع: ${androidInfo.manufacturer}
+   • الهاردوير: ${androidInfo.hardware}
+   • النوع: ${androidInfo.type}
+   • المضيف: ${androidInfo.host}
+
+💿 نظام التشغيل:
+   • إصدار أندرويد: ${androidInfo.version.release}
+   • SDK: ${androidInfo.version.sdkInt}
+   • Security Patch: ${androidInfo.version.securityPatch}
+
+🔐 معلومات البناء:
+   • Tags: ${androidInfo.tags}
+   • Fingerprint: ${androidInfo.fingerprint.length > 50 ? '${androidInfo.fingerprint.substring(0, 50)}...' : androidInfo.fingerprint}
+
+✅ الحالة:
+   • جهاز فيزيائي: ${androidInfo.isPhysicalDevice ? 'نعم ✓' : 'لا ✗'}
+   • معرّف الجهاز: ${androidInfo.id}
 ''';
   }
-  return "Not Android";
+  return "❌ النظام ليس أندرويد";
 }
 
 void _showErrorScreen(
@@ -110,67 +257,227 @@ void _showErrorScreen(
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isWarning
-                        ? Icons.warning_amber_rounded
-                        : Icons.error_outline,
-                    size: 80,
-                    color: isWarning ? Colors.orange : Colors.red,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isWarning ? Colors.red : Colors.grey[800],
-                    ),
-                  ),
-                  if (details != null) ...[
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: Text(
-                        details,
-                        textAlign: TextAlign.left,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                          color: Colors.black87,
+      home: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF5F5F5),
+          body: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // App Logo or Icon
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          isWarning
+                              ? Icons.warning_amber_rounded
+                              : Icons.error_outline,
+                          size: 80,
+                          color: isWarning ? Colors.orange : Colors.red,
                         ),
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 40),
-                  const Text(
-                    "Please contact support with this screenshot.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                      const SizedBox(height: 30),
+
+                      // Title
+                      Text(
+                        'عذراً، لا يمكن تشغيل التطبيق',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[900],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Subtitle
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: isWarning
+                              ? Colors.orange[700]
+                              : Colors.red[700],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Message Card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: Colors.blue[700],
+                                  size: 24,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'سبب الخطأ:',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              message,
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey[700],
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Device Details
+                      if (details != null) ...[
+                        const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          constraints: const BoxConstraints(maxHeight: 300),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey[300]!,
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.phone_android,
+                                        color: Colors.grey[700],
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'تفاصيل الجهاز',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[800],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    '(للدعم الفني)',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Flexible(
+                                child: SingleChildScrollView(
+                                  child: SelectableText(
+                                    details,
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontFamily: 'monospace',
+                                      color: Colors.black87,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 30),
+
+                      // Support Message
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.blue[200]!,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.support_agent,
+                              color: Colors.blue[700],
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'يرجى التواصل مع الدعم الفني وإرسال لقطة شاشة لهذه الرسالة',
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.blue[900],
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -186,35 +493,119 @@ Future<String?> checkIfEmulator() async {
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
-      // 1. Trust Physical Device Flag (Fix for Redmi Pad SE)
-      if (androidInfo.isPhysicalDevice) {
-        return null;
-      }
+      final String host = androidInfo.host;
+      final String device = androidInfo.device;
+      final String brand = androidInfo.brand;
+      final String model = androidInfo.model;
+      final String product = androidInfo.product;
+      final String fingerprint = androidInfo.fingerprint;
 
-      final String host = androidInfo.host ?? '';
-      final String device = androidInfo.device ?? '';
+      // Define known real device brands for later checks
+      List<String> realDeviceBrands = [
+        'samsung',
+        'xiaomi',
+        'redmi',
+        'oppo',
+        'vivo',
+        'huawei',
+        'honor',
+        'realme',
+        'oneplus',
+        'motorola',
+        'nokia',
+        'sony',
+        'lg',
+        'asus',
+        'lenovo',
+        'google',
+        'htc',
+        'tcl',
+      ];
 
-      // Log info for debugging
+      bool isKnownBrand = realDeviceBrands.any(
+        (b) => brand.toLowerCase().contains(b),
+      );
 
-      if (host.toLowerCase() == 'ubuntu' && device.toLowerCase() == 'aosp') {
-        return "Host: $host, Device: $device";
-      }
+      // ============================================
+      // STRONG CHECKS - Block regardless of brand
+      // ============================================
 
+      // 1. Check for specific emulator paths (STRONGEST evidence)
       List<String> ldPlayerPaths = [
         '/storage/emulated/0/storage/secure',
         '/storage/emulated/0/Android/data/com.android.ld.appstore',
       ];
       for (String path in ldPlayerPaths) {
         if (await Directory(path).exists()) {
-          return "Found path: $path";
+          return "Found emulator path: $path (STRONG EVIDENCE)";
+        }
+      }
+
+      // 2. Check for Ubuntu/AOSP combination (STRONG evidence)
+      if (host.toLowerCase() == 'ubuntu' && device.toLowerCase() == 'aosp') {
+        return "Host: $host, Device: $device (STRONG EVIDENCE)";
+      }
+
+      // 3. Check for explicit emulator/SDK strings (STRONG evidence)
+      if (product.contains('sdk') ||
+          product.contains('emulator') ||
+          model.contains('Emulator') ||
+          model.contains('Android SDK') ||
+          fingerprint.contains('generic/')) {
+        return "Explicit emulator signature in product/model (STRONG EVIDENCE)";
+      }
+
+      // ============================================
+      // WEAK CHECKS - Allow exceptions for known brands
+      // ============================================
+
+      // 4. Check for test-keys (WEAK - many custom ROMs have this)
+      if (fingerprint.contains('test-keys')) {
+        if (isKnownBrand) {
+          debugPrint(
+            "⚠️ Device has test-keys but is known brand ($brand) - ALLOWING",
+          );
+          // Don't block - could be custom ROM on real device
+        } else {
+          return "Fingerprint contains test-keys (unknown brand)";
+        }
+      }
+
+      // 5. Check for generic fingerprint (WEAK - some real devices have this)
+      if (fingerprint.contains('generic')) {
+        if (isKnownBrand) {
+          debugPrint(
+            "⚠️ Device has generic fingerprint but is known brand ($brand) - ALLOWING",
+          );
+          // Don't block
+        } else {
+          return "Fingerprint contains 'generic' (unknown brand)";
+        }
+      }
+
+      // ============================================
+      // FINAL CHECK - isPhysicalDevice
+      // ============================================
+
+      // 6. Only use isPhysicalDevice for unknown brands
+      if (!androidInfo.isPhysicalDevice) {
+        if (isKnownBrand) {
+          debugPrint(
+            "✅ Device marked as non-physical but is known brand: $brand - ALLOWING",
+          );
+          return null;
+        }
+
+        // Unknown brand + non-physical = do final generic check
+        bool isGenericEmulator = await EmulatorChecker.isEmulator();
+        if (isGenericEmulator) {
+          return "Generic EmulatorChecker detected (non-physical, unknown brand)";
         }
       }
     }
-
-    // 2. Generic Check (Only runs if isPhysicalDevice is false or not Android)
-    bool isGenericEmulator = await EmulatorChecker.isEmulator();
-    if (isGenericEmulator) return "Generic EmulatorChecker detected";
-  } catch (e) {}
+  } catch (e) {
+    debugPrint("Emulator check error: $e");
+  }
 
   return null;
 }

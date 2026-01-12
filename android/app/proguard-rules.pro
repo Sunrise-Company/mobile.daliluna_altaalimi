@@ -1,5 +1,24 @@
-# Rules for ffmpeg-kit-flutter
--keep class com.arthenica.ffmpegkit.** { *; }
--keep class com.arthenica.ffmpegkit.flutter.** { *; }
-# The error log specifically mentions this package, so it's crucial to keep it.
--keep class com.antonkarpenko.ffmpegkit.** { *; }
+# Add project specific ProGuard rules here.
+# This ensures 16 KB page size compatibility
+
+# Keep all native methods
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep Syncfusion PDF Viewer classes
+-keep class com.syncfusion.** { *; }
+
+# Keep all .so libraries
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Prevent obfuscation of native libraries
+-keep class **.R$* {
+    public static <fields>;
+}
+
+# For 16 KB page size support
+-dontoptimize
+-dontpreverify

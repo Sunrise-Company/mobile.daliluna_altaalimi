@@ -1,16 +1,15 @@
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/constant/imageasset.dart';
-import 'package:lottie/lottie.dart';
 
 class ForceUpdateScreen extends StatelessWidget {
   const ForceUpdateScreen({super.key});
   void _launchUpdateUrl() async {
-    const url = '${AppLink.baseUrl}/public/ArabicAcademic.apk';
+    const url =
+        'https://play.google.com/store/apps/details?id=com.sunrise.daliluna_altaalimi';
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
