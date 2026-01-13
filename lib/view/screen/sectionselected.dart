@@ -538,7 +538,9 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                     itemCount: controller.dataList.length,
                                     itemBuilder: (context, index) {
                                       final item = controller.dataList[index];
-                                      print('sssssssssssssssssssssss${controller.dataList[index]}');
+                                      print(
+                                        'sssssssssssssssssssssss${controller.dataList[index]}',
+                                      );
                                       final isSectionFree =
                                           item['type'].toString() == '4';
                                       final itemId = item['id'].toString();
@@ -803,7 +805,9 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                                   classId,
                                                                   subjectId,
                                                                   mainDepId,
-                                                                    baskerc.instituteId.toString()
+                                                                  baskerc
+                                                                      .instituteId
+                                                                      .toString(),
                                                                 );
                                                               },
                                                               icon: Icon(
@@ -864,7 +868,7 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                 ),
                               )
                             : const Center(child: Text("لا يوجد"))
-                      : const Center(child: CircularProgressIndicator()),
+                      : const Center(child: Loading()),
                 ),
               ),
             ),

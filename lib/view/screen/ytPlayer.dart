@@ -152,7 +152,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       options.sort((a, b) => b.streamInfo.size.compareTo(a.streamInfo.size));
 
       if (mounted) setState(() => _prefetchedQualities = options);
-      // Failed to prefetch qualities
+    } catch (e) {
+      // Ignore errors related to fetching download options (e.g. VideoUnavailableException due to VPN)
+      // to prevent the app from crashing.
     } finally {
       if (mounted) setState(() => _isFetchingQualities = false);
       yt.close();
@@ -228,14 +230,22 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         });
       }
     } else {
-      _initializeWebView();
+      await _initializeWebView();
     }
 
     if (mounted) setState(() => _isLoading = false);
   }
 
-  void _initializeWebView() {
+  Future<void> _initializeWebView() async {
     const String finalJsCommands = """
+       // CRITICAL: Javascript Spoofing to match Windows User Agent
+       // This prevents Google from detecting the 'OS Mismatch' (claiming Windows but running on Android/Linux)
+       try {
+         Object.defineProperty(navigator, 'platform', {get: function(){return 'Win32';}});
+         Object.defineProperty(navigator, 'maxTouchPoints', {get: function(){return 0;}}); 
+         Object.defineProperty(navigator, 'vendor', {get: function(){return 'Google Inc.';}});
+       } catch(e) {}
+
        function cleanPlayer() {
          const css = `.ytp-chrome-top, .ytp-youtube-button, .ytp-impression-link, .iv-branding,
          .ytp-endscreen, .ytp-endscreen-content, .ytp-pause-overlay, .ytp-watermark,
@@ -276,11 +286,11 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
      """;
 
     final String embedUrl =
-        'https://www.youtube.com/embed/${widget.videoId}?playsinline=1&modestbranding=1&iv_load_policy=3&fs=1&rel=0&origin=https://www.google.com';
+        'https://www.youtube-nocookie.com/embed/${widget.videoId}?playsinline=1&modestbranding=1&iv_load_policy=3&fs=1&rel=0&origin=https://www.google.com';
 
     final Map<String, String> headers = {
       'User-Agent':
-          'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Mobile Safari/537.36',
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.122 Safari/537.36',
       'Referer': 'https://www.google.com/',
     };
 
@@ -306,7 +316,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         },
       )
       ..setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.122 Safari/537.36",
       )
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -326,8 +336,12 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
             return NavigationDecision.navigate;
           },
         ),
-      )
-      ..loadRequest(Uri.parse(embedUrl), headers: headers);
+      );
+
+    // NOTE: Removed aggressive cache clearing. Real browsers keep cookies/cache to build trust.
+    // Clearing them on every load flags the session as a "Bot/New User" repeatedly.
+
+    await _webViewController.loadRequest(Uri.parse(embedUrl), headers: headers);
   }
 
   Future<void> _deleteVideo() async {

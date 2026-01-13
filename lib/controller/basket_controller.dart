@@ -17,8 +17,7 @@ class BasketController extends GetxController {
   RxString subjectId = ''.obs;
   RxString maindepId = ''.obs;
   //////////
-   RxString instituteId = ''.obs;
-  //  RxString InsName = ''.obs;
+  RxString instituteId = ''.obs;
 
   RxList mycart = [].obs;
   getcount() {
@@ -27,53 +26,162 @@ class BasketController extends GetxController {
 
   RxBool isload = false.obs;
   updateBasket(
-      String itemId,
-      String itemType,
-      String itemName,
-      int itemPrice,
-      String teacherName,
-      String className,
-      String subjectName,
-      String teacherId,
-      String classId,
-      String subjectId,
-      String maindepId,
-      String instituteId,
-      ) {
-    // 1️⃣ هل العنصر نفسه موجود؟
-    bool itemExists = mycart.any(
-          (element) =>
-      element['id'] == itemId &&
+    String itemId,
+    String itemType,
+    String itemName,
+    int itemPrice,
+    String teacherName,
+    String className,
+    String subjectName,
+    String teacherId,
+    String classId,
+    String subjectId,
+    String maindepId,
+    String instituteId, [
+    String? unitId,
+  ]) {
+    // 1️⃣ Check for duplicates
+    if (_isItemDuplicate(itemId, teacherId, subjectId, classId)) {
+      _showSnackbar('تنبيه', 'تم إضافة هذا العنصر بالفعل');
+      return;
+    }
+
+    // 2️⃣ Check for different institute
+    if (_hasInstituteConflict(instituteId)) {
+      _showSnackbar(
+        'تنبيه',
+        ' لا يمكن الإضافة من أكثر من معهد اشتري من كل معهد على حدى',
+      );
+      return;
+    }
+
+    // 3️⃣ Check for Main Section vs Children conflict
+    if (_hasMainSectionConflict(itemType, maindepId)) {
+      _showSnackbar(
+        'تنبيه',
+        'لا يمكن إضافة هذا العنصر لأن القسم الرئيسي موجود بالسلة',
+      );
+      return;
+    }
+
+    if (_hasChildConflict(itemType, itemId)) {
+      _showSnackbar(
+        'تنبيه',
+        'لا يمكن إضافة القسم لأن هناك أجزاء تابعة له في السلة',
+      );
+      return;
+    }
+
+    // 4️⃣ Check for Unit vs Lesson conflict
+    if (_hasUnitLessonConflict(itemType, unitId, itemId)) {
+      return; // Snackbar handled inside helper for specific messages
+    }
+
+    // ✅ Add to cart
+    _addItemToCart(
+      itemId,
+      itemType,
+      itemName,
+      itemPrice,
+      teacherName,
+      className,
+      subjectName,
+      teacherId,
+      classId,
+      subjectId,
+      maindepId,
+      instituteId,
+      unitId,
+    );
+  }
+
+  // --- Helper Methods ---
+
+  bool _isItemDuplicate(
+    String itemId,
+    String teacherId,
+    String subjectId,
+    String classId,
+  ) {
+    return mycart.any(
+      (element) =>
+          element['id'] == itemId &&
           element['teacherId'] == teacherId &&
           element['subjectId'] == subjectId &&
           element['classId'] == classId,
     );
+  }
 
-    // 2️⃣ هل في عناصر من معهد مختلف؟
-    bool existsDifferentInstitute = mycart.isNotEmpty &&
-        mycart.any(
-              (element) => element['instituteId'] != instituteId,
+  bool _hasInstituteConflict(String instituteId) {
+    return mycart.isNotEmpty &&
+        mycart.any((element) => element['instituteId'] != instituteId);
+  }
+
+  bool _hasMainSectionConflict(String itemType, String maindepId) {
+    if (itemType == 'unit' || itemType == 'section' || itemType == 'lesson') {
+      return mycart.any(
+        (element) =>
+            (element['itemType'] == 'section' ||
+                element['itemType'] == 'main_dep') &&
+            element['id'] == maindepId,
+      );
+    }
+    return false;
+  }
+
+  bool _hasChildConflict(String itemType, String itemId) {
+    if (itemType == 'section' || itemType == 'main_dep') {
+      return mycart.any(
+        (element) =>
+            (element['itemType'] == 'unit' ||
+                element['itemType'] == 'section' ||
+                element['itemType'] == 'lesson') &&
+            element['maindepId'] == itemId,
+      );
+    }
+    return false;
+  }
+
+  bool _hasUnitLessonConflict(String itemType, String? unitId, String itemId) {
+    if (itemType == 'lesson' && unitId != null) {
+      bool parentUnitExists = mycart.any(
+        (element) => element['itemType'] == 'unit' && element['id'] == unitId,
+      );
+      if (parentUnitExists) {
+        _showSnackbar('تنبيه', 'لا يمكن إضافة الدرس لأن الوحدة موجودة بالسلة');
+        return true;
+      }
+    } else if (itemType == 'unit') {
+      bool childLessonExists = mycart.any(
+        (element) =>
+            element['itemType'] == 'lesson' && element['unitId'] == itemId,
+      );
+      if (childLessonExists) {
+        _showSnackbar(
+          'تنبيه',
+          'لا يمكن إضافة الوحدة لأن هناك دروس تابعة لها في السلة',
         );
-
-    if (existsDifferentInstitute) {
-      Get.snackbar(
-        'تنبيه',
-        ' لا يمكن الإضافة من أكثر من معهد اشتري من كل معهد على حدى',
-        backgroundColor: AppColor.BackGround3,
-      );
-      return;
+        return true;
+      }
     }
+    return false;
+  }
 
-    if (itemExists) {
-      Get.snackbar(
-        'تنبيه',
-        'تم إضافة هذا العنصر بالفعل',
-        backgroundColor: AppColor.BackGround3,
-      );
-      return;
-    }
-
-    // ✅ الإضافة
+  void _addItemToCart(
+    String itemId,
+    String itemType,
+    String itemName,
+    int itemPrice,
+    String teacherName,
+    String className,
+    String subjectName,
+    String teacherId,
+    String classId,
+    String subjectId,
+    String maindepId,
+    String instituteId,
+    String? unitId,
+  ) {
     mycart.add({
       'id': itemId,
       'itemType': itemType,
@@ -87,10 +195,14 @@ class BasketController extends GetxController {
       'subjectId': subjectId,
       'maindepId': maindepId,
       'instituteId': instituteId,
+      'unitId': unitId,
     });
-
     count = count + itemPrice;
     update();
+  }
+
+  void _showSnackbar(String title, String message) {
+    Get.snackbar(title, message, backgroundColor: AppColor.BackGround3);
   }
 
   updateteacherName(newteacherName) {
@@ -121,7 +233,6 @@ class BasketController extends GetxController {
   updatelessonId(newsubjectId) {
     subjectId(newsubjectId.toString());
     update();
-
   }
 
   updatemaindepId(newmaindepId) {
@@ -144,14 +255,7 @@ class BasketController extends GetxController {
 
   app_basket_student_store() async {
     String responseData = await ApiService.app_basket_student_store(mycart);
-print('ccccccccccccccccccccccc$responseData');
     return responseData;
-
-    // if (true) {
-    //   print('8888888888888');
-    //   Get.back();
-    //   update();
-    // }
   }
 
   Map<String, dynamic> companyInformations = {
@@ -173,19 +277,14 @@ print('ccccccccccccccccccccccc$responseData');
       print('mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm${instituteId.value}');
       final response = await http.get(
         Uri.parse(
-          AppLink.server +
-              '/app_transfer_information/${instituteId.value}',
+          AppLink.server + '/app_transfer_information/${instituteId.value}',
         ),
       );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        dataList.value = {
-          'message': responseData['message'],
-        };
-
-      }
-      else {
+        dataList.value = {'message': responseData['message']};
+      } else {
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
@@ -204,7 +303,6 @@ print('ccccccccccccccccccccccc$responseData');
 
   @override
   void onInit() {
-    // getAppinfo();
     fetchcompanyInformations();
     super.onInit();
   }

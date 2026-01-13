@@ -4,6 +4,9 @@ import '../../../controller/exam/startExamController.dart';
 class StartExamBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut(() => StartExamControllerss());
+    if (Get.isRegistered<StartExamControllerss>()) {
+      Get.delete<StartExamControllerss>(force: true);
+    }
+    Get.put<StartExamControllerss>(StartExamControllerss());
   }
 }

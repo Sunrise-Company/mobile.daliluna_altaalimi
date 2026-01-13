@@ -296,6 +296,7 @@ class QuizScreen extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
+<<<<<<< lib/view/screen/exam/examList.dart
                                             );
                                           },
                                         ),
@@ -312,6 +313,34 @@ class QuizScreen extends StatelessWidget {
                                   Icons.lock_outline_rounded,
                                   size: 80,
                                   color: Colors.black.withOpacity(0.5),
+// =======
+//                                             ),
+//                                           );
+//                                         },
+//                                       ),
+//                                     )
+//                                   : const Center(
+//                                       child: Text("لا يوجد امتحانات"),
+//                                     )
+//                             : const Center(child: Loading())
+//                       : Center(
+//                           child: Column(
+//                             mainAxisAlignment: MainAxisAlignment.center,
+//                             children: [
+//                               Icon(
+//                                 Icons.lock_outline_rounded,
+//                                 size: 80,
+//                                 color: Colors.black.withOpacity(0.5),
+//                               ),
+//                               const SizedBox(height: 20),
+//                               Text(
+//                                 "عذراً، يجب عليك تسجيل الدخول أولاً",
+//                                 style: TextStyle(
+//                                   fontSize: 16,
+//                                   color: Colors.black,
+//                                   fontWeight: FontWeight.bold,
+// >>>>>>> lib/view/screen/exam/examList.dart
+                        
                                 ),
                                 const SizedBox(height: 20),
                                 Text(

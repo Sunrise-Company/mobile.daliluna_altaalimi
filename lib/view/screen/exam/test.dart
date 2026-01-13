@@ -1,3 +1,4 @@
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:gradients/gradients.dart';
@@ -8,7 +9,11 @@ import '../../../controller/exam/startExamController.dart';
 import '../../../core/constant/color.dart';
 import '../../widget/GetValueForScreen.dart';
 
-class testPage extends GetView<StartExamControllerss> {
+class testPage extends StatelessWidget {
+  testPage({Key? key}) : super(key: key);
+
+  StartExamControllerss get controller => Get.find<StartExamControllerss>();
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -69,7 +74,7 @@ class testPage extends GetView<StartExamControllerss> {
                     ],
                   ),
                 )
-              : Center(child: CircularProgressIndicator()),
+              : Center(child: Loading()),
         ),
       ),
     );

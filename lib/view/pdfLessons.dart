@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:daliluna_altaalimi/controller/viewlesson_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 
-import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -98,10 +98,13 @@ class _pdfLessonsState extends State<pdfLessons> {
         //     style: TextStyle(color: Colors.white),
         //   ),
         // ),
-        body: PDF().fromUrl(
+        body: SfPdfViewer.network(
           widget.url,
-          placeholder: (progress) => Center(child: CircularProgressIndicator()),
-          errorWidget: (error) => Center(child: Text('خطأ لم يتم تحميل الملف')),
+          onDocumentLoadFailed: (PdfDocumentLoadFailedDetails details) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('خطأ لم يتم تحميل الملف: ${details.error}')),
+            );
+          },
         ),
         // pdfUrl == null
         //     ? Center(child: CircularProgressIndicator())
