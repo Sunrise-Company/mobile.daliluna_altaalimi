@@ -89,7 +89,6 @@ class LessonsController extends GetxController {
   void fetchLectures() async {
     try {
       dataList = await ApiService.fetchLectures();
-print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz$dataList");
       isloadedlesson = true;
 
       update();
@@ -101,7 +100,6 @@ print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz$dataList");
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? student_id = prefs.getString('student_id');
       mylectures.value = await ApiService.fetchMyLectures(student_id);
-
       isloaded = true;
 
       update();

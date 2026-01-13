@@ -84,6 +84,8 @@ class MyLessons extends GetView<LessonsController> {
                                     itemCount: controller.mylectures.length,
                                     itemBuilder: (context, index) {
                                       final item = controller.mylectures[index];
+                                      // my edit raghad added item2
+                                      final item2 = controller.dataList[index];
                                       return AnimationConfiguration.staggeredList(
                                         position: index,
                                         duration: const Duration(
@@ -176,20 +178,23 @@ class MyLessons extends GetView<LessonsController> {
                                                             .SecondryColor,
                                                       ),
                                                       const SizedBox(width: 4),
-                                                      Text(
-                                                        "عدد الملفات: ${item['app_lesson_lecture_files_count'] ?? 0}",
-                                                        style: TextStyle(
-                                                          fontSize:
-                                                              getValueForScreenType<
-                                                                double
-                                                              >(
-                                                                context:
-                                                                    context,
-                                                                mobile: 12,
-                                                                tablet: 16,
-                                                              ),
-                                                          color:
-                                                              Colors.grey[700],
+                                                      InkWell(
+                                                        onTap: (){print("ffffffffffffffff${item2['app_lesson_lecture_files_count'] }");},
+                                                        child: Text(
+                                                          "عدد الملفات: ${item2['app_lesson_lecture_files_count'] ?? 0}",
+                                                          style: TextStyle(
+                                                            fontSize:
+                                                                getValueForScreenType<
+                                                                  double
+                                                                >(
+                                                                  context:
+                                                                      context,
+                                                                  mobile: 12,
+                                                                  tablet: 16,
+                                                                ),
+                                                            color:
+                                                                Colors.grey[700],
+                                                          ),
                                                         ),
                                                       ),
                                                     ],

@@ -233,14 +233,14 @@ class StartExamControllerss extends GetxController {
 
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     String? student_id = localStorage.getString('student_id');
-    // usertype = localStorage.get('type');
-    log("Get.arguments${Get.arguments}");
+
     if (Get.arguments == null) {
       Get.snackbar("Error", "Missing exam arguments");
       return;
     }
 
     var examid = Get.arguments['id'];
+    print("ddddddddddddddddddddddddd$examid");
     type = Get.arguments['type'];
 
     var respons;

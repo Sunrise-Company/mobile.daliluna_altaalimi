@@ -20,36 +20,7 @@ class testPage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.white,
-        // appBar: PreferredSize(
-        //   preferredSize: Size.fromHeight(
-        //     getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 55,
-        //       tablet: 100,
-        //     ),
-        //   ),
-        //   child: AppBar(
-        //     titleSpacing: getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 30,
-        //       tablet: 50,
-        //     ),
-        //     elevation: 0,
-        //     flexibleSpace: Container(
-        //       decoration: BoxDecoration(
-        //         gradient: LinearGradientPainter(
-        //           begin: Alignment.topCenter,
-        //           end: Alignment.bottomRight,
-        //           colors: <Color>[AppColor.DeepPurple, AppColor.PrimaryColor],
-        //         ),
-        //       ),
-        //     ),
-        //     title: const Text(
-        //       "أسئلة الامتحان",
-        //       style: TextStyle(color: AppColor.White),
-        //     ),
-        //   ),
-        // ),
+
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(
             getValueForScreenType<double>(
