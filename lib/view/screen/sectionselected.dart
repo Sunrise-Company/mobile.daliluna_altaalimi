@@ -868,7 +868,7 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                 ),
                               )
                             : const Center(child: Text("لا يوجد"))
-                      : const Center(child: CircularProgressIndicator()),
+                      : const Center(child: Loading()),
                 ),
               ),
             ),

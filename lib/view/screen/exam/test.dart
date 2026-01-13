@@ -1,3 +1,4 @@
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:gradients/gradients.dart';
@@ -102,7 +103,7 @@ class testPage extends StatelessWidget {
                     ],
                   ),
                 )
-              : Center(child: CircularProgressIndicator()),
+              : Center(child: Loading()),
         ),
       ),
     );

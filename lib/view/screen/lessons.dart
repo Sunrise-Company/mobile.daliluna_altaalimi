@@ -331,23 +331,30 @@ class Lessons extends GetView<LessonsController> {
                                                         const SizedBox(
                                                           width: 4,
                                                         ),
-                                                        Text(
-                                                          "عدد الملفات: ${controller.dataList[index]['app_lesson_lecture_files_count']}",
-                                                          style: TextStyle(
-                                                            fontSize:
-                                                                getValueForScreenType<
-                                                                  double
-                                                                >(
-                                                                  context:
-                                                                      context,
-                                                                  mobile: 12,
-                                                                  tablet: 16,
-                                                                ),
-                                                            color: Colors
-                                                                .grey[700],
+                                                        Flexible(
+                                                          child: Text(
+                                                            "عدد الملفات: ${controller.dataList[index]['app_lesson_lecture_files_count']}",
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  getValueForScreenType<
+                                                                    double
+                                                                  >(
+                                                                    context:
+                                                                        context,
+                                                                    mobile: 12,
+                                                                    tablet: 16,
+                                                                  ),
+                                                              color: Colors
+                                                                  .grey[700],
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                           ),
                                                         ),
-                                                        const Spacer(),
+                                                        const SizedBox(
+                                                          width: 10,
+                                                        ),
                                                         Text(
                                                           "${controller.dataList[index]['price'] ?? '-'}",
                                                           style: TextStyle(

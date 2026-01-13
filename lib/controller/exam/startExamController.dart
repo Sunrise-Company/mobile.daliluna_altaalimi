@@ -184,7 +184,7 @@ class StartExamControllerss extends GetxController {
         controllerss.dataListExam.value = [];
         controllerss.isloded.value = false;
         controllerss.MainExam();
-        
+
         // Use offNamed to replace the route - controller will be cleaned up automatically
         Get.offNamed('/homepage');
       } else if (body['status'] == 5) {
@@ -254,7 +254,7 @@ class StartExamControllerss extends GetxController {
             student_id.toString(),
       ),
     );
-    // }
+    log("${respons.body}");
     print(
       '' +
           "dashboard/student/main_exam/start/" +

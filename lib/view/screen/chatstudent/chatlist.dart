@@ -9,20 +9,20 @@ import 'package:get/get.dart';
 // import 'package:gradients/gradients.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../../core/constant/color.dart';
-
 import '../../widget/GetValueForScreen.dart';
 import 'chatStudent.dart';
 
 // ignore: must_be_immutable
 class TeacherListPage extends StatelessWidget {
   ChatStudentMessageController chatController = ChatStudentMessageController();
+
   @override
   Widget build(BuildContext context) {
     chatController.cancelAllNotifications();
     return Scaffold(
       backgroundColor: Colors.white,
+
       // appBar: PreferredSize(
       //   preferredSize: Size.fromHeight(
       //     getValueForScreenType<double>(

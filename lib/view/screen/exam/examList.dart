@@ -686,7 +686,7 @@ class QuizScreen extends StatelessWidget {
                                   : const Center(
                                       child: Text("لا يوجد امتحانات"),
                                     )
-                            : const Center(child: CircularProgressIndicator())
+                            : const Center(child: Loading())
                       : Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
