@@ -371,6 +371,7 @@ print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${baskerc.mycart[index]}");
                           ),
                           child: InkWell(
                             onTap: () {
+                              print('fffffffffffff${      baskerc.dataList['message']}');
                               alertPaidMethod(
                                 baskerc.dataList['message'],
                               );

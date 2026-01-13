@@ -305,7 +305,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       useInheritedMediaQuery: true,
-      builder: DevicePreview.appBuilder,
+      // builder: DevicePreview.appBuilder,
+      builder: (context, child) {
+        return SafeArea(
+          top: true,
+          bottom: true,
+          child: DevicePreview.appBuilder(context, child),
+        );
+      },
       locale: DevicePreview.locale(context),
       defaultTransition: Transition.rightToLeftWithFade,
       transitionDuration: const Duration(milliseconds: 500),

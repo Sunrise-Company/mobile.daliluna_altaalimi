@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path/path.dart' as p;
-
 import '../../linkapi.dart';
 
 class MainExamControllerss extends GetxController {
@@ -130,6 +128,7 @@ class MainExamControllerss extends GetxController {
   }
 
   Future<void> MainExam() async {
+    print("cccccccccc");
     isloded.value = false;
     dataListExam.value = [];
     try {

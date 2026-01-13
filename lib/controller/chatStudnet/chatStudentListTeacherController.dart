@@ -38,6 +38,7 @@ class ChatStudentListTeacherController extends GetxController {
   }
 
   Future<void> chatStudent() async {
+    print("sssssssssssssssssssssssssssss");
     isloded.value = false;
     update();
     try {
@@ -52,11 +53,14 @@ class ChatStudentListTeacherController extends GetxController {
         Uri.parse(AppLink.server + '/getListUsersStudent'),
         headers: headers,
       );
+
       if (token == null) {
+
         isloded.value = true;
         dataList.value = [];
       }
       if (response.statusCode == 200) {
+
         isloded.value = true;
         final responseData = jsonDecode(response.body);
 

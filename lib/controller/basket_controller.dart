@@ -170,6 +170,7 @@ print('ccccccccccccccccccccccc$responseData');
   Future<void> getAppinfo() async {
     isloded.value = false;
     try {
+      print('mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm${instituteId.value}');
       final response = await http.get(
         Uri.parse(
           AppLink.server +

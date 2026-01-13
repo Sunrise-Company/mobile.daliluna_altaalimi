@@ -22,9 +22,11 @@ class HomePage extends GetView<HomePageController> {
       ChatStudentListTeacherController();
   ListStudentChatController listStudentChatController =
       ListStudentChatController();
+  // late MainExamControllerss mainExam;
 
   @override
   Widget build(BuildContext context) {
+    // mainExam= Get.put(MainExamControllerss());
     ourcontroller = Get.put(OurCoursesController());
     chatStudentListTeacherController = Get.put(
       ChatStudentListTeacherController(),
@@ -157,56 +159,4 @@ class HomePage extends GetView<HomePageController> {
     );
   }
 
-  // Widget _buildBottomNavigationBar(HomePageController controller) {
-  //   return CurvedNavigationBar(
-  //     index: controller.selectedPage.value,
-  //     height: Get.height / 12.0,
-  //     items: <CurvedNavigationBarItem>[
-  //       CurvedNavigationBarItem(
-  //         child: Icon(
-  //           Icons.menu_book_outlined,
-  //           size: 30,
-  //           color: AppColor.White,
-  //         ),
-  //       ),
-  //       CurvedNavigationBarItem(
-  //         child: Icon(
-  //           Icons.message,
-  //           size: 30,
-  //           color: AppColor.White,
-  //         ),
-  //       ),
-  //       CurvedNavigationBarItem(
-  //         child: Icon(
-  //           Icons.home,
-  //           size: 30,
-  //           color: AppColor.White,
-  //         ),
-  //       ),
-  //       CurvedNavigationBarItem(
-  //         child: Icon(
-  //           Icons.person,
-  //           size: 30,
-  //           color: AppColor.White,
-  //         ),
-  //       ),
-  //       CurvedNavigationBarItem(
-  //         child: Icon(
-  //           Icons.assignment,
-  //           size: 30,
-  //           color: AppColor.White,
-  //         ),
-  //       ),
-  //     ],
-  //     color: AppColor.PrimaryColor,
-  //     buttonBackgroundColor: AppColor.SecondryColor,
-  //     backgroundColor: AppColor.BackGround2,
-  //     animationCurve: Curves.easeInOut,
-  //     animationDuration: const Duration(milliseconds: 500),
-  //     onTap: (index) {
-  //       controller.changePage(index);
-  //       ourcontroller.fetchmyClassess();
-  //     },
-  //   );
-  // }
 }
