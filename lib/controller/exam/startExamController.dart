@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
 
@@ -61,10 +62,21 @@ class StartExamControllerss extends GetxController {
   }
 
   @override
-  void dispose() {
+  void onClose() {
     player.dispose();
     player.release();
-    super.dispose();
+    // Clear all state
+    pages.clear();
+    answer.clear();
+    questionlist.clear();
+    answerlist.clear();
+    audioList.clear();
+    check.clear();
+    isplaying.clear();
+    positions.clear();
+    durations.clear();
+    isloded.value = false;
+    super.onClose();
   }
 
   void previousQuestion() {
@@ -166,14 +178,15 @@ class StartExamControllerss extends GetxController {
         );
         // isload(true);
         isloded.value = false;
-        fetchquiz();
+
         // Get.close(3);
         MainExamControllerss controllerss = Get.put(MainExamControllerss());
         controllerss.dataListExam.value = [];
         controllerss.isloded.value = false;
         controllerss.MainExam();
-        Get.toNamed('/homepage');
-        // Get.close(3);
+        
+        // Use offNamed to replace the route - controller will be cleaned up automatically
+        Get.offNamed('/homepage');
       } else if (body['status'] == 5) {
         issubmit(false);
 
@@ -221,7 +234,7 @@ class StartExamControllerss extends GetxController {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     String? student_id = localStorage.getString('student_id');
     // usertype = localStorage.get('type');
-
+    log("Get.arguments${Get.arguments}");
     if (Get.arguments == null) {
       Get.snackbar("Error", "Missing exam arguments");
       return;

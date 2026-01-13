@@ -8,7 +8,11 @@ import '../../../controller/exam/startExamController.dart';
 import '../../../core/constant/color.dart';
 import '../../widget/GetValueForScreen.dart';
 
-class testPage extends GetView<StartExamControllerss> {
+class testPage extends StatelessWidget {
+  testPage({Key? key}) : super(key: key);
+
+  StartExamControllerss get controller => Get.find<StartExamControllerss>();
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
