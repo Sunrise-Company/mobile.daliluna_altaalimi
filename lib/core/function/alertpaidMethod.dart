@@ -14,7 +14,7 @@ Future<bool> alertPaidMethod(String message) async {
     backgroundColor: Colors.white,
     title: "آلية تسديد المبغ",
     titleStyle: const TextStyle(color: AppColor.PrimaryColor, fontSize: 17),
-    middleText: message,
+    middleText: message.isEmpty ? "اضغط تأكيد لإتمام عملية الشراء" : message,
     middleTextStyle: TextStyle(color: Colors.black, fontSize: 15),
     actions: [
       CustomElevatedButton(
@@ -26,12 +26,21 @@ Future<bool> alertPaidMethod(String message) async {
           } else if (prefs.getBool('isLogin') == true) {
             baskerc.isload(true);
             Get.back();
-            String res = await baskerc.app_basket_student_store();
+            try {
+              String res = await baskerc.app_basket_student_store();
 
-            if (res == "true") {
-              Get.snackbar('تمت عملية الشراء بنجاح', 'شكراً لك',  backgroundColor: AppColor.BackGround3,);
-              Get.offAllNamed(AppRoute.homePage);
-              baskerc.mycart.clear();
+              baskerc.isload(false);
+              if (res == "true") {
+                Get.snackbar('تمت عملية الشراء بنجاح', 'شكراً لك',  backgroundColor: AppColor.BackGround3,);
+                Get.offAllNamed(AppRoute.homePage);
+                baskerc.mycart.clear();
+                baskerc.count.value = 0;
+              } else {
+                Get.snackbar('فشلت عملية الشراء', 'الرجاء المحاولة مرة أخرى',  backgroundColor: AppColor.BackGround3,);
+              }
+            } catch (e) {
+              baskerc.isload(false);
+              Get.snackbar('حدث خطأ', 'الرجاء التحقق من اتصالك بالإنترنت',  backgroundColor: AppColor.BackGround3,);
             }
           }
         }),

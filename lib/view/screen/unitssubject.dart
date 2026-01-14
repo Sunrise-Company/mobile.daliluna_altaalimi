@@ -17,6 +17,8 @@ import 'package:shimmer/shimmer.dart';
 
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
+import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
+import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 
 class UnitsSubject extends GetView<UnitsSubjectController> {
   UnitsSubject({super.key});
@@ -335,7 +337,11 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   section,
                                                 ) {
                                                   if (section != null) {
-                                                    return section['app_teacher_id']
+                                                    return section['id']
+                                                                .toString() ==
+                                                            item['id']
+                                                                .toString() &&
+                                                        section['app_teacher_id']
                                                                 .toString() ==
                                                             item['app_teacher_id']
                                                                 .toString() &&
@@ -384,7 +390,7 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   );
                                                 }
 
-                                                return InkWell(
+                                                return CustomButtonBuy(
                                                   onTap: () {
                                                     baskerc.updateBasket(
                                                       item['id'].toString(),
@@ -399,44 +405,16 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                           .toString(),
                                                       baskerc.teacherId
                                                           .toString(),
-                                                      baskerc.classId
-                                                          .toString(),
+                                                      baskerc.classId.toString(),
                                                       baskerc.subjectId
                                                           .toString(),
                                                       baskerc.maindepId
                                                           .toString(),
-                                                        baskerc.instituteId.toString()
+                                                      baskerc.instituteId
+                                                          .toString(),
                                                     );
                                                   },
-                                                  child: Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 5,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColor
-                                                          .SecondryColor,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            10,
-                                                          ),
-                                                    ),
-                                                    child: Text(
-                                                      "اشتراك",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize:
-                                                            getValueForScreenType<
-                                                              double
-                                                            >(
-                                                              context: context,
-                                                              mobile: 12,
-                                                              tablet: 16,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
+                                                  targetCartKey: CartAnimationKeys.unitsSubject,
                                                 );
                                               }),
                                             ),
@@ -454,19 +432,20 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
             ),
           ],
         ),
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "thirteen"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
+          ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
+          ),
+          child: BasketWidget(
+            heroTag: "thirteen",
+            customKey: CartAnimationKeys.unitsSubject,
           ),
         ),
       ),

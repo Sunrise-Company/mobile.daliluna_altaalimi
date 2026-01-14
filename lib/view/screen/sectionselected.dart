@@ -22,6 +22,8 @@ import '../../linkapi.dart';
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 import '../widget/loadingimage.dart';
+import 'package:daliluna_altaalimi/view/widget/animated_cart_icon.dart';
+import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
 
 class SectionSelected extends GetView<SectionSelectedController> {
   SectionSelected({super.key});
@@ -775,7 +777,9 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                               );
                                                             }
 
-                                                            return IconButton(
+                                                            return AnimatedCartIcon(
+                                                              targetCartKey: CartAnimationKeys.sectionSelected,
+                                                              color: AppColor.PrimaryColor,
                                                               onPressed: () {
                                                                 baskerc
                                                                     .updatemaindepId(
@@ -810,12 +814,6 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                                       .toString(),
                                                                 );
                                                               },
-                                                              icon: Icon(
-                                                                Icons
-                                                                    .shopping_cart_rounded,
-                                                                color: AppColor
-                                                                    .SecondryColor,
-                                                              ),
                                                             );
                                                           })
                                                         : Container(
@@ -875,19 +873,20 @@ class SectionSelected extends GetView<SectionSelectedController> {
           ],
         ),
 
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "nine"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
+          ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
+          ),
+          child: BasketWidget(
+            heroTag: "nine",
+            customKey: CartAnimationKeys.sectionSelected,
           ),
         ),
       ),

@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
@@ -69,12 +68,14 @@ class LessonsController extends GetxController {
             },
           );
         } else {
-          Get.snackbar(
-            "لا يوجد محتوى مجاني",
-            "هذا القسم لا يحتوي على فيديوهات مجانية للمعاينة.",
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.orange.shade800,
-            colorText: Colors.white,
+          // Allow access even without free videos, all will be locked
+          Get.toNamed(
+            AppRoute.vedios,
+            arguments: {
+              "lectureid": sectionItem['id'],
+              'isPurchase': false,
+              'isFreePreview': false,
+            },
           );
         }
       } catch (e) {

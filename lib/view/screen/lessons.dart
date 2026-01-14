@@ -12,6 +12,7 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
 import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
 
 import '../widget/GetValueForScreen.dart';
@@ -508,6 +509,7 @@ class Lessons extends GetView<LessonsController> {
                                                           'lesson add success',
                                                         );
                                                       },
+                                                      targetCartKey: CartAnimationKeys.lessons,
                                                     );
                                                   }),
 
@@ -539,19 +541,20 @@ class Lessons extends GetView<LessonsController> {
             ),
           ],
         ),
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "three"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56, // العرض على الموبايل
+            tablet: 80, // العرض على التابلت
+          ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56, // الارتفاع على الموبايل
+            tablet: 80, // الارتفاع على التابلت
+          ),
+          child: BasketWidget(
+            heroTag: "three",
+            customKey: CartAnimationKeys.lessons,
           ),
         ),
       ),

@@ -285,6 +285,17 @@ class MyCourses extends StatelessWidget {
                           child: FadeInAnimation(
                             child: CustomCard(
                               text: controller.myClassess[index]['name'],
+                              subtitle:
+                                  controller
+                                          .myClassess[index]['institute_name'] !=
+                                      null
+                                  ? controller
+                                        .myClassess[index]['institute_name']
+                                  : (controller.myClassess[index]['institute'] !=
+                                            null
+                                        ? controller
+                                              .myClassess[index]['institute']['name']
+                                        : null),
                               onTap: () {
                                 controller.goToMySubjects(
                                   controller.myClassess[index]['id'],

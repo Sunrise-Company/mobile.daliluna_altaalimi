@@ -385,20 +385,18 @@ class OurCoursesPage extends GetView<OurCoursesController> {
             ),
           ],
         ),
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "eight"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
           ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
+          ),
+          child: BasketWidget(heroTag: "eight"),
         ),
       ),
     );

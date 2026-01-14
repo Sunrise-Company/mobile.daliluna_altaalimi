@@ -19,6 +19,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
+import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
 
 class SectionsSubject extends GetView<SectionsSubjectController> {
   SectionsSubject({super.key});
@@ -277,6 +278,8 @@ class SectionsSubject extends GetView<SectionsSubjectController> {
                                                       .toString(),
                                                 );
                                               },
+                                              targetCartKey: CartAnimationKeys
+                                                  .sectionsSubject,
                                             )
                                           : CustomListTileMyCourses(
                                               section: item['name'],
@@ -298,19 +301,20 @@ class SectionsSubject extends GetView<SectionsSubjectController> {
               : const Loading(),
         ),
 
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "ten"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56, // العرض على الموبايل
+            tablet: 80, // العرض على التابلت
+          ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56, // الارتفاع على الموبايل
+            tablet: 80, // الارتفاع على التابلت
+          ),
+          child: BasketWidget(
+            heroTag: "ten",
+            customKey: CartAnimationKeys.sectionsSubject,
           ),
         ),
       ),

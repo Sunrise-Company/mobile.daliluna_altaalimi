@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BasketController extends GetxController {
   RxInt count = 0.obs;
@@ -25,7 +27,7 @@ class BasketController extends GetxController {
   }
 
   RxBool isload = false.obs;
-  updateBasket(
+  Future<void> updateBasket(
     String itemId,
     String itemType,
     String itemName,
@@ -39,7 +41,7 @@ class BasketController extends GetxController {
     String maindepId,
     String instituteId, [
     String? unitId,
-  ]) {
+  ]) async {
     // 1️⃣ Check for duplicates
     if (_isItemDuplicate(itemId, teacherId, subjectId, classId)) {
       _showSnackbar('تنبيه', 'تم إضافة هذا العنصر بالفعل');
@@ -78,7 +80,7 @@ class BasketController extends GetxController {
     }
 
     // ✅ Add to cart
-    _addItemToCart(
+    await _addItemToCart(
       itemId,
       itemType,
       itemName,
@@ -167,7 +169,7 @@ class BasketController extends GetxController {
     return false;
   }
 
-  void _addItemToCart(
+  Future<void> _addItemToCart(
     String itemId,
     String itemType,
     String itemName,
@@ -181,7 +183,20 @@ class BasketController extends GetxController {
     String maindepId,
     String instituteId,
     String? unitId,
-  ) {
+  ) async {
+    // If instituteId is empty, try to get it from SharedPreferences
+    String effectiveInstituteId = instituteId;
+    if (effectiveInstituteId.isEmpty && this.instituteId.value.isEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final savedId = prefs.getInt('selected_institute_id');
+      if (savedId != null) {
+        effectiveInstituteId = savedId.toString();
+      }
+    }
+
+    if (this.instituteId.value.isEmpty && effectiveInstituteId.isNotEmpty) {
+      updateInstituteId(effectiveInstituteId);
+    }
     mycart.add({
       'id': itemId,
       'itemType': itemType,
@@ -194,7 +209,7 @@ class BasketController extends GetxController {
       'classId': classId,
       'subjectId': subjectId,
       'maindepId': maindepId,
-      'instituteId': instituteId,
+      'instituteId': effectiveInstituteId,
       'unitId': unitId,
     });
     count = count + itemPrice;
@@ -240,9 +255,9 @@ class BasketController extends GetxController {
     update();
   }
 
-  updateInstituteId(newInstituteId) {
+  Future<void> updateInstituteId(newInstituteId) async {
     instituteId(newInstituteId.toString());
-    getAppinfo();
+    await getAppinfo(); // انتظار حتى يتم جلب الرسالة
     update();
   }
 
@@ -280,14 +295,36 @@ class BasketController extends GetxController {
           AppLink.server + '/app_transfer_information/${instituteId.value}',
         ),
       );
-
+      log(
+        AppLink.server +
+            '/app_transfer_information/${instituteId.value}  ' +
+            "${response.body}",
+      );
+      log("${response.body}");
       if (response.statusCode == 200) {
+        print('📥 Raw response body: "${response.body}"');
+
+        // Check if response body is empty
+        if (response.body.isEmpty) {
+          throw Exception('Empty response body from server');
+        }
+
         final responseData = jsonDecode(response.body);
-        dataList.value = {'message': responseData['message']};
+        dataList.value = {'message': responseData['message'] ?? ''};
+        isloded.value = true; // تم التحميل بنجاح
+        update(); // إخبار GetX بالتحديث
+        print('✅ Payment message loaded: ${responseData['message']}');
       } else {
+        print(
+          '⚠️ HTTP Error: ${response.statusCode}, Body: "${response.body}"',
+        );
         throw Exception('Failed to load studentLesson: ${response.statusCode}');
       }
     } catch (error) {
+      print(
+        '❌ Error fetching payment info for institute ${instituteId.value}: $error',
+    );
+      dataList.value = {'message': ''}; // قيمة افتراضية فارغة
       isloded.value = true;
       update();
     }

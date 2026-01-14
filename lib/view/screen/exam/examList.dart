@@ -88,7 +88,7 @@ class QuizScreen extends StatelessWidget {
                   AppImageAsset.backgroundExam,
                 ),
               ),
-          
+
               GlowingOverscrollIndicator(
                 axisDirection: AxisDirection.down,
                 color: AppColor.SecondryColor,
@@ -125,7 +125,8 @@ class QuizScreen extends StatelessWidget {
                                                 Get.toNamed(
                                                   '/test',
                                                   arguments: {
-                                                    "id": course['id'].toString(),
+                                                    "id": course['id']
+                                                        .toString(),
                                                   },
                                                 );
                                               };
@@ -137,7 +138,8 @@ class QuizScreen extends StatelessWidget {
                                                     3 &&
                                                 course['result'] == "-9") {
                                               statusText = "قيد التصحيح";
-                                              statusColor = Colors.amber.shade700;
+                                              statusColor =
+                                                  Colors.amber.shade700;
                                             } else if (course['start_exam'] ==
                                                     3 &&
                                                 course['result'] != "-9") {
@@ -178,8 +180,9 @@ class QuizScreen extends StatelessWidget {
                                                           ),
                                                       leading: CircleAvatar(
                                                         radius: 25,
-                                                        backgroundColor: AppColor
-                                                            .SecondryColor2,
+                                                        backgroundColor:
+                                                            AppColor
+                                                                .SecondryColor2,
 
                                                         child: const Icon(
                                                           Icons.assignment,
@@ -193,7 +196,8 @@ class QuizScreen extends StatelessWidget {
                                                               getValueForScreenType<
                                                                 double
                                                               >(
-                                                                context: context,
+                                                                context:
+                                                                    context,
                                                                 mobile: 15,
                                                                 tablet: 18,
                                                               ),
@@ -210,11 +214,13 @@ class QuizScreen extends StatelessWidget {
                                                               getValueForScreenType<
                                                                 double
                                                               >(
-                                                                context: context,
+                                                                context:
+                                                                    context,
                                                                 mobile: 13,
                                                                 tablet: 16,
                                                               ),
-                                                          color: Colors.grey[700],
+                                                          color:
+                                                              Colors.grey[700],
                                                         ),
                                                       ),
                                                       trailing: Column(
@@ -225,7 +231,8 @@ class QuizScreen extends StatelessWidget {
                                                           Container(
                                                             padding:
                                                                 const EdgeInsets.symmetric(
-                                                                  horizontal: 10,
+                                                                  horizontal:
+                                                                      10,
                                                                   vertical: 6,
                                                                 ),
                                                             decoration: BoxDecoration(
@@ -266,7 +273,8 @@ class QuizScreen extends StatelessWidget {
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .bold,
-                                                                    fontSize: 13,
+                                                                    fontSize:
+                                                                        13,
                                                                   ),
                                                                 ),
                                                               ],
@@ -296,7 +304,7 @@ class QuizScreen extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-<<<<<<< lib/view/screen/exam/examList.dart
+                                              // <<<<<<< lib/view/screen/exam/examList.dart
                                             );
                                           },
                                         ),
@@ -304,7 +312,7 @@ class QuizScreen extends StatelessWidget {
                                     : const Center(
                                         child: Text("لا يوجد امتحانات"),
                                       )
-                              : const Center(child: CircularProgressIndicator())
+                              : const Center(child: Loading())
                         : Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -313,34 +321,34 @@ class QuizScreen extends StatelessWidget {
                                   Icons.lock_outline_rounded,
                                   size: 80,
                                   color: Colors.black.withOpacity(0.5),
-// =======
-//                                             ),
-//                                           );
-//                                         },
-//                                       ),
-//                                     )
-//                                   : const Center(
-//                                       child: Text("لا يوجد امتحانات"),
-//                                     )
-//                             : const Center(child: Loading())
-//                       : Center(
-//                           child: Column(
-//                             mainAxisAlignment: MainAxisAlignment.center,
-//                             children: [
-//                               Icon(
-//                                 Icons.lock_outline_rounded,
-//                                 size: 80,
-//                                 color: Colors.black.withOpacity(0.5),
-//                               ),
-//                               const SizedBox(height: 20),
-//                               Text(
-//                                 "عذراً، يجب عليك تسجيل الدخول أولاً",
-//                                 style: TextStyle(
-//                                   fontSize: 16,
-//                                   color: Colors.black,
-//                                   fontWeight: FontWeight.bold,
-// >>>>>>> lib/view/screen/exam/examList.dart
-                        
+
+                                  // =======
+                                  //                                             ),
+                                  //                                           );
+                                  //                                         },
+                                  //                                       ),
+                                  //                                     )
+                                  //                                   : const Center(
+                                  //                                       child: Text("لا يوجد امتحانات"),
+                                  //                                     )
+                                  //                             : const Center(child: Loading())
+                                  //                       : Center(
+                                  //                           child: Column(
+                                  //                             mainAxisAlignment: MainAxisAlignment.center,
+                                  //                             children: [
+                                  //                               Icon(
+                                  //                                 Icons.lock_outline_rounded,
+                                  //                                 size: 80,
+                                  //                                 color: Colors.black.withOpacity(0.5),
+                                  //                               ),
+                                  //                               const SizedBox(height: 20),
+                                  //                               Text(
+                                  //                                 "عذراً، يجب عليك تسجيل الدخول أولاً",
+                                  //                                 style: TextStyle(
+                                  //                                   fontSize: 16,
+                                  //                                   color: Colors.black,
+                                  //                                   fontWeight: FontWeight.bold,
+                                  // >>>>>>> lib/view/screen/exam/examList.dart
                                 ),
                                 const SizedBox(height: 20),
                                 Text(

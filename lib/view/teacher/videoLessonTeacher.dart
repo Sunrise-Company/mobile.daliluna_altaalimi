@@ -603,9 +603,7 @@ class _YoutubeVideoCardState extends State<YoutubeVideoCard> {
                   thumbnailUrl,
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, progress) {
-                    return progress == null
-                        ? child
-                        : Center(child: CircularProgressIndicator());
+                    return progress == null ? child : Center(child: Loading());
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return VediosTeacherLesson()._buildDefaultThumbnail(

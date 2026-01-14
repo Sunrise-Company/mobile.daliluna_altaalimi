@@ -1,13 +1,11 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:daliluna_altaalimi/controller/chatStudnet/RecoringController.dart';
-import 'package:daliluna_altaalimi/controller/chatStudnet/chat.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideoPlayer.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/listchatStudentForteacherController.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/homeTeacherController.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
-import 'package:daliluna_altaalimi/view/teacher/homepageTeacher.dart';
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -306,9 +304,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                                       (controller.hasMoreData.value ? 1 : 0),
                                   itemBuilder: (context, index) {
                                     if (index == controller.dataList.length) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
+                                      return const Center(child: Loading());
                                     }
 
                                     final message = controller.dataList[index];
@@ -345,7 +341,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                                                     'isLoading',
                                                   ) &&
                                                   message['isLoading'] == true)
-                                                const CircularProgressIndicator(),
+                                                const Loading(),
                                               if (!message.containsKey(
                                                     'isLoading',
                                                   ) ||
@@ -396,7 +392,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                                   },
                                 )
                               : const Center(child: Text("لا يوجد"))
-                        : const Center(child: CircularProgressIndicator());
+                        : const Center(child: Loading());
                   }),
                 ),
                 Padding(

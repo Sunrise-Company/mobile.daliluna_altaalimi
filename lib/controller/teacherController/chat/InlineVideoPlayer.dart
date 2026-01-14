@@ -1,5 +1,6 @@
 import 'package:daliluna_altaalimi/controller/videoPlayerController.dart';
 import 'package:chewie/chewie.dart';
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,8 +22,9 @@ class InlineVideoPlayer extends StatelessWidget {
 
   Widget _buildPlayer(VideoPlayerControllerX controller) {
     return Obx(() {
-      if (!controller.isInitialized.value) {
-        return Center(child: CircularProgressIndicator());
+      final initialized = controller.isInitialized.value;
+      if (!initialized) {
+        return Center(child: Loading());
       }
 
       return Chewie(controller: controller.chewieController!);

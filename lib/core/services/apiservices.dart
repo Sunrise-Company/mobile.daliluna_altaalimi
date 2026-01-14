@@ -96,7 +96,6 @@ class ApiService {
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic>? classData = data['classes'];
-
       if (classData != null) {
         return classData;
       } else {
@@ -224,9 +223,7 @@ class ApiService {
     String subjectid,
     String teacherid,
   ) async {
-    log(
-     'print دورات'
-    );
+    log('print دورات');
     log(
       AppLink.sections +
           '/${classid.toString()}/${subjectid.toString()}/${teacherid.toString()}',
@@ -696,9 +693,7 @@ class ApiService {
 
       if (data != null) {
         return data;
-      } else {
-
-      }
+      } else {}
     } else {
       throw Exception('Failed to fetch teacherInfo');
     }
@@ -755,11 +750,14 @@ class ApiService {
       Uri.parse(AppLink.app_basket_student_store + '/' + student_id.toString()),
       body: data,
     );
+    log(response.body);
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['status'];
+      final responseData = jsonDecode(response.body);
+      // Ensure we return a string "true" or "false"
+      return responseData['status'].toString();
     } else {
-      throw Exception('Failed to fetch teacherInfo');
+      return "false";
     }
   }
 }

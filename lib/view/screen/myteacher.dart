@@ -7,8 +7,6 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/teacher_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconbasket.dart';
 import 'package:daliluna_altaalimi/view/widget/customwidgetviewteacher.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
@@ -410,20 +408,18 @@ class MyTeacher extends GetView<TeacherController> {
           //             : Center(child: Text("لا يوجد أساتذة"))
           //         : Loading()
         ),
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "seven"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
           ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56,
+            tablet: 80,
+          ),
+          child: BasketWidget(heroTag: "seven"),
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
+import 'package:daliluna_altaalimi/view/widget/animated_cart_icon.dart';
 
 class CustomCardSections extends StatelessWidget {
   final String section;
@@ -19,6 +20,7 @@ class CustomCardSections extends StatelessWidget {
   final String classId;
   final Map<String, dynamic> item;
   final bool isChecking;
+  final GlobalKey? targetCartKey;
 
   const CustomCardSections({
     super.key,
@@ -33,6 +35,7 @@ class CustomCardSections extends StatelessWidget {
     required this.item,
     this.onTap,
     this.isChecking = false,
+    this.targetCartKey,
   });
 
   @override
@@ -214,6 +217,8 @@ class CustomListTileSectionWidget extends StatelessWidget {
   final Widget? trailing;
   final String? province;
 
+  final GlobalKey? targetCartKey;
+
   const CustomListTileSectionWidget({
     super.key,
     required this.item,
@@ -222,7 +227,7 @@ class CustomListTileSectionWidget extends StatelessWidget {
     this.onTap,
     this.trailing,
     this.province,
-    // Updated constructor
+    this.targetCartKey,
   });
 
   @override
@@ -329,10 +334,10 @@ class CustomListTileSectionWidget extends StatelessWidget {
                   if (isInMySections) {
                     return const Icon(Icons.check_circle, color: Colors.green);
                   } else {
-                    return IconButton(
-                      icon: const Icon(Icons.shopping_cart_outlined),
+                    return AnimatedCartIcon(
                       color: AppColor.SecondryColor,
                       onPressed: onTapShop,
+                      targetCartKey: targetCartKey,
                     );
                   }
                 }),

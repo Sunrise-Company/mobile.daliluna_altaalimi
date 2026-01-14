@@ -6,6 +6,7 @@ import 'package:daliluna_altaalimi/controller/chatStudnet/chat.dart';
 import 'package:daliluna_altaalimi/controller/homepage_controller.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideoPlayer.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -122,9 +123,7 @@ class ChatStudent extends StatelessWidget {
                                   // chatController.chatId.value =
                                   //     chatController.dataList[index]['id'];
                                   if (index == chatController.dataList.length) {
-                                    return Center(
-                                      child: CircularProgressIndicator(),
-                                    );
+                                    return Center(child: Loading());
                                   }
                                   final message =
                                       chatController.dataList[index];
@@ -160,7 +159,7 @@ class ChatStudent extends StatelessWidget {
                                                   'isLoading',
                                                 ) &&
                                                 message['isLoading'] == true)
-                                              CircularProgressIndicator(),
+                                              Loading(),
                                             if (!message.containsKey(
                                                   'isLoading',
                                                 ) ||
@@ -221,7 +220,7 @@ class ChatStudent extends StatelessWidget {
                                 },
                               )
                             : Center(child: Text("لا يوجد"))
-                      : Center(child: CircularProgressIndicator());
+                      : Center(child: Loading());
                 }),
               ),
               Padding(

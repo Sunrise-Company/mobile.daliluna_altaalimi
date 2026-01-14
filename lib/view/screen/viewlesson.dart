@@ -220,7 +220,11 @@ class ViewLesson extends StatelessWidget {
                             isFreePreview: controller.isFreePreviewMode,
                             isPurchased: controller.isSectionPurchased,
                           ),
-                          Pdfs(controller.dataFiles, controller.isLoadingfile),
+                          Pdfs(
+                            controller.dataFiles,
+                            controller.isLoadingfile,
+                            isPurchased: controller.isSectionPurchased,
+                          ),
                         ],
                       ),
                     ),

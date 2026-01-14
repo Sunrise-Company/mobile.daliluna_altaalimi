@@ -1,3 +1,4 @@
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -136,9 +137,7 @@ Widget DisplayTeacher(
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Container(
                               color: Colors.grey[200],
-                              child: const Center(
-                                child: CircularProgressIndicator(),
-                              ),
+                              child: const Center(child: Loading()),
                             ),
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[200],

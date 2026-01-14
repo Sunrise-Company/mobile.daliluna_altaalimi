@@ -94,15 +94,14 @@ class AudioPage extends StatelessWidget {
     final AudioController audioController = Get.put(AudioController());
 
     return Obx(() {
-      final bool isPlayingNow = audioController.currentPlayingIndex == index &&
+      final bool isPlayingNow =
+          audioController.currentPlayingIndex == index &&
           audioController.isPlaying.value;
 
       return Card(
         elevation: 4,
         shadowColor: AppColor.DeepPurple.withOpacity(0.2),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         child: Padding(
           padding: const EdgeInsets.all(14.0),
@@ -116,7 +115,7 @@ class AudioPage extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: [
                           AppColor.DeepPurple.withOpacity(0.8),
-                          AppColor.DeepPurple.withOpacity(0.4)
+                          AppColor.DeepPurple.withOpacity(0.4),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -145,12 +144,15 @@ class AudioPage extends StatelessWidget {
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
                         trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 7,
+                        ),
                       ),
                       child: Slider(
                         min: 0,
                         max: isPlayingNow
-                            ? audioController.duration.value.inSeconds.toDouble()
+                            ? audioController.duration.value.inSeconds
+                                  .toDouble()
                             : 1000.0,
                         value: audioController.position.value.inSeconds
                             .clamp(0, audioController.duration.value.inSeconds)

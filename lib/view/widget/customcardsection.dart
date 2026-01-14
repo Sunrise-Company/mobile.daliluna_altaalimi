@@ -13,6 +13,8 @@ class CustomCardSectionSelected extends StatelessWidget {
   final String textIcon;
   final String price;
   final item;
+  final GlobalKey? targetCartKey;
+  
   const CustomCardSectionSelected({
     super.key,
     required this.onTap,
@@ -20,6 +22,7 @@ class CustomCardSectionSelected extends StatelessWidget {
     this.onTapShop,
     required this.price,
     required this.item,
+    this.targetCartKey,
   });
 
   @override
@@ -166,7 +169,10 @@ class CustomCardSectionSelected extends StatelessWidget {
                   );
                 }
 
-                return CustomButtonBuy(onTap: onTapShop);
+                return CustomButtonBuy(
+                  onTap: onTapShop,
+                  targetCartKey: targetCartKey,
+                );
               }),
               SizedBox(
                 height: getValueForScreenType<double>(

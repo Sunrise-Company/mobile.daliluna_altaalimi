@@ -179,7 +179,11 @@ class MyLessons extends GetView<LessonsController> {
                                                       ),
                                                       const SizedBox(width: 4),
                                                       InkWell(
-                                                        onTap: (){print("ffffffffffffffff${item2['app_lesson_lecture_files_count'] }");},
+                                                        onTap: () {
+                                                          print(
+                                                            "ffffffffffffffff${item2['app_lesson_lecture_files_count']}",
+                                                          );
+                                                        },
                                                         child: Text(
                                                           "عدد الملفات: ${item2['app_lesson_lecture_files_count'] ?? 0}",
                                                           style: TextStyle(
@@ -192,8 +196,8 @@ class MyLessons extends GetView<LessonsController> {
                                                                   mobile: 12,
                                                                   tablet: 16,
                                                                 ),
-                                                            color:
-                                                                Colors.grey[700],
+                                                            color: Colors
+                                                                .grey[700],
                                                           ),
                                                         ),
                                                       ),
@@ -250,20 +254,18 @@ class MyLessons extends GetView<LessonsController> {
             ),
           ],
         ),
-        floatingActionButton: Obx(
-          () => SizedBox(
-            width: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // العرض على الموبايل
-              tablet: 80, // العرض على التابلت
-            ),
-            height: getValueForScreenType<double>(
-              context: context,
-              mobile: 56, // الارتفاع على الموبايل
-              tablet: 80, // الارتفاع على التابلت
-            ),
-            child: BasketWidget(heroTag: "three"),
+        floatingActionButton: SizedBox(
+          width: getValueForScreenType<double>(
+            context: context,
+            mobile: 56, // العرض على الموبايل
+            tablet: 80, // العرض على التابلت
           ),
+          height: getValueForScreenType<double>(
+            context: context,
+            mobile: 56, // الارتفاع على الموبايل
+            tablet: 80, // الارتفاع على التابلت
+          ),
+          child: BasketWidget(heroTag: "three"),
         ),
       ),
     );

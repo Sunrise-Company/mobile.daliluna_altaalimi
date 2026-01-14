@@ -102,7 +102,9 @@ class _pdfLessonsState extends State<pdfLessons> {
           widget.url,
           onDocumentLoadFailed: (PdfDocumentLoadFailedDetails details) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('خطأ لم يتم تحميل الملف: ${details.error}')),
+              SnackBar(
+                content: Text('خطأ لم يتم تحميل الملف: ${details.error}'),
+              ),
             );
           },
         ),

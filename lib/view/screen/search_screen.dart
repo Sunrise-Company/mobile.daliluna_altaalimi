@@ -15,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/view/widget/basketWidget.dart';
 import 'package:daliluna_altaalimi/view/widget/customcardsections.dart';
-
 import 'package:daliluna_altaalimi/linkapi.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -1472,7 +1471,7 @@ class SearchScreen extends StatelessWidget {
       lessonId, // subjectId
       '',
       ///////////////
-      ''
+      '',
     );
   }
 
@@ -1556,7 +1555,7 @@ class SearchScreen extends StatelessWidget {
       lessonId, // subjectId
       mainDepId, // maindepId
       ////////////////,
-      ''
+      '',
     );
 
     Get.snackbar(

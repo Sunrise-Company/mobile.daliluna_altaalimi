@@ -178,7 +178,9 @@ class Basket extends StatelessWidget {
                                   : item['itemType'] == 'section'
                                   ? 'قسم كامل'
                                   : 'درس كامل';
-print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${baskerc.mycart[index]}");
+                              print(
+                                "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${baskerc.mycart[index]}",
+                              );
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -371,9 +373,16 @@ print("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${baskerc.mycart[index]}");
                           ),
                           child: InkWell(
                             onTap: () {
-                              print('fffffffffffff${      baskerc.dataList['message']}');
+                              if (baskerc.mycart.isEmpty) {
+                                Get.snackbar("تنبيه", "السلة فارغة");
+                                return;
+                              }
+                              // print(
+                              //   'fffffffffffff${baskerc.dataList['message']}',
+                              // );
+
                               alertPaidMethod(
-                                baskerc.dataList['message'],
+                                baskerc.dataList['message'] ?? "",
                               );
                             },
                             child: Row(

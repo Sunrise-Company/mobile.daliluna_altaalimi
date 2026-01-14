@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/home_controller.dart';
+import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
 import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/constant/imageasset.dart';
@@ -933,7 +934,7 @@ class Home extends GetView<HomeController> {
                                   child: _CityCard(
                                     city: city,
                                     controller: Get.find<HomeController>(),
-                                    onTap: () {}
+                                    onTap: () {},
                                     //     homeController.goToInstitutes(
                                     //   Map<String, dynamic>.from(city),
                                     // ),
@@ -998,20 +999,20 @@ class Home extends GetView<HomeController> {
               ],
             ),
           ),
-          floatingActionButton: Obx(
-            () => SizedBox(
-              width: getValueForScreenType<double>(
-                context: context,
-                mobile: 56, // العرض على الموبايل
-                tablet: 80, // العرض على التابلت
-              ),
-              height: getValueForScreenType<double>(
-                context: context,
-                mobile: 56, // الارتفاع على الموبايل
-                tablet: 80, // الارتفاع على التابلت
-              ),
-              child: BasketWidget(heroTag: 'one'),
-
+          floatingActionButton: SizedBox(
+            width: getValueForScreenType<double>(
+              context: context,
+              mobile: 56, // العرض على الموبايل
+              tablet: 80, // العرض على التابلت
+            ),
+            height: getValueForScreenType<double>(
+              context: context,
+              mobile: 56, // الارتفاع على الموبايل
+              tablet: 80, // الارتفاع على التابلت
+            ),
+            child: BasketWidget(
+              heroTag: 'one',
+              customKey: CartAnimationKeys.home,
             ),
           ),
         ),
@@ -1025,17 +1026,18 @@ class _CityCard extends StatelessWidget {
   final Map<String, dynamic> city;
   final VoidCallback onTap;
   final HomeController controller;
-  const _CityCard({required this.city, required this.onTap,required this.controller,});
+  const _CityCard({
+    required this.city,
+    required this.onTap,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
-
     return CustomCardHome(
       name: city['name'] ?? '',
       image: city['image'],
-      onTap: () => controller.goToInstitutes(
-        Map<String, dynamic>.from(city),
-      ),
+      onTap: () => controller.goToInstitutes(Map<String, dynamic>.from(city)),
       // onTap: () => Get.find<HomeController>().goToInstitutes(
       //   Map<String, dynamic>.from(city),
       // ),

@@ -4,6 +4,7 @@ import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideo
 import 'package:daliluna_altaalimi/controller/teacherController/homeTeacherController.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/teacher/chatTeacher/groupChat/groupdetailes.dart';
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -423,9 +424,7 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
                                   itemBuilder: (context, index) {
                                     if (index ==
                                         controller.messageList.length) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
+                                      return const Center(child: Loading());
                                     }
 
                                     final message =
@@ -484,7 +483,7 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
                                                     'isLoading',
                                                   ) &&
                                                   message['isLoading'] == true)
-                                                const CircularProgressIndicator(),
+                                                const Loading(),
                                               if (!message.containsKey(
                                                     'isLoading',
                                                   ) ||
@@ -527,7 +526,7 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
                                   },
                                 )
                               : const Center(child: Text("لا يوجد"))
-                        : const Center(child: CircularProgressIndicator());
+                        : const Center(child: Loading());
                   }),
                 ),
                 Padding(
