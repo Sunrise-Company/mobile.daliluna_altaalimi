@@ -323,7 +323,7 @@ class BasketController extends GetxController {
     } catch (error) {
       print(
         '❌ Error fetching payment info for institute ${instituteId.value}: $error',
-    );
+      );
       dataList.value = {'message': ''}; // قيمة افتراضية فارغة
       isloded.value = true;
       update();

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
-class SplashController extends GetxController with GetSingleTickerProviderStateMixin {
+class SplashController extends GetxController
+    with GetSingleTickerProviderStateMixin {
   late AnimationController animController;
   late Animation<double> scaleAnimation;
   late Animation<double> fadeAnimation;
@@ -20,9 +20,10 @@ class SplashController extends GetxController with GetSingleTickerProviderStateM
       CurvedAnimation(parent: animController, curve: Curves.easeOutBack),
     );
 
-    fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: animController, curve: Curves.easeIn),
-    );
+    fadeAnimation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: animController, curve: Curves.easeIn));
 
     animController.forward();
 

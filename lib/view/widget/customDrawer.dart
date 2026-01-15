@@ -9,10 +9,10 @@ import '../../core/constant/color.dart';
 import '../../core/constant/imageasset.dart';
 import '../../core/constant/routes.dart';
 
-Widget customDrawer(BuildContext context){
+Widget customDrawer(BuildContext context) {
   LoginController logincontroller = Get.put(LoginController());
   logincontroller.checkIfLogin();
-  return  Drawer(
+  return Drawer(
     backgroundColor: Colors.white,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.only(
@@ -22,26 +22,25 @@ Widget customDrawer(BuildContext context){
     ),
     child: Column(
       children: [
-
         DrawerHeader(
           decoration: BoxDecoration(
-              color: AppColor.PrimaryColor.withOpacity(0.9),
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40),bottomRight: Radius.circular(40),)
-
+            color: AppColor.PrimaryColor.withOpacity(0.9),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
           ),
           child: Row(
-
             children: [
               CircleAvatar(
-                backgroundImage: AssetImage(
-                    AppImageAsset.backgroundCart),
+                backgroundImage: AssetImage(AppImageAsset.backgroundCart),
                 radius: 40,
-              ),SizedBox(width: 30,),
+              ),
+              SizedBox(width: 30),
               Text(
                 'إعداداتي',
 
                 style: TextStyle(
-
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 30,

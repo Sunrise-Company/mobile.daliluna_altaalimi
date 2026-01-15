@@ -37,8 +37,14 @@ class Questions {
   Section? section;
   Lesson? lesson;
 
-  Questions(
-      {this.id, this.questionForm, this.quesType, this.option, this.section,this.lesson});
+  Questions({
+    this.id,
+    this.questionForm,
+    this.quesType,
+    this.option,
+    this.section,
+    this.lesson,
+  });
 
   Questions.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -46,13 +52,16 @@ class Questions {
 
     quesType = json['ques_type'];
 
-    option =
-        json['option'] != null ? new Option.fromJson(json['option']) : null;
-    section =
-        json['section'] != null ? new Section.fromJson(json['section']) : null;
+    option = json['option'] != null
+        ? new Option.fromJson(json['option'])
+        : null;
+    section = json['section'] != null
+        ? new Section.fromJson(json['section'])
+        : null;
 
-        lesson =
-        json['lesson'] != null ? new Lesson.fromJson(json['lesson']) : null;
+    lesson = json['lesson'] != null
+        ? new Lesson.fromJson(json['lesson'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -68,7 +77,7 @@ class Questions {
     if (this.section != null) {
       data['section'] = this.section!.toJson();
     }
-        if (this.lesson != null) {
+    if (this.lesson != null) {
       data['lesson'] = this.lesson!.toJson();
     }
     return data;
@@ -82,12 +91,13 @@ class Option {
   String? createdAt;
   String? updatedAt;
 
-  Option(
-      {this.id,
-      this.questionId,
-      this.myOptions,
-      this.createdAt,
-      this.updatedAt});
+  Option({
+    this.id,
+    this.questionId,
+    this.myOptions,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   Option.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -114,12 +124,7 @@ class Section {
   int? type;
   String? content;
 
-  Section({
-    this.id,
-    this.title,
-    this.type,
-    this.content,
-  });
+  Section({this.id, this.title, this.type, this.content});
 
   Section.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -145,10 +150,7 @@ class Lesson {
   int? id;
   String? isEnglish;
 
-  Lesson({
-    this.id,
-    this.isEnglish,
-  });
+  Lesson({this.id, this.isEnglish});
 
   Lesson.fromJson(Map<String, dynamic> json) {
     id = json['id'];

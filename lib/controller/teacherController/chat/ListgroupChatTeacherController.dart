@@ -4,7 +4,7 @@ import '../../../data/model/groupchatModel.dart';
 
 class chatListGroupController extends GetxController {
   var groups = <ChatGroup>[].obs;
-  
+
   @override
   void onInit() {
     super.onInit();
@@ -16,21 +16,45 @@ class chatListGroupController extends GetxController {
         lastMessage: 'مرحبا بالجميع!',
         lastMessageTime: '18:00 AM',
         members: [
-          Student(name: 'خالد محمود', avatarUrl: 'assets/images/teacher2.jpg', id: ''),
-          Student(name: 'أحمد القيش', avatarUrl: 'assets/images/teacher.jpg', id: ''),
-          Student(name: 'جوليا الأسعد', avatarUrl: 'assets/images/teacher3.jpg', id: ''),
+          Student(
+            name: 'خالد محمود',
+            avatarUrl: 'assets/images/teacher2.jpg',
+            id: '',
+          ),
+          Student(
+            name: 'أحمد القيش',
+            avatarUrl: 'assets/images/teacher.jpg',
+            id: '',
+          ),
+          Student(
+            name: 'جوليا الأسعد',
+            avatarUrl: 'assets/images/teacher3.jpg',
+            id: '',
+          ),
         ],
       ),
 
-       ChatGroup(
+      ChatGroup(
         id: '1',
         name: 'اللغة العربية',
         lastMessage: 'مرحبا بالجميع!',
         lastMessageTime: '18:00 AM',
         members: [
-          Student(name: 'خالد محمود', avatarUrl: 'assets/images/teacher2.jpg', id: ''),
-          Student(name: 'أحمد القيش', avatarUrl: 'assets/images/teacher.jpg', id: ''),
-          Student(name: 'جوليا الأسعد', avatarUrl: 'assets/images/teacher3.jpg', id: ''),
+          Student(
+            name: 'خالد محمود',
+            avatarUrl: 'assets/images/teacher2.jpg',
+            id: '',
+          ),
+          Student(
+            name: 'أحمد القيش',
+            avatarUrl: 'assets/images/teacher.jpg',
+            id: '',
+          ),
+          Student(
+            name: 'جوليا الأسعد',
+            avatarUrl: 'assets/images/teacher3.jpg',
+            id: '',
+          ),
         ],
       ),
       // Add more sample groups as needed

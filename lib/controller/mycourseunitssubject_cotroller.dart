@@ -1,5 +1,3 @@
 import 'package:get/get.dart';
 
-class MyCourseUnitsSubjectController extends GetxController{
-
-}
+class MyCourseUnitsSubjectController extends GetxController {}

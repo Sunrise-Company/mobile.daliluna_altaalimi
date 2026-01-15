@@ -4,7 +4,6 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/notifications_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/customcontainernotification.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -119,11 +118,14 @@ class Notifications extends GetView<NotificationsController> {
                                         // color: AppColor.SecondryColor2
                                         //     .withOpacity(0.3),
                                       ),
-                                      onTap: () {
-                                        launchUrl(
-                                          Uri.parse(
-                                            controller.notfs[index]['link'],
-                                          ),
+                                      onTap: () async {
+                                        // فتح الرابط في متصفح داخل التطبيق
+                                        final url = Uri.parse(
+                                          controller.notfs[index]['link'],
+                                        );
+                                        await launchUrl(
+                                          url,
+                                          mode: LaunchMode.inAppBrowserView,
                                         );
                                       },
                                     )

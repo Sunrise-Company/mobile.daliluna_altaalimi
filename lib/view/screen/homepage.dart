@@ -158,5 +158,4 @@ class HomePage extends GetView<HomePageController> {
       ),
     );
   }
-
 }

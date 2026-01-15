@@ -8,7 +8,8 @@ class ValidationController extends GetxController {
 
   void validateTextAr(String value, RxBool isValid) {
     final RegExp regExp = RegExp(
-        r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+');
+      r'[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+',
+    );
     isValid.value = regExp.hasMatch(value);
   }
 
@@ -18,8 +19,9 @@ class ValidationController extends GetxController {
   }
 
   void validateEmail(String value, RxBool isValid) {
-    final RegExp regExp =
-        RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+    final RegExp regExp = RegExp(
+      r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$',
+    );
     isValid.value = regExp.hasMatch(value);
   }
 

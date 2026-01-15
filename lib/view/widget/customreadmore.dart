@@ -10,30 +10,32 @@ class CustomReadMore extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(
-          right: getValueForScreenType<double>(
-            context: context,
-            mobile: 10,
-            tablet: 20,
-          ),
-          left: getValueForScreenType<double>(
-            context: context,
-            mobile: 10,
-            tablet: 20,
-          ),
-          bottom: getValueForScreenType<double>(
-            context: context,
-            mobile: 10,
-            tablet: 20,
-          )),
+        right: getValueForScreenType<double>(
+          context: context,
+          mobile: 10,
+          tablet: 20,
+        ),
+        left: getValueForScreenType<double>(
+          context: context,
+          mobile: 10,
+          tablet: 20,
+        ),
+        bottom: getValueForScreenType<double>(
+          context: context,
+          mobile: 10,
+          tablet: 20,
+        ),
+      ),
       child: ReadMoreText(
-       " ${text}",
+        " ${text}",
         trimLines: 2,
         style: TextStyle(
-            fontSize: getValueForScreenType<double>(
-          context: context,
-          mobile: 13,
-          tablet: 30,
-        )),
+          fontSize: getValueForScreenType<double>(
+            context: context,
+            mobile: 13,
+            tablet: 30,
+          ),
+        ),
         trimMode: TrimMode.Line,
         trimCollapsedText: 'مشاهدة المزيد',
         trimExpandedText: 'مشاهدة أقل',
@@ -46,12 +48,13 @@ class CustomReadMore extends StatelessWidget {
           fontWeight: FontWeight.bold,
         ),
         lessStyle: TextStyle(
-            fontSize: getValueForScreenType<double>(
-              context: context,
-              mobile: 12,
-              tablet: 30,
-            ),
-            fontWeight: FontWeight.bold),
+          fontSize: getValueForScreenType<double>(
+            context: context,
+            mobile: 12,
+            tablet: 30,
+          ),
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

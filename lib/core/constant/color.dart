@@ -13,8 +13,9 @@ class AppColor {
   static const Color black = Color(0xff000000);
   static const Color grey = Color.fromARGB(255, 102, 102, 102);
 
-  static const SecondaryColor =
-      Color(0xFFE0E0E0); // لون الرسائل المرسلة من الطرف الآخر
+  static const SecondaryColor = Color(
+    0xFFE0E0E0,
+  ); // لون الرسائل المرسلة من الطرف الآخر
   // static const White = Color(0xFFFFFFFF);
   // static const DeepPurple = Color(0xFF673AB7);
 }

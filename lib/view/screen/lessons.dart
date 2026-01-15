@@ -509,7 +509,9 @@ class Lessons extends GetView<LessonsController> {
                                                           'lesson add success',
                                                         );
                                                       },
-                                                      targetCartKey: CartAnimationKeys.lessons,
+                                                      targetCartKey:
+                                                          CartAnimationKeys
+                                                              .lessons,
                                                     );
                                                   }),
 

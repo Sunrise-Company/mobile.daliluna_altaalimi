@@ -16,7 +16,9 @@ class TeacherProfileController extends GetxController {
   Future<void> loadTeacherData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     arabicName.value = prefs.getString('arabic_name') ?? 'اسم غير متوفر';
-    image.value = prefs.getString('image') ?? 'assets/images/default_teacher.jpg'; // Default image if not found
+    image.value =
+        prefs.getString('image') ??
+        'assets/images/default_teacher.jpg'; // Default image if not found
     education.value = prefs.getString('education') ?? 'تعليم غير متوفر';
     description.value = prefs.getString('description') ?? 'وصف غير متوفر';
   }

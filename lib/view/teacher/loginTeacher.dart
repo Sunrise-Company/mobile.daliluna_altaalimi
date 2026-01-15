@@ -373,7 +373,9 @@ class LoginTeacher extends StatelessWidget {
                                   context: context,
                                   text: "تسجيل الدخول",
                                   fun: () {
-                                    if (controller.formstateteacher.currentState!
+                                    if (controller
+                                        .formstateteacher
+                                        .currentState!
                                         .validate()) {
                                       controller.login();
                                     }

@@ -778,8 +778,11 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             }
 
                                                             return AnimatedCartIcon(
-                                                              targetCartKey: CartAnimationKeys.sectionSelected,
-                                                              color: AppColor.PrimaryColor,
+                                                              targetCartKey:
+                                                                  CartAnimationKeys
+                                                                      .sectionSelected,
+                                                              color: AppColor
+                                                                  .PrimaryColor,
                                                               onPressed: () {
                                                                 baskerc
                                                                     .updatemaindepId(

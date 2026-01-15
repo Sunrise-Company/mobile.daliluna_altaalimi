@@ -26,8 +26,8 @@ class Comment {
       userId: json['user_id'] == null
           ? 0
           : (json['user_id'] is int
-              ? json['user_id']
-              : int.parse(json['user_id'].toString())),
+                ? json['user_id']
+                : int.parse(json['user_id'].toString())),
       commentText: json['comment_text'] ?? '',
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       userName: json['user'] != null

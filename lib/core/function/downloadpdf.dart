@@ -6,5 +6,5 @@
 // Future<void> downloadAndOpenPdf(String pdfUrl) {
 //   Dio dio = Dio();
 //   Directory? downloadDirectory= Platform.isAndroid ? await getExternalStorageDirectory() : getApplicationDocumentsDirectory();
-  
+
 // }

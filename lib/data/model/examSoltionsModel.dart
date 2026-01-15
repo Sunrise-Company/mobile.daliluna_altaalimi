@@ -122,7 +122,8 @@ class Question {
     questionForm = json['question_form'];
     answer = json['answer'];
     mark = double.tryParse(json['mark'].toString()) ?? 0.0;
-    studentMark = double.tryParse(json['student_mark'].toString()) ??
+    studentMark =
+        double.tryParse(json['student_mark'].toString()) ??
         0.0; // Default to zero if not present
     note = json['note'];
     quesType = json['ques_type'];

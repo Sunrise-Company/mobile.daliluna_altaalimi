@@ -405,7 +405,8 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                           .toString(),
                                                       baskerc.teacherId
                                                           .toString(),
-                                                      baskerc.classId.toString(),
+                                                      baskerc.classId
+                                                          .toString(),
                                                       baskerc.subjectId
                                                           .toString(),
                                                       baskerc.maindepId
@@ -414,7 +415,9 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                           .toString(),
                                                     );
                                                   },
-                                                  targetCartKey: CartAnimationKeys.unitsSubject,
+                                                  targetCartKey:
+                                                      CartAnimationKeys
+                                                          .unitsSubject,
                                                 );
                                               }),
                                             ),

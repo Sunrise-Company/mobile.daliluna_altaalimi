@@ -1,4 +1,3 @@
 import 'package:get/get.dart';
 
-class VediosWithoutAppBarController extends GetxController {
-}
+class VediosWithoutAppBarController extends GetxController {}
