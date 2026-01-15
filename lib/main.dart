@@ -698,10 +698,13 @@ class MyApp extends StatelessWidget {
       useInheritedMediaQuery: true,
       // builder: DevicePreview.appBuilder,
       builder: (context, child) {
-        return SafeArea(
-          top: true,
-          bottom: true,
-          child: DevicePreview.appBuilder(context, child),
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: SafeArea(
+            top: true,
+            bottom: true,
+            child: DevicePreview.appBuilder(context, child),
+          ),
         );
       },
       locale: DevicePreview.locale(context),

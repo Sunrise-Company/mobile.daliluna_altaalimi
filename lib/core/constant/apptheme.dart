@@ -28,6 +28,12 @@ ThemeData themeArabic = ThemeData(
       color: Colors.white,
     ), // This ensures icons in AppBar are also white
   ),
+  // SnackBar theme - لجعل النص يظهر على اليمين
+  snackBarTheme: SnackBarThemeData(
+    contentTextStyle: TextStyle(fontFamily: 'Cairo', fontSize: 14),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  ),
   // textTheme: TextTheme(
   //   headline1: TextStyle(fontSize: 12, color: AppColor.PrimaryColor), // Corrected the key from 'headli' to 'headline1'
   //   headline2: TextStyle(fontSize: 20, color: AppColor.PrimaryColor),
