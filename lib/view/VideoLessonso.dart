@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:daliluna_altaalimi/controller/vidoeLesson.dart';
 import 'package:daliluna_altaalimi/view/screen/ytPlayer.dart';
 import 'package:daliluna_altaalimi/view/widget/GetValueForScreen.dart';

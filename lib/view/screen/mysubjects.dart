@@ -8,14 +8,9 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/subjects_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/view/widget/customcardsubjects.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconbasket.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../widget/GetValueForScreen.dart';
-import '../widget/basketWidget.dart';
 import '../widget/customcard.dart';
 
 class MySubjects extends GetView<SubjectsController> {

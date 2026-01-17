@@ -17,6 +17,8 @@ import 'package:daliluna_altaalimi/routes.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:emulator_checker/emulator_checker.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:daliluna_altaalimi/download_service.dart';
+import 'package:daliluna_altaalimi/background_download_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,6 +95,18 @@ void main() async {
     await _initializeNotifications();
   } catch (e) {
     debugPrint("Notification init failed: $e");
+  }
+
+  // 3. Initialize Download Service and restore pending downloads
+  try {
+    final downloadService = DownloadService.instance;
+    await downloadService.initNotifications();
+    await downloadService.restorePendingDownloads();
+    
+    // تهيئة خدمة التحميل في الخلفية
+    await BackgroundDownloadService.initialize();
+  } catch (e) {
+    debugPrint("Download service init failed: $e");
   }
 
   // 3. Check Version (Non-blocking)

@@ -1,6 +1,4 @@
 // ignore_for_file: must_be_iacademyv3utable
-
-import 'package:daliluna_altaalimi/controller/lesson_controller.dart';
 import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -9,12 +7,8 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/unitssubject_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/view/widget/customcardsection.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconbasket.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
@@ -333,31 +327,24 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                 ),
                                               ),
                                               trailing: Obx(() {
-                                                final isInMySections = controller.myunits.any((
-                                                  section,
-                                                ) {
-                                                  if (section != null) {
-                                                    return section['id']
-                                                                .toString() ==
-                                                            item['id']
-                                                                .toString() &&
-                                                        section['app_teacher_id']
-                                                                .toString() ==
-                                                            item['app_teacher_id']
-                                                                .toString() &&
-                                                        section['app_lesson_id']
-                                                                .toString() ==
-                                                            item['app_lesson_id']
-                                                                .toString() &&
-                                                        section['app_class_id']
-                                                                .toString() ==
-                                                            item['app_class_id']
-                                                                .toString();
-                                                  }
-                                                  return false;
-                                                });
+                                                final currentUnitId = item['id']
+                                                    ?.toString();
 
-                                                if (isInMySections) {
+                                                // نتحقق من أن الوحدة موجودة في myunits
+                                                // نفترض أن myunits تحتوي فقط على الوحدات المشتراة ككل
+                                                final isUnitPurchased =
+                                                    controller.myunits.any((
+                                                      unit,
+                                                    ) {
+                                                      if (unit != null) {
+                                                        return unit['id']
+                                                                ?.toString() ==
+                                                            currentUnitId;
+                                                      }
+                                                      return false;
+                                                    });
+
+                                                if (isUnitPurchased) {
                                                   return Row(
                                                     mainAxisSize:
                                                         MainAxisSize.min,
