@@ -42,7 +42,10 @@ class PdfsTeacher extends StatelessWidget {
                       children: [
                         CustomCardSubject(
                           text: pdfs[index]['name'],
+                          isFree:  int.tryParse(pdfs[index]['free_status'].toString()),
                           onTap: () {
+                            print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz${pdfs[index]['free_status']}");
+
                             pdfs[index]['file'] != null
                                 ? Navigator.push(
                                     context,

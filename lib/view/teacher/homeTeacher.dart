@@ -472,8 +472,8 @@ class HomeTeacher extends StatelessWidget {
                                                           double
                                                         >(
                                                           context: context,
-                                                          mobile: 20,
-                                                          tablet: 28,
+                                                          mobile: 18,
+                                                          tablet: 24,
                                                         ),
                                                     color:
                                                         AppColor.PrimaryColor,

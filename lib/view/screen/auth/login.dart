@@ -323,11 +323,11 @@ class Login extends GetView<LoginController> {
                           ),
                         ),
                         CustomTextFromFields(
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'^\+?\d{0,12}'),
-                            ),
-                          ],
+                          // inputFormatters: [
+                          //   FilteringTextInputFormatter.allow(
+                          //     RegExp(r'^\+?\d{0,12}'),
+                          //   ),
+                          // ],
                           readOnly: false,
                           keyboardType: TextInputType.phone,
                           label: "  رقم الموبايل",
@@ -358,11 +358,11 @@ class Login extends GetView<LoginController> {
                         GetBuilder<LoginController>(
                           builder: (controller) => CustomTextFromFields(
                             readOnly: false,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^[a-zA-Z_0-9-]+$'),
-                              ),
-                            ],
+                            // inputFormatters: [
+                            //   FilteringTextInputFormatter.allow(
+                            //     RegExp(r'^[a-zA-Z_0-9-]+$'),
+                            //   ),
+                            // ],
                             keyboardType: TextInputType.visiblePassword,
                             obscureText: controller.isshowpassword,
                             onTap: () {

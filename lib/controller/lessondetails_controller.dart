@@ -45,7 +45,7 @@ class LessonDetailsController extends GetxController {
   @override
   void onClose() {
     videoPlayerController.dispose();
-    chewieController!.dispose();
+    chewieController?.dispose();
   }
 
   Future<void> initializePlayer() async {

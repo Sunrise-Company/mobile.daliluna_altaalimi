@@ -150,7 +150,7 @@ class SearchScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: Obx(() => BasketWidget(heroTag: 'search_basket')),
+      floatingActionButton:  BasketWidget(heroTag: 'search_basket'),
     );
   }
 
