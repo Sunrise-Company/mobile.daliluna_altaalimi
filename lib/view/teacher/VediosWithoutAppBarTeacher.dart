@@ -22,81 +22,6 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      // child: Scaffold(
-      //     body: isLoading
-      //         ? Loading() // إذا كان التحميل جارياً، اعرض مؤشر التحميل
-      //         : videos.length != 0
-      //             ? ListView.builder(
-      //                 itemCount: videos.length,
-      //                 itemBuilder: (BuildContext context, index) {
-      //                   return Container(
-      //                     padding: EdgeInsets.all(
-      //                       getValueForScreenType<double>(
-      //                         context: context,
-      //                         mobile: 20,
-      //                         tablet: 40,
-      //                       ),
-      //                     ),
-      //                     child: Column(
-      //                       crossAxisAlignment: CrossAxisAlignment.center,
-      //                       children: [
-      //                         InkWell(
-      //                             onTap: () {
-      //                               if (videos[index]['link'] != null) {
-      //                                 Get.toNamed('/VideoLessonso', arguments: {
-      //                                   'url': videos[index]['link'],
-      //                                   'videoFiles': videos[index]['files']
-      //                                 });
-      //                               } else {
-      //                                 print("vidoe file ");
-      //                                 print(videos[index]['files']);
-      //                                 Get.toNamed('/VideoLessonso', arguments: {
-      //                                   'url':
-      //                                       '${AppLink.baseUrl}/storage//' +
-      //                                           videos[index]['file'],
-      //                                   'videoFiles': videos[index]['files']
-      //                                 });
-      //                               }
-
-      //                               // videos[index]['link'] != null
-      //                               //     ? print(videos[index]['link'])
-      //                               //     : print(videos[index]['file']);
-      //                               // Get.toNamed(AppRoute.lessonVedios);
-      //                             },
-      //                             child: customvideo()),
-      //                         SizedBox(
-      //                           height: getValueForScreenType<double>(
-      //                             context: context,
-      //                             mobile: 10,
-      //                             tablet: 20,
-      //                           ),
-      //                         ),
-      //                         Text(
-      //                           videos[index]['name'],
-      //                           style: TextStyle(
-      //                             color: AppColor.PrimaryColor,
-      //                             fontSize: getValueForScreenType<double>(
-      //                               context: context,
-      //                               mobile: 15,
-      //                               tablet: 17,
-      //                             ),
-      //                           ),
-      //                         ),
-      //                         SizedBox(
-      //                           height: getValueForScreenType<double>(
-      //                             context: context,
-      //                             mobile: 10,
-      //                             tablet: 20,
-      //                           ),
-      //                         ),
-      //                         Divider(
-      //                           color: AppColor.DeepPurple,
-      //                         )
-      //                       ],
-      //                     ),
-      //                   );
-      //                 })
-      //             : Center(child: Text("لا يوجد فيديوهات"))),
       child: isLoading
           ? _buildLoadingIndicator()
           : videos.isNotEmpty
@@ -421,25 +346,31 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
                               ),
                             ),
                             if (video['free_status'].toString() == '1')
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColor.SecondryColor2,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  "مجاني",
-                                  style: TextStyle(
-                                    fontSize: getValueForScreenType<double>(
-                                      context: context,
-                                      mobile: 10,
-                                      tablet: 12,
+
+                              InkWell(
+                                onTap: (){
+                                  print("ddddddddddddddddddddddddddddd${video['free_status']}");
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.SecondryColor2,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    "مجاني",
+                                    style: TextStyle(
+                                      fontSize: getValueForScreenType<double>(
+                                        context: context,
+                                        mobile: 10,
+                                        tablet: 12,
+                                      ),
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -478,244 +409,6 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
       ),
     );
   }
-
-  //
-  // Widget _buildCardLayout({
-  //   required BuildContext context,
-  //   required Map<String, dynamic> video,
-  //   required int index,
-  //   required String durationText,
-  //   required Widget thumbnail,
-  //   required bool isLocked,
-  // }) {
-  //   return Opacity(
-  //     opacity: isLocked ? 0.6 : 1.0,
-  //     child: Container(
-  //       decoration: BoxDecoration(
-  //         borderRadius: BorderRadius.circular(12),
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: AppColor.PrimaryColor.withOpacity(0.08),
-  //             blurRadius: 8,
-  //             offset: Offset(0, 3),
-  //             spreadRadius: 1,
-  //           ),
-  //         ],
-  //         gradient: LinearGradient(
-  //           begin: Alignment.topLeft,
-  //           end: Alignment.bottomRight,
-  //           colors: [
-  //             Colors.white,
-  //             Colors.white.withOpacity(0.98),
-  //           ],
-  //         ),
-  //       ),
-  //       child: Material(
-  //         color: Colors.transparent,
-  //         child: InkWell(
-  //           borderRadius: BorderRadius.circular(12),
-  //           onTap: () {
-  //             if (isLocked) {
-  //               Get.snackbar(
-  //                 "محتوى حصري للمشتركين",
-  //                 "اشترك في القسم للوصول إلى هذا الفيديو وكل المحتوى.",
-  //                 icon: Icon(Icons.lock, color: Colors.white),
-  //                 snackPosition: SnackPosition.BOTTOM,
-  //                 backgroundColor: AppColor.PrimaryColor,
-  //                 colorText: Colors.white,
-  //                 margin: EdgeInsets.all(15),
-  //                 borderRadius: 12,
-  //                 duration: Duration(seconds: 4),
-  //               );
-  //             } else {
-  //               if (video['link'] != null) {
-  //                 Get.toNamed('/VideoLessonso', arguments: {
-  //                   'url': video['link'],
-  //                   'videoFiles': video['files'],
-  //                   'lesson_dep_file_id': video['id'],
-  //                 });
-  //               } else {
-  //                 Get.toNamed('/VideoLessonso', arguments: {
-  //                   'url':
-  //                       '${AppLink.baseUrl}/storage/' + video['file'],
-  //                   'videoFiles': video['files'],
-  //                   'lesson_dep_file_id': video['id'],
-  //                 });
-  //               }
-  //             }
-  //           },
-  //           child: Padding(
-  //             padding: EdgeInsets.all(getValueForScreenType<double>(
-  //               context: context,
-  //               mobile: 12,
-  //               tablet: 15,
-  //             )),
-  //             child: Row(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 SizedBox(
-  //                   height: getValueForScreenType<double>(
-  //                     context: context,
-  //                     mobile: 100,
-  //                     tablet: 120,
-  //                   ),
-  //                   width: getValueForScreenType<double>(
-  //                     context: context,
-  //                     mobile: 140,
-  //                     tablet: 160,
-  //                   ),
-  //                   child: Stack(
-  //                     fit: StackFit.expand,
-  //                     alignment: Alignment.center,
-  //                     children: [
-  //                       ClipRRect(
-  //                         borderRadius: BorderRadius.circular(10),
-  //                         child: thumbnail,
-  //                       ),
-  //                       Positioned(
-  //                         top: 6,
-  //                         right: 6,
-  //                         child: Container(
-  //                           padding: EdgeInsets.symmetric(
-  //                               horizontal: 5, vertical: 2),
-  //                           decoration: BoxDecoration(
-  //                             color: AppColor.PrimaryColor,
-  //                             borderRadius: BorderRadius.circular(6),
-  //                           ),
-  //                           child: Text(
-  //                             '${video['lesson_dep_oreder']}',
-  //                             style: TextStyle(
-  //                                 color: Colors.white,
-  //                                 fontSize: 9,
-  //                                 fontWeight: FontWeight.bold),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       Positioned(
-  //                         bottom: 6,
-  //                         left: 6,
-  //                         child: Container(
-  //                           padding: EdgeInsets.symmetric(
-  //                               horizontal: 6, vertical: 3),
-  //                           decoration: BoxDecoration(
-  //                             color: Colors.black.withOpacity(0.7),
-  //                             borderRadius: BorderRadius.circular(6),
-  //                           ),
-  //                           child: Text(
-  //                             durationText,
-  //                             style: TextStyle(
-  //                               color: Colors.white,
-  //                               fontSize: 10,
-  //                               fontWeight: FontWeight.w500,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       if (isLocked)
-  //                         Container(
-  //                           decoration: BoxDecoration(
-  //                             color: Colors.black.withOpacity(0.4),
-  //                             borderRadius: BorderRadius.circular(10),
-  //                           ),
-  //                           child: Center(
-  //                             child: Icon(
-  //                               Icons.lock,
-  //                               color: Colors.white,
-  //                               size: 40,
-  //                               shadows: [
-  //                                 Shadow(
-  //                                   color: Colors.black.withOpacity(0.5),
-  //                                   blurRadius: 6,
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ),
-  //                         ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 SizedBox(width: 12),
-  //                 Expanded(
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Row(
-  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                         children: [
-  //                           Flexible(
-  //                             child: Text(
-  //                               video['name'] ?? 'فيديو بدون عنوان',
-  //                               style: TextStyle(
-  //                                 fontSize: getValueForScreenType<double>(
-  //                                   context: context,
-  //                                   mobile: 15,
-  //                                   tablet: 17,
-  //                                 ),
-  //                                 color: AppColor.PrimaryColor,
-  //                                 fontWeight: FontWeight.bold,
-  //                                 height: 1.3,
-  //                               ),
-  //                               maxLines: 2,
-  //                               overflow: TextOverflow.ellipsis,
-  //                             ),
-  //                           ),
-  //                           video['free_status'].toString() == '1'
-  //                               ? Container(
-  //                                   decoration: BoxDecoration(
-  //                                       color: AppColor.SecondaryColor,
-  //                                       borderRadius: BorderRadius.circular(8)),
-  //                                   child: Padding(
-  //                                     padding: const EdgeInsets.all(6.0),
-  //                                     child: Text(
-  //                                       video['free_status'].toString() == '1'
-  //                                           ? "مجاني"
-  //                                           : "مدفوع",
-  //                                       style: TextStyle(
-  //                                         fontSize:
-  //                                             getValueForScreenType<double>(
-  //                                           context: context,
-  //                                           mobile: 10,
-  //                                           tablet: 12,
-  //                                         ),
-  //                                         color: AppColor.PrimaryColor,
-  //                                         fontWeight: FontWeight.bold,
-  //                                         height: 1.3,
-  //                                       ),
-  //                                       maxLines: 2,
-  //                                       overflow: TextOverflow.ellipsis,
-  //                                     ),
-  //                                   ),
-  //                                 )
-  //                               : SizedBox(),
-  //                         ],
-  //                       ),
-  //                       SizedBox(height: 8),
-  //                       Row(
-  //                         children: [
-  //                           Icon(Icons.video_library,
-  //                               size: 16, color: AppColor.SecondryColor),
-  //                           SizedBox(width: 6),
-  //                           Text(
-  //                             'فيديو تعليمي',
-  //                             style: TextStyle(
-  //                               fontSize: 12,
-  //                               color: AppColor.SecondryColor,
-  //                               fontWeight: FontWeight.w500,
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildDefaultThumbnail(BuildContext context) {
     return Container(

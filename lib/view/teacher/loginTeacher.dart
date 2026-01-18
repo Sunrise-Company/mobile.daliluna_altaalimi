@@ -311,10 +311,6 @@ class LoginTeacher extends StatelessWidget {
                               return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ ";
                             }
 
-                            // if (val.length < 10) {
-                            //   return "لا يمكن أن يكون أقل من 10";
-                            // }
-
                             if (val.length > 30) {
                               return "لا يمكن أن يكون أكبر من 30";
                             }
@@ -334,11 +330,11 @@ class LoginTeacher extends StatelessWidget {
                         GetBuilder<LoginControllerss>(
                           builder: (controller) => CustomTextFromFields(
                             readOnly: false,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^[a-zA-Z_0-9-]+$'),
-                              ),
-                            ],
+                            // inputFormatters: [
+                            //   FilteringTextInputFormatter.allow(
+                            //     RegExp(r'^[a-zA-Z_0-9-]+$'),
+                            //   ),
+                            // ],
                             keyboardType: TextInputType.visiblePassword,
                             obscureText: controller.isshowpassword,
                             onTap: () {

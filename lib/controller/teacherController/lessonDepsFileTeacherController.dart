@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class TeacherLessonDepsFileContrlloer extends GetxController {
   RxBool isloded = false.obs;
   RxList<dynamic> dataListfile = <dynamic>[].obs;
-
   RxList<dynamic> dataListvidoe = <dynamic>[].obs;
   var selectedTabIndex = 0.obs;
   String? name;
@@ -44,6 +43,7 @@ class TeacherLessonDepsFileContrlloer extends GetxController {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxx${responseData}");
 
         dataListfile.value = responseData['files'];
 

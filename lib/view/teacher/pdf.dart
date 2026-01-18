@@ -45,6 +45,25 @@ class PdfsTeacher extends StatelessWidget {
                       children: [
                         CustomCardSubject(
                           text: pdfs[index]['name'],
+// <<<<<<< lib/view/teacher/pdf.dart
+                          isFree:  int.tryParse(pdfs[index]['free_status'].toString()),
+                          onTap: () {
+                            print("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz${pdfs[index]['free_status']}");
+
+                            pdfs[index]['file'] != null
+                                ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return pdfLessons(
+                                          name: pdfs[index]['name'],
+                                          isUrl: true,
+                                          url:
+                                              '${AppLink.baseUrl}/storage/' +
+                                              pdfs[index]['file'],
+                                        );
+                                      },
+// =======
                           onTap: () async {
                             if (pdfs[index]['file'] != null) {
                               Navigator.push(
@@ -93,6 +112,7 @@ class PdfsTeacher extends StatelessWidget {
                                     style: const TextStyle(
                                       color: AppColor.PrimaryColor,
                                       fontWeight: FontWeight.bold,
+// >>>>>>> lib/view/teacher/pdf.dart
                                     ),
                                   ),
                                   content: SingleChildScrollView(

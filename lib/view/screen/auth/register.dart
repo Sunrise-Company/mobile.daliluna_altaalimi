@@ -412,9 +412,9 @@ class Register extends GetView<RegisterController> {
                           GetBuilder<RegisterController>(
                             builder: (controller) => CustomTextFromFields(
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^[a-zA-Z_0-9-]+$'),
-                                ),
+                                // FilteringTextInputFormatter.allow(
+                                //   RegExp(r'^[a-zA-Z_0-9-]+$'),
+                                // ),
                               ],
                               readOnly: false,
                               keyboardType: TextInputType.visiblePassword,
@@ -459,11 +459,11 @@ class Register extends GetView<RegisterController> {
                               onTap: () {
                                 controller.showconfirmPassword();
                               },
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^[a-zA-Z_0-9-]+$'),
-                                ),
-                              ],
+                              // inputFormatters: [
+                              //   FilteringTextInputFormatter.allow(
+                              //     RegExp(r'^[a-zA-Z_0-9-]+$'),
+                              //   ),
+                              // ],
                               validator: (val) {
                                 if (val != controller.password.text) {
                                   return "تأكيد كلمة المرور غير مطابقة لكلمة المرور";

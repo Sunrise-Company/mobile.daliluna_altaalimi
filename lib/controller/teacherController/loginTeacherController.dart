@@ -158,8 +158,8 @@ class LoginControllerss extends GetxController {
       }
     } catch (e) {
       Get.snackbar(
-        "خطأ غير متوقع",
-        "حدث خطأ غير متوقع، الرجاء المحاولة لاحقًا.",
+        "خطأ في تسجيل الدخول",
+        "تحقق من اسم المستخدم وكلمة المرور.",
         // backgroundColor: Colors.red,
         // colorText: Colors.white,
         dismissDirection: DismissDirection.startToEnd,
@@ -173,7 +173,7 @@ class LoginControllerss extends GetxController {
 
   void checkLoginStatusTeacher() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    teacherId.value = prefs.getInt('teacher_id')!;
+    teacherId.value = prefs.getInt('teacher_id')??0;
     isLoggedInTeacher.value = teacherId != null;
   }
 

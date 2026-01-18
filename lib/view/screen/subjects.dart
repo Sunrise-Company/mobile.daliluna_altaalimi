@@ -207,8 +207,8 @@ class Subjects extends GetView<SubjectsController> {
           ],
         ),
 
-        floatingActionButton: Obx(
-          () => SizedBox(
+        floatingActionButton:
+         SizedBox(
             width: getValueForScreenType<double>(
               context: context,
               mobile: 56, // العرض على الموبايل
@@ -220,7 +220,7 @@ class Subjects extends GetView<SubjectsController> {
               tablet: 80, // الارتفاع على التابلت
             ),
             child: BasketWidget(heroTag: "eleven"),
-          ),
+
         ),
       ),
     );
