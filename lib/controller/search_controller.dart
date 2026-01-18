@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
+import 'dart:async';
 
 class SearchController extends GetxController {
   final RxString searchQuery = ''.obs;
@@ -26,16 +27,41 @@ class SearchController extends GetxController {
 
   final TextEditingController textController = TextEditingController();
 
+  // Debounce timer لتأخير البحث
+  Timer? _debounceTimer;
+  static const _debounceDuration = Duration(milliseconds: 400);
+
   @override
   void onClose() {
+    _debounceTimer?.cancel();
     textController.dispose();
     super.onClose();
   }
 
   void clearSearch() {
+    _debounceTimer?.cancel();
     searchQuery.value = '';
     textController.clear();
-    search('');
+    searchResults.clear();
+  }
+
+  /// بحث مع debounce - يؤخر البحث 400ms بعد توقف المستخدم عن الكتابة
+  void debouncedSearch(String query) {
+    searchQuery.value = query;
+
+    // إلغاء المؤقت السابق
+    _debounceTimer?.cancel();
+
+    // إذا كان النص فارغاً، امسح النتائج فوراً
+    if (query.isEmpty) {
+      searchResults.clear();
+      return;
+    }
+
+    // إنشاء مؤقت جديد
+    _debounceTimer = Timer(_debounceDuration, () {
+      search(query);
+    });
   }
 
   Future<void> search(String query, {bool maintainTab = false}) async {

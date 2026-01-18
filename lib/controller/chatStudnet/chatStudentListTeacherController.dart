@@ -55,12 +55,10 @@ class ChatStudentListTeacherController extends GetxController {
       );
 
       if (token == null) {
-
         isloded.value = true;
         dataList.value = [];
       }
       if (response.statusCode == 200) {
-
         isloded.value = true;
         final responseData = jsonDecode(response.body);
 

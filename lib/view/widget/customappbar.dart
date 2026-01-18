@@ -29,9 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         color: AppColor
             .DeepPurple, // Customize the background color to your liking
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(40.0),
-        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(40.0)),
       ),
       child: Stack(
         children: [
@@ -72,39 +70,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 alignment: Alignment.topLeft,
                 children: [
                   IconButton(
-                      padding: EdgeInsets.only(
-                        right: getValueForScreenType<double>(
-                          context: context,
-                          mobile: 20,
-                          tablet: 40,
-                        ),
-                        top: getValueForScreenType<double>(
-                          context: context,
-                          mobile: 4,
-                          tablet: 8,
-                        ),
+                    padding: EdgeInsets.only(
+                      right: getValueForScreenType<double>(
+                        context: context,
+                        mobile: 20,
+                        tablet: 40,
                       ),
-                      onPressed: () {
-                        Get.toNamed(AppRoute.notifications,
-                            arguments: {'app_student_id': 555});
-                      },
-                      icon: Icon(
-                        Icons.notifications,
-                        color: AppColor.PrimaryColor,
-                        size: getValueForScreenType<double>(
-                          context: context,
-                          mobile: 30,
-                          tablet: 50,
-                        ),
-                      )),
+                      top: getValueForScreenType<double>(
+                        context: context,
+                        mobile: 4,
+                        tablet: 8,
+                      ),
+                    ),
+                    onPressed: () {
+                      Get.toNamed(
+                        AppRoute.notifications,
+                        arguments: {'app_student_id': 555},
+                      );
+                    },
+                    icon: Icon(
+                      Icons.notifications,
+                      color: AppColor.PrimaryColor,
+                      size: getValueForScreenType<double>(
+                        context: context,
+                        mobile: 30,
+                        tablet: 50,
+                      ),
+                    ),
+                  ),
                 ],
               ),
               actions: [
                 Obx(
                   () => CustomIconBasket(
-                      text: baskerc.mycart.length != 0
-                          ? baskerc.mycart.length.toString()
-                          : "0"),
+                    text: baskerc.mycart.length != 0
+                        ? baskerc.mycart.length.toString()
+                        : "0",
+                  ),
                 ),
               ],
             ),

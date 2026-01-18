@@ -321,20 +321,20 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
         body: Obx(() {
           return controller.isloded.value
               ? SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                _buildExamHeader(context),
-                const SizedBox(height: 20),
-                _buildScoreSummary(),
-                const Divider(thickness: 1.2, height: 30),
-                _buildQuestionList(),
-                const SizedBox(height: 30),
-              ],
-            ),
-          )
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildExamHeader(context),
+                      const SizedBox(height: 20),
+                      _buildScoreSummary(),
+                      const Divider(thickness: 1.2, height: 30),
+                      _buildQuestionList(),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                )
               : const Loading();
         }),
       ),
@@ -366,7 +366,11 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
             controller.examname.value,
             style: TextStyle(
               color: Colors.white,
-              fontSize: responsiveValue(context: context, mobile: 18, tablet: 25),
+              fontSize: responsiveValue(
+                context: context,
+                mobile: 18,
+                tablet: 25,
+              ),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -404,7 +408,10 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
             const Icon(Icons.timer, color: Colors.white, size: 30),
             Text(
               "$duration دقيقة",
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -500,8 +507,9 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor:
-                        isCorrect ? AppColor.DeepPurple : Colors.grey[400],
+                        backgroundColor: isCorrect
+                            ? AppColor.DeepPurple
+                            : Colors.grey[400],
                         child: Icon(
                           isCorrect ? Icons.check : Icons.close,
                           color: Colors.white,
@@ -511,9 +519,12 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
                       title: Text(
                         option,
                         style: TextStyle(
-                          color: isCorrect ? AppColor.DeepPurple : Colors.black87,
-                          fontWeight:
-                          isCorrect ? FontWeight.bold : FontWeight.normal,
+                          color: isCorrect
+                              ? AppColor.DeepPurple
+                              : Colors.black87,
+                          fontWeight: isCorrect
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -527,8 +538,10 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColor.SecondryColor,
                     borderRadius: BorderRadius.circular(10),

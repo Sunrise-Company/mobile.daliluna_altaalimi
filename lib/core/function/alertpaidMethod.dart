@@ -31,16 +31,28 @@ Future<bool> alertPaidMethod(String message) async {
 
               baskerc.isload(false);
               if (res == "true") {
-                Get.snackbar('تمت عملية الشراء بنجاح', 'شكراً لك',  backgroundColor: AppColor.BackGround3,);
+                Get.snackbar(
+                  'تمت عملية الشراء بنجاح',
+                  'شكراً لك',
+                  backgroundColor: AppColor.BackGround3,
+                );
                 Get.offAllNamed(AppRoute.homePage);
                 baskerc.mycart.clear();
                 baskerc.count.value = 0;
               } else {
-                Get.snackbar('فشلت عملية الشراء', 'الرجاء المحاولة مرة أخرى',  backgroundColor: AppColor.BackGround3,);
+                Get.snackbar(
+                  'فشلت عملية الشراء',
+                  'الرجاء المحاولة مرة أخرى',
+                  backgroundColor: AppColor.BackGround3,
+                );
               }
             } catch (e) {
               baskerc.isload(false);
-              Get.snackbar('حدث خطأ', 'الرجاء التحقق من اتصالك بالإنترنت',  backgroundColor: AppColor.BackGround3,);
+              Get.snackbar(
+                'حدث خطأ',
+                'الرجاء التحقق من اتصالك بالإنترنت',
+                backgroundColor: AppColor.BackGround3,
+              );
             }
           }
         }),

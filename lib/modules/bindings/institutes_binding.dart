@@ -7,4 +7,3 @@ class InstitutesBinding extends Bindings {
     Get.lazyPut(() => InstitutesController());
   }
 }
-

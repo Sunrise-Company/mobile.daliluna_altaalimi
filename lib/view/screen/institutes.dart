@@ -92,7 +92,9 @@ class InstitutesPage extends GetView<InstitutesController> {
                       itemBuilder: (context, index) {
                         final institute =
                             institutesController.institutes[index];
-                        print("idOfnewInstituteIddddddddddddddddddddddddddd ${ institutesController.institutes[index]}");
+                        print(
+                          "idOfnewInstituteIddddddddddddddddddddddddddd ${institutesController.institutes[index]}",
+                        );
                         return CustomCardHome(
                           name: institute['name'] ?? '',
                           image: institute['image'],

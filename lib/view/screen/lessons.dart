@@ -378,30 +378,29 @@ class Lessons extends GetView<LessonsController> {
                                                     ),
                                                   ),
                                                   trailing: Obx(() {
-                                                    final isInMySections = controller.mylectures.any((
-                                                      section,
-                                                    ) {
-                                                      final dep = section;
+                                                    final currentLessonId =
+                                                        controller
+                                                            .dataList[index]['id']
+                                                            ?.toString();
 
-                                                      if (dep != null) {
-                                                        return dep['app_unit_id']
-                                                                    .toString() ==
-                                                                controller
-                                                                    .dataList[index]['app_unit_id']
-                                                                    .toString() &&
-                                                            dep['app_lesson_id']
-                                                                    .toString() ==
-                                                                controller
-                                                                    .dataList[index]['app_lesson_id']
-                                                                    .toString() &&
-                                                            dep['app_class_id']
-                                                                    .toString() ==
-                                                                controller
-                                                                    .dataList[index]['app_class_id']
-                                                                    .toString();
-                                                      }
-                                                      return false;
-                                                    });
+                                                    // ملاحظة: نتحقق من ID الدرس المحدد فقط
+                                                    final isInMySections =
+                                                        controller.mylectures.any((
+                                                          section,
+                                                        ) {
+                                                          if (section != null) {
+                                                            final purchasedLessonId =
+                                                                section['id']
+                                                                    ?.toString();
+
+                                                            //التحقق من مطابقة ID الدرس
+                                                            if (purchasedLessonId ==
+                                                                currentLessonId) {
+                                                              return true;
+                                                            }
+                                                          }
+                                                          return false;
+                                                        });
 
                                                     if (isInMySections) {
                                                       return SizedBox(
@@ -509,7 +508,9 @@ class Lessons extends GetView<LessonsController> {
                                                           'lesson add success',
                                                         );
                                                       },
-                                                      targetCartKey: CartAnimationKeys.lessons,
+                                                      targetCartKey:
+                                                          CartAnimationKeys
+                                                              .lessons,
                                                     );
                                                   }),
 

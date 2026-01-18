@@ -94,29 +94,29 @@ class FirstPageTeacher extends GetView<InialController> {
 
   @override
   Widget build(BuildContext context) {
-
     final splashController = Get.put(SplashController());
 
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         body: Container(
-          decoration:  BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
                 AppColor.PrimaryColor,
                 AppColor.DeepPurple,
                 AppColor.DeepPurple2,
-
               ],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
           ),
           child: Center(
-            child: Obx(() => controller.isLoading.value
-                ? _buildAnimatedContent(splashController)
-                : _buildAnimatedContent(splashController)),
+            child: Obx(
+              () => controller.isLoading.value
+                  ? _buildAnimatedContent(splashController)
+                  : _buildAnimatedContent(splashController),
+            ),
           ),
         ),
       ),
@@ -144,9 +144,9 @@ class FirstPageTeacher extends GetView<InialController> {
         const SizedBox(height: 20),
         FadeTransition(
           opacity: splashController.fadeAnimation,
-          child:   Shimmer.fromColors(
-    baseColor: Colors.white,
-    highlightColor:  AppColor.SecondryColor,
+          child: Shimmer.fromColors(
+            baseColor: Colors.white,
+            highlightColor: AppColor.SecondryColor,
             child: Text(
               "دليلنا التعليمي",
               textAlign: TextAlign.center,

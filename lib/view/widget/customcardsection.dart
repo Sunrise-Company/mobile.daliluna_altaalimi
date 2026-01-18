@@ -14,7 +14,7 @@ class CustomCardSectionSelected extends StatelessWidget {
   final String price;
   final item;
   final GlobalKey? targetCartKey;
-  
+
   const CustomCardSectionSelected({
     super.key,
     required this.onTap,

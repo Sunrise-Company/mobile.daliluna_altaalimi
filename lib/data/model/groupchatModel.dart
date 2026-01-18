@@ -29,11 +29,7 @@ class Student {
   String name;
   String avatarUrl;
 
-  Student({
-    required this.id,
-    required this.name,
-    required this.avatarUrl,
-  });
+  Student({required this.id, required this.name, required this.avatarUrl});
 }
 
 class Message {

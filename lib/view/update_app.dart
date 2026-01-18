@@ -10,38 +10,40 @@ class UpdateApp extends StatelessWidget {
       onWillPop: () async => false,
       child: Scaffold(
         body: SafeArea(
-            child: SingleChildScrollView(
-                child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Image.asset(
-                'images/logo.png',
-                height: 300,
-                width: double.infinity,
-                fit: BoxFit.contain,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 30),
-              child: Text('يوجد تحديث جديد للتطبيق انقر على الزر'),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+          child: SingleChildScrollView(
+            child: Column(
               children: [
-                ElevatedButton(
-                    onPressed: () {
-                      launchUrlString(
-                          "market://details?id=com.bayanschool.bayanschool");
-                    },
-                    child: Text('تنزيل')),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    'images/logo.png',
+                    height: 300,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 30),
+                  child: Text('يوجد تحديث جديد للتطبيق انقر على الزر'),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        launchUrlString(
+                          "market://details?id=com.bayanschool.bayanschool",
+                        );
+                      },
+                      child: Text('تنزيل'),
+                    ),
+                  ],
+                ),
               ],
-            )
-          ],
-        ))),
+            ),
+          ),
+        ),
       ),
     );
   }

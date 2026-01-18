@@ -15,9 +15,8 @@ class InstitutesController extends GetxController {
   List<dynamic> institutes = [];
   bool isLoading = true;
   String? errorMessage;
-//////////////
-final BasketController basketController =
-      Get.find<BasketController>();
+  //////////////
+  final BasketController basketController = Get.find<BasketController>();
   late final OurCoursesController coursesController;
 
   @override

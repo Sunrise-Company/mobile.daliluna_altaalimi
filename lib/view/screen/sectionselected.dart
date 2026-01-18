@@ -728,46 +728,23 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             final mainDepId =
                                                                 itemId;
 
-                                                            final isInMySections = controller.mysection.any((
-                                                              section,
-                                                            ) {
-                                                              final departments =
-                                                                  section
-                                                                      as Map;
-                                                              if (departments['app_classes_lessons_main_department'] !=
-                                                                      null &&
-                                                                  (departments['app_classes_lessons_main_department']
-                                                                          as List)
-                                                                      .isNotEmpty &&
-                                                                  allSectionItem['app_classes_lessons_main_dep'] !=
-                                                                      null &&
-                                                                  (allSectionItem['app_classes_lessons_main_dep']
-                                                                          as List)
-                                                                      .isNotEmpty) {
-                                                                return departments['app_classes_lessons_main_department'][0]['main_dep_id']
-                                                                            .toString() ==
-                                                                        allSectionItem['app_classes_lessons_main_dep'][0]['main_dep_id']
-                                                                            .toString() &&
-                                                                    departments['app_classes_lessons_main_department'][0]['app_teacher_id']
-                                                                            .toString() ==
-                                                                        allSectionItem['app_classes_lessons_main_dep'][0]['app_teacher_id']
-                                                                            .toString() &&
-                                                                    departments['app_classes_lessons_main_department'][0]['app_class_id']
-                                                                            .toString() ==
-                                                                        allSectionItem['app_classes_lessons_main_dep'][0]['app_class_id']
-                                                                            .toString();
-                                                              }
-                                                              return false;
+
+                                                            // نتحقق من أن القسم موجود في mysection
+                                                            // نطابق بناءً على ID
+                                                            final isInMySections = controller.mysection.any((section) {
+                                                              final departments = section as Map;
+                                                              final purchasedId = departments['id']?.toString();
+                                                              final currentId = allSectionItem['id']?.toString();
+                                                              return purchasedId == currentId;
                                                             });
 
                                                             if (isInMySections) {
                                                               return Icon(
-                                                                Icons
-                                                                    .check_circle,
-                                                                color: AppColor
-                                                                    .SecondryColor,
+                                                                Icons.check_circle,
+                                                                color: AppColor.SecondryColor,
                                                               );
                                                             }
+
                                                             if (isSectionFree) {
                                                               return Icon(
                                                                 Icons
@@ -778,8 +755,11 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             }
 
                                                             return AnimatedCartIcon(
-                                                              targetCartKey: CartAnimationKeys.sectionSelected,
-                                                              color: AppColor.PrimaryColor,
+                                                              targetCartKey:
+                                                                  CartAnimationKeys
+                                                                      .sectionSelected,
+                                                              color: AppColor
+                                                                  .PrimaryColor,
                                                               onPressed: () {
                                                                 baskerc
                                                                     .updatemaindepId(

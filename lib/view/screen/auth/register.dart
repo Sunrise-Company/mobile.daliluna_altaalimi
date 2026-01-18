@@ -582,7 +582,8 @@ class Register extends GetView<RegisterController> {
                                         .validate()) {
                                       // alertRegister();
                                       if (controller
-                                          .countryselectedValue.isEmpty) {
+                                          .countryselectedValue
+                                          .isEmpty) {
                                         Get.defaultDialog(
                                           backgroundColor: AppColor.BackGround2,
                                           title: 'تنبيه',

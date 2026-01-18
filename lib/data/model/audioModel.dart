@@ -1,9 +1,6 @@
-
 class AudioModel {
- int ? duration ;
-  String ? url;
-
+  int? duration;
+  String? url;
 
   AudioModel() {}
-
 }

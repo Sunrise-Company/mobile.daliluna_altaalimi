@@ -6,12 +6,8 @@ import 'package:daliluna_altaalimi/core/function/cart_animation_helper.dart';
 class CustomButtonBuy extends StatefulWidget {
   final void Function()? onTap;
   final GlobalKey? targetCartKey;
-  
-  const CustomButtonBuy({
-    super.key,
-    required this.onTap,
-    this.targetCartKey,
-  });
+
+  const CustomButtonBuy({super.key, required this.onTap, this.targetCartKey});
 
   @override
   State<CustomButtonBuy> createState() => _CustomButtonBuyState();
@@ -30,9 +26,10 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.85,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -51,10 +48,10 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
     // Get button position
     final RenderBox? box =
         _buttonKey.currentContext?.findRenderObject() as RenderBox?;
-    
+
     if (box != null && mounted && widget.targetCartKey != null) {
       final Offset position = box.localToGlobal(Offset.zero);
-      
+
       // Trigger fly-to-cart animation
       CartAnimationHelper.animateToCart(
         context: context,
@@ -75,10 +72,7 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
     return AnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {
-        return Transform.scale(
-          scale: _scaleAnimation.value,
-          child: child,
-        );
+        return Transform.scale(scale: _scaleAnimation.value, child: child);
       },
       child: InkWell(
         onTap: _handleTap,

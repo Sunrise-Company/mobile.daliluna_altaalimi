@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/view/widget/basketWidget.dart';
 import 'package:daliluna_altaalimi/view/widget/customcardsections.dart';
+import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 
 class SearchScreen extends StatelessWidget {
@@ -84,11 +85,7 @@ class SearchScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColor.PrimaryColor,
-                        ),
-                      ),
+                      Loading(),
                       SizedBox(height: 16),
                       Text(
                         'جاري البحث...',
@@ -170,11 +167,18 @@ class SearchScreen extends StatelessWidget {
       ),
       child: TextField(
         controller: searchController.textController,
+        autofocus: false, // إلغاء التركيز التلقائي
         onChanged: (value) {
-          searchController.searchQuery.value = value;
-          searchController.search(value);
+          // استخدام debounce لتأخير البحث وتقليل طلبات API
+          searchController.debouncedSearch(value);
         },
         textDirection: TextDirection.rtl,
+        textInputAction: TextInputAction.search, // زر بحث في الكيبورد
+        onSubmitted: (value) {
+          // البحث فوراً عند الضغط على زر البحث
+          searchController.search(value);
+          FocusScope.of(context).unfocus();
+        },
         decoration: InputDecoration(
           hintText: 'ابحث عن معاهد أو مدرسين أو دروس...',
           hintStyle: TextStyle(

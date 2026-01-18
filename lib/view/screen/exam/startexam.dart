@@ -413,293 +413,348 @@ class StartExam extends GetView<StartExamControllerss> {
 
   @override
   Widget build(BuildContext context) {
-    final List<dynamic> options =
-    type == 1 ? jsonDecode(controller.questionlist[index].option!.myOptions.toString()) : [];
+    final List<dynamic> options = type == 1
+        ? jsonDecode(
+            controller.questionlist[index].option!.myOptions.toString(),
+          )
+        : [];
 
-    return Obx(() => SafeArea(
-      child: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // القسم / محتوى الصورة / الصوت
-                  if (controller.questionlist[index].section != null)
-                    ..._buildSectionContent(index),
+    return Obx(
+      () => SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // القسم / محتوى الصورة / الصوت
+                    if (controller.questionlist[index].section != null)
+                      ..._buildSectionContent(index),
 
-                  const SizedBox(height: 15),
+                    const SizedBox(height: 15),
 
-
-                  Text(
-                    controller.questionlist[index].questionForm.toString() + "؟",
-                    textAlign: TextAlign.right,
-                    style:  TextStyle(
-                      fontSize: responsiveValue(context: context,mobile: 20,tablet: 30),
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                    Text(
+                      controller.questionlist[index].questionForm.toString() +
+                          "؟",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: responsiveValue(
+                          context: context,
+                          mobile: 20,
+                          tablet: 30,
+                        ),
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                  // الخيارات
-                  if (type == 1)
-                    // ListView.builder(
-                    //   shrinkWrap: true,
-                    //   physics: const NeverScrollableScrollPhysics(),
-                    //   itemCount: options.length,
-                    //   itemBuilder: (context, ind) {
-                    //     final isSelected =
-                    //         controller.check[index]()[options[ind]] ?? false;
-                    //     final optionLabel = String.fromCharCode(65 + ind); // A, B, C
-                    //     return Container(
-                    //       margin: const EdgeInsets.symmetric(vertical: 6),
-                    //       child: Card(
-                    //         color: isSelected
-                    //             ? AppColor.DeepPurple.withOpacity(0.1) // خلفية خفيفة عند التحديد
-                    //             : Colors.white, // اللون العادي
-                    //         shape: RoundedRectangleBorder(
-                    //           borderRadius: BorderRadius.circular(12),
-                    //           side: BorderSide(
-                    //             color: isSelected
-                    //                 ? AppColor.DeepPurple
-                    //                 : Colors.grey.withOpacity(0.3),
-                    //             width: 1.5,
-                    //           ),
-                    //         ),
-                    //         elevation: isSelected ? 4 : 1, // ظل بسيط للخيار المحدد
-                    //         child: ListTile(
-                    //           onTap: () {
-                    //             controller.itemChange(options[ind], index);
-                    //           },
-                    //           leading: CircleAvatar(
-                    //             radius: 14,
-                    //             backgroundColor:
-                    //             isSelected ? AppColor.DeepPurple : Colors.grey[300],
-                    //             child: isSelected
-                    //                 ? const Icon(Icons.check, color: Colors.white, size: 16)
-                    //                 : Text(
-                    //               optionLabel,
-                    //               style: const TextStyle(
-                    //                 color: Colors.black,
-                    //                 fontWeight: FontWeight.bold,
-                    //               ),
-                    //             ),
-                    //           ),
-                    //           title: Text(
-                    //             options[ind],
-                    //             textAlign: TextAlign.right,
-                    //             style: TextStyle(
-                    //               fontSize: 16,
-                    //               color: isSelected
-                    //                   ? AppColor.DeepPurple
-                    //                   : Colors.black, // تغيّر لون النص عند الاختيار
-                    //               fontWeight: isSelected
-                    //                   ? FontWeight.w600
-                    //                   : FontWeight.normal, // زيادة سماكة النص عند التحديد
-                    //             ),
-                    //           ),
-                    //         ),
-                    //       ),
-                    //     );
-                    //
-                    //     // return Container(
-                    //     //   margin: const EdgeInsets.symmetric(vertical: 6),
-                    //     //   child: Card(
-                    //     //     shape: RoundedRectangleBorder(
-                    //     //       borderRadius: BorderRadius.circular(12),
-                    //     //       side: BorderSide(
-                    //     //         color: isSelected
-                    //     //             ? AppColor.DeepPurple
-                    //     //             : Colors.grey.withOpacity(0.3),
-                    //     //         width: 1.5,
-                    //     //       ),
-                    //     //     ),
-                    //     //     child: ListTile(
-                    //     //       onTap: () {
-                    //     //         controller.itemChange(options[ind], index);
-                    //     //       },
-                    //     //       leading: CircleAvatar(
-                    //     //         radius: 14,
-                    //     //         backgroundColor: isSelected
-                    //     //             ? AppColor.DeepPurple
-                    //     //             : Colors.grey[300],
-                    //     //         child: isSelected
-                    //     //             ? const Icon(Icons.check,
-                    //     //             color: Colors.white, size: 16)
-                    //     //             : Text(
-                    //     //           optionLabel,
-                    //     //           style: const TextStyle(
-                    //     //             color: Colors.black,
-                    //     //             fontWeight: FontWeight.bold,
-                    //     //           ),
-                    //     //         ),
-                    //     //       ),
-                    //     //       title: Text(
-                    //     //         options[ind],
-                    //     //         textAlign: TextAlign.right,
-                    //     //         style: const TextStyle(fontSize: 16),
-                    //     //       ),
-                    //     //     ),
-                    //     //   ),
-                    //     // );
-                    //   },
-                    // )
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: options.length,
-                      itemBuilder: (context, ind) {
-                        final optionLabel = String.fromCharCode(65 + ind); // A, B, C...
+                    // الخيارات
+                    if (type == 1)
+                      // ListView.builder(
+                      //   shrinkWrap: true,
+                      //   physics: const NeverScrollableScrollPhysics(),
+                      //   itemCount: options.length,
+                      //   itemBuilder: (context, ind) {
+                      //     final isSelected =
+                      //         controller.check[index]()[options[ind]] ?? false;
+                      //     final optionLabel = String.fromCharCode(65 + ind); // A, B, C
+                      //     return Container(
+                      //       margin: const EdgeInsets.symmetric(vertical: 6),
+                      //       child: Card(
+                      //         color: isSelected
+                      //             ? AppColor.DeepPurple.withOpacity(0.1) // خلفية خفيفة عند التحديد
+                      //             : Colors.white, // اللون العادي
+                      //         shape: RoundedRectangleBorder(
+                      //           borderRadius: BorderRadius.circular(12),
+                      //           side: BorderSide(
+                      //             color: isSelected
+                      //                 ? AppColor.DeepPurple
+                      //                 : Colors.grey.withOpacity(0.3),
+                      //             width: 1.5,
+                      //           ),
+                      //         ),
+                      //         elevation: isSelected ? 4 : 1, // ظل بسيط للخيار المحدد
+                      //         child: ListTile(
+                      //           onTap: () {
+                      //             controller.itemChange(options[ind], index);
+                      //           },
+                      //           leading: CircleAvatar(
+                      //             radius: 14,
+                      //             backgroundColor:
+                      //             isSelected ? AppColor.DeepPurple : Colors.grey[300],
+                      //             child: isSelected
+                      //                 ? const Icon(Icons.check, color: Colors.white, size: 16)
+                      //                 : Text(
+                      //               optionLabel,
+                      //               style: const TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //           title: Text(
+                      //             options[ind],
+                      //             textAlign: TextAlign.right,
+                      //             style: TextStyle(
+                      //               fontSize: 16,
+                      //               color: isSelected
+                      //                   ? AppColor.DeepPurple
+                      //                   : Colors.black, // تغيّر لون النص عند الاختيار
+                      //               fontWeight: isSelected
+                      //                   ? FontWeight.w600
+                      //                   : FontWeight.normal, // زيادة سماكة النص عند التحديد
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     );
+                      //
+                      //     // return Container(
+                      //     //   margin: const EdgeInsets.symmetric(vertical: 6),
+                      //     //   child: Card(
+                      //     //     shape: RoundedRectangleBorder(
+                      //     //       borderRadius: BorderRadius.circular(12),
+                      //     //       side: BorderSide(
+                      //     //         color: isSelected
+                      //     //             ? AppColor.DeepPurple
+                      //     //             : Colors.grey.withOpacity(0.3),
+                      //     //         width: 1.5,
+                      //     //       ),
+                      //     //     ),
+                      //     //     child: ListTile(
+                      //     //       onTap: () {
+                      //     //         controller.itemChange(options[ind], index);
+                      //     //       },
+                      //     //       leading: CircleAvatar(
+                      //     //         radius: 14,
+                      //     //         backgroundColor: isSelected
+                      //     //             ? AppColor.DeepPurple
+                      //     //             : Colors.grey[300],
+                      //     //         child: isSelected
+                      //     //             ? const Icon(Icons.check,
+                      //     //             color: Colors.white, size: 16)
+                      //     //             : Text(
+                      //     //           optionLabel,
+                      //     //           style: const TextStyle(
+                      //     //             color: Colors.black,
+                      //     //             fontWeight: FontWeight.bold,
+                      //     //           ),
+                      //     //         ),
+                      //     //       ),
+                      //     //       title: Text(
+                      //     //         options[ind],
+                      //     //         textAlign: TextAlign.right,
+                      //     //         style: const TextStyle(fontSize: 16),
+                      //     //       ),
+                      //     //     ),
+                      //     //   ),
+                      //     // );
+                      //   },
+                      // )
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: options.length,
+                        itemBuilder: (context, ind) {
+                          final optionLabel = String.fromCharCode(
+                            65 + ind,
+                          ); // A, B, C...
 
-                        return Obx(() {
-                          final isSelected =
-                              controller.check[index]()[options[ind]] ?? false;
+                          return Obx(() {
+                            final isSelected =
+                                controller.check[index]()[options[ind]] ??
+                                false;
 
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            child: Card(
-                              color: isSelected
-                                  ? AppColor.DeepPurple2
-                                  : Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: BorderSide(
-                                  color: isSelected
-                                      ? AppColor.DeepPurple
-                                      : Colors.grey.withOpacity(0.3),
-                                  width: 1.5,
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              child: Card(
+                                color: isSelected
+                                    ? AppColor.DeepPurple2
+                                    : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: isSelected
+                                        ? AppColor.DeepPurple
+                                        : Colors.grey.withOpacity(0.3),
+                                    width: 1.5,
+                                  ),
                                 ),
-                              ),
-                              elevation: isSelected ? 4 : 1,
-                              child: ListTile(
-                                onTap: () {
-                                  controller.itemChange(options[ind], index);
-                                },
-                                leading: CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor:
-                                  isSelected ? AppColor.DeepPurple : Colors.grey[300],
-                                  child: isSelected
-                                      ? const Icon(Icons.check, color: Colors.white, size: 16)
-                                      : Text(
-                                    optionLabel,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
+                                elevation: isSelected ? 4 : 1,
+                                child: ListTile(
+                                  onTap: () {
+                                    controller.itemChange(options[ind], index);
+                                  },
+                                  leading: CircleAvatar(
+                                    radius: 14,
+                                    backgroundColor: isSelected
+                                        ? AppColor.DeepPurple
+                                        : Colors.grey[300],
+                                    child: isSelected
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 16,
+                                          )
+                                        : Text(
+                                            optionLabel,
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                  ),
+                                  title: Text(
+                                    options[ind],
+                                    textAlign: TextAlign.right,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: isSelected
+                                          ? AppColor.DeepPurple
+                                          : Colors.black,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                 ),
-                                title: Text(
-                                  options[ind],
-                                  textAlign: TextAlign.right,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: isSelected
-                                        ? AppColor.DeepPurple
-                                        : Colors.black,
-                                    fontWeight:
-                                    isSelected ? FontWeight.w600 : FontWeight.normal,
-                                  ),
-                                ),
                               ),
+                            );
+                          });
+                        },
+                      )
+                    else
+                      TextField(
+                        onChanged: (value) {
+                          controller.check[index]()["answer$index"] = value;
+                        },
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 8,
+                        decoration: InputDecoration(
+                          hintText: "أدخل الجواب",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(
+                              color: AppColor.DeepPurple,
+                              width: 1.5,
                             ),
-                          );
-                        });
-                      },
-                    )
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide(
+                              color: AppColor.DeepPurple,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
 
-                  else
-                    TextField(
-                      onChanged: (value) {
-                        controller.check[index]()["answer$index"] = value;
+            // أزرار السابق / التالي / إنهاء الامتحان
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  if (index == controller.questionlist.length - 1)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColor.SecondryColor,
+                        padding: EdgeInsets.symmetric(
+                          vertical: responsiveValue(
+                            context: context,
+                            mobile: 12,
+                            tablet: 20,
+                          ),
+                          horizontal: responsiveValue(
+                            context: context,
+                            mobile: 20,
+                            tablet: 40,
+                          ),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        controller.submit();
                       },
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 8,
-                      decoration: InputDecoration(
-                        hintText: "أدخل الجواب",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                          BorderSide(color: AppColor.DeepPurple, width: 1.5),
+                      child: const Text(
+                        'إنهاء ',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.BackGround2,
+                      padding: EdgeInsets.symmetric(
+                        vertical: responsiveValue(
+                          context: context,
+                          mobile: 12,
+                          tablet: 20,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide:
-                          BorderSide(color: AppColor.DeepPurple, width: 2),
+                        horizontal: responsiveValue(
+                          context: context,
+                          mobile: 20,
+                          tablet: 40,
                         ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: index == 0 ? null : controller.previousQuestion,
+                    child: Text(
+                      'السابق',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                  ),
+                  if (index < controller.questionlist.length - 1)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: responsiveValue(
+                            context: context,
+                            mobile: 12,
+                            tablet: 20,
+                          ),
+                          horizontal: responsiveValue(
+                            context: context,
+                            mobile: 20,
+                            tablet: 40,
+                          ),
+                        ),
+                        foregroundColor: Colors.white,
+                        backgroundColor: AppColor.SecondryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: index == controller.questionlist.length - 1
+                          ? null
+                          : controller.nextQuestion,
+                      child: const Text(
+                        'التالي',
+                        style: TextStyle(fontSize: 16),
                       ),
                     ),
                 ],
               ),
             ),
-          ),
-
-          // أزرار السابق / التالي / إنهاء الامتحان
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            color: Colors.white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                if (index == controller.questionlist.length - 1)
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: AppColor.SecondryColor,
-                      padding: EdgeInsets.symmetric(
-                        vertical: responsiveValue(context: context, mobile: 12, tablet: 20),
-                        horizontal: responsiveValue(context: context, mobile: 20, tablet: 40),
-                      ),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed: () {
-                      controller.submit();
-                    },
-                    child: const Text('إنهاء ', style: TextStyle(fontSize: 16)),
-                  ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.BackGround2,
-                    padding: EdgeInsets.symmetric(
-                      vertical: responsiveValue(context: context, mobile: 12, tablet: 20),
-                      horizontal: responsiveValue(context: context, mobile: 20, tablet: 40),
-                    ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                  onPressed: index == 0 ? null : controller.previousQuestion,
-                  child: Text('السابق',
-                      style:
-                      TextStyle(fontSize: 16, color: Colors.white)),
-                ),
-                if (index < controller.questionlist.length - 1)
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(
-                        vertical: responsiveValue(context: context, mobile: 12, tablet: 20),
-                        horizontal: responsiveValue(context: context, mobile: 20, tablet: 40),
-                      ),
-                      foregroundColor: Colors.white,
-                      backgroundColor: AppColor.SecondryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed: index == controller.questionlist.length - 1
-                        ? null
-                        : controller.nextQuestion,
-                    child: const Text('التالي', style: TextStyle(fontSize: 16)),
-                  ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   List<Widget> _buildSectionContent(int index) {
@@ -720,11 +775,15 @@ class StartExam extends GetView<StartExamControllerss> {
                   padding: const EdgeInsets.all(7.0),
                   child: Text(
                     section.content.toString(),
-                    textAlign: controller.questionlist[index].lesson!.isEnglish == '1'
+                    textAlign:
+                        controller.questionlist[index].lesson!.isEnglish == '1'
                         ? TextAlign.left
                         : TextAlign.right,
                     style: const TextStyle(
-                        color: Colors.black, fontSize: 15, fontWeight: FontWeight.w600),
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -739,8 +798,10 @@ class StartExam extends GetView<StartExamControllerss> {
                 radius: 20,
                 backgroundColor: AppColor.BackGround2,
                 child: IconButton(
-                  icon: Icon(controller.isplaying[index] ? Icons.stop : Icons.play_arrow,
-                      color: Colors.white),
+                  icon: Icon(
+                    controller.isplaying[index] ? Icons.stop : Icons.play_arrow,
+                    color: Colors.white,
+                  ),
                   onPressed: () async {
                     if (controller.isplaying[index]) {
                       controller.isplaying[index](false);
@@ -754,19 +815,23 @@ class StartExam extends GetView<StartExamControllerss> {
                   },
                 ),
               ),
-              Obx(() => Expanded(
-                child: Slider(
-                  activeColor: AppColor.BackGround2,
-                  inactiveColor: Colors.grey,
-                  value: double.parse(controller.positions[index].toString()),
-                  min: 0,
-                  max: double.parse(controller.durations[index].toString()),
-                  onChanged: (value) async {
-                    controller.positions()[index] = value;
-                    await controller.player.seek(Duration(milliseconds: value.toInt()));
-                  },
+              Obx(
+                () => Expanded(
+                  child: Slider(
+                    activeColor: AppColor.BackGround2,
+                    inactiveColor: Colors.grey,
+                    value: double.parse(controller.positions[index].toString()),
+                    min: 0,
+                    max: double.parse(controller.durations[index].toString()),
+                    onChanged: (value) async {
+                      controller.positions()[index] = value;
+                      await controller.player.seek(
+                        Duration(milliseconds: value.toInt()),
+                      );
+                    },
+                  ),
                 ),
-              )),
+              ),
             ],
           ),
         ];

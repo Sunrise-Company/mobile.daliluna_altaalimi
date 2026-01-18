@@ -31,6 +31,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   String? _localVideoPath;
   bool _isFetchingQualities = false;
   bool _embedErrorDetected = false;
+  String? _videoTitle;
 
   BetterPlayerController? _betterPlayerController;
   late final WebViewController _webViewController;
@@ -123,6 +124,14 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
     final yt = ytd.YoutubeExplode();
     try {
+      // جلب معلومات الفيديو (بما في ذلك العنوان) في الخلفية
+      yt.videos
+          .get(widget.videoId)
+          .then((video) {
+            if (mounted) setState(() => _videoTitle = video.title);
+          })
+          .catchError((_) {});
+
       final manifest = await yt.videos.streamsClient.getManifest(
         widget.videoId,
         ytClients: [YoutubeApiClient.safari, YoutubeApiClient.androidVr],
@@ -175,7 +184,11 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     );
 
     if (selectedOption != null) {
-      await _downloadService.startDownload(widget.videoId, selectedOption);
+      await _downloadService.startDownload(
+        widget.videoId,
+        selectedOption,
+        videoName: _videoTitle,
+      );
     }
   }
 
@@ -348,18 +361,16 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: const Text(
-          'Are you sure you want to delete this video from your device?',
-        ),
+        title: const Text('تأكيد الحذف'),
+        content: const Text('هل أنت متأكد أنك تريد حذف هذا الفيديو من جهازك؟'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('إلغاء'),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: const Text('حذف'),
           ),
         ],
       ),
@@ -371,9 +382,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       final localPath = await _getLocalFilePath();
       await File(localPath).delete();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Video deleted successfully.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('تم حذف الفيديو بنجاح.')));
         setState(() {
           _isLoading = true;
           _localVideoPath = null;
