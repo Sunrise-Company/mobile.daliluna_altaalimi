@@ -5,7 +5,6 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/lessondetails_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:daliluna_altaalimi/view/widget/customreadmore.dart';
 import 'package:daliluna_altaalimi/view/widget/customtitle.dart';
 import 'package:daliluna_altaalimi/view/widget/customwidgetteacher.dart';

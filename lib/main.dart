@@ -31,6 +31,7 @@ void main() async {
   // Log Flutter errors instead of showing them
   FlutterError.onError = (FlutterErrorDetails details) {
     debugPrint("Flutter Framework Error: ${details.exception}");
+    debugPrint("مكان الخطأ (Stack trace):\n${details.stack}");
   };
 
   Get.put(BreadcrumbService()); // Initialize BreadcrumbService
@@ -102,7 +103,7 @@ void main() async {
     final downloadService = DownloadService.instance;
     await downloadService.initNotifications();
     await downloadService.restorePendingDownloads();
-    
+
     // تهيئة خدمة التحميل في الخلفية
     await BackgroundDownloadService.initialize();
   } catch (e) {

@@ -580,7 +580,7 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-
+        log(response.body);
         if (data['status'] == true) {
           Get.snackbar(
             "تم تسجيل الدخول بنجاح",

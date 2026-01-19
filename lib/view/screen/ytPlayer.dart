@@ -162,8 +162,33 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
       if (mounted) setState(() => _prefetchedQualities = options);
     } catch (e) {
-      // Ignore errors related to fetching download options (e.g. VideoUnavailableException due to VPN)
-      // to prevent the app from crashing.
+      // معالجة الأخطاء مع عرض معلومات مفيدة
+      debugPrint('Error fetching download options for ${widget.videoId}: $e');
+
+      if (mounted) {
+        String errorMessage = 'لا يمكن تحميل هذا الفيديو';
+
+        // تخصيص الرسالة حسب نوع الخطأ
+        if (e.toString().contains('VideoUnplayableException')) {
+          errorMessage = 'هذا الفيديو غير متاح للتشغيل';
+        } else if (e.toString().contains('VideoUnavailableException')) {
+          errorMessage = 'هذا الفيديو غير متاح (قد يكون محذوفاً أو خاصاً)';
+        } else if (e.toString().contains('VideoRequiresPurchaseException')) {
+          errorMessage = 'هذا الفيديو يتطلب شراء';
+        } else if (e.toString().contains('SocketException') ||
+            e.toString().contains('TimeoutException')) {
+          errorMessage = 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى';
+        }
+
+        // عرض الخطأ للمستخدم
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isFetchingQualities = false);
       yt.close();
@@ -174,7 +199,12 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     if (_prefetchedQualities == null || _prefetchedQualities!.isEmpty) {
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not fetch download options.')),
+          const SnackBar(
+            content: Text(
+              'لا يمكن تحميل هذا الفيديو. حاول إعادة تشغيل الفيديو.',
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       return;
     }

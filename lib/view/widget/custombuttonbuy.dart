@@ -17,11 +17,12 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  final GlobalKey _buttonKey = GlobalKey();
+  late final GlobalKey _buttonKey;
 
   @override
   void initState() {
     super.initState();
+    _buttonKey = GlobalKey(debugLabel: 'button_${identityHashCode(this)}');
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),

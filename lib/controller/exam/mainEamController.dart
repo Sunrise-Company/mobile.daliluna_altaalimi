@@ -155,13 +155,7 @@ class MainExamControllerss extends GetxController {
         final responseData = jsonDecode(response.body);
 
         dataListExam.value = responseData['exams'];
-        print(
-          "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m",
-        );
 
-        print(
-          "dataListExaacademyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3academyv3m",
-        );
         update();
       } else {
         throw Exception('Failed to load exam/');

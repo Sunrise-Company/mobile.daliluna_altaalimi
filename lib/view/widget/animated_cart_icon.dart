@@ -24,11 +24,12 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  final GlobalKey _iconKey = GlobalKey();
+  late final GlobalKey _iconKey;
 
   @override
   void initState() {
     super.initState();
+    _iconKey = GlobalKey(debugLabel: 'icon_${identityHashCode(this)}');
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
