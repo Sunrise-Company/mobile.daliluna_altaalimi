@@ -11,6 +11,7 @@ import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 
+
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
@@ -396,7 +397,9 @@ class OurCoursesPage extends GetView<OurCoursesController> {
             mobile: 56,
             tablet: 80,
           ),
-          child: BasketWidget(heroTag: "eight"),
+          child: BasketWidget(
+            heroTag: "eight",
+          ),
         ),
       ),
     );

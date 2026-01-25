@@ -93,6 +93,7 @@ class ApiService {
     final response = await http.get(
       Uri.parse(AppLink.myclasses + '/' + student_id.toString()),
     );
+    log(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> data = json.decode(response.body);
       List<dynamic>? classData = data['classes'];

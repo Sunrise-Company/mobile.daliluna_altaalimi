@@ -112,6 +112,7 @@ class CustomCard extends StatelessWidget {
   final String? nameImage;
   final void Function()? onTap;
   final String? subtitle;
+  final Widget? subtitleWidget;
 
   const CustomCard({
     super.key,
@@ -119,6 +120,7 @@ class CustomCard extends StatelessWidget {
     required this.onTap,
     this.nameImage,
     this.subtitle,
+    this.subtitleWidget,
   });
 
   @override
@@ -144,19 +146,20 @@ class CustomCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
           ),
           child: ListTile(
-            subtitle: subtitle != null
-                ? Text(
-                    subtitle!,
-                    style: TextStyle(
-                      color: AppColor.grey,
-                      fontSize: getValueForScreenType<double>(
-                        context: context,
-                        mobile: 12,
-                        tablet: 16,
-                      ),
-                    ),
-                  )
-                : null,
+            subtitle: subtitleWidget ??
+                (subtitle != null
+                    ? Text(
+                        subtitle!,
+                        style: TextStyle(
+                          color: AppColor.grey,
+                          fontSize: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 12,
+                            tablet: 16,
+                          ),
+                        ),
+                      )
+                    : null),
             contentPadding: EdgeInsets.symmetric(
               horizontal: getValueForScreenType<double>(
                 context: context,

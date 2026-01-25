@@ -7,9 +7,7 @@ import 'package:daliluna_altaalimi/controller/viewlesson_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/screen/pdfs.dart';
 import 'package:daliluna_altaalimi/view/screen/vedioswithoutappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../widget/GetValueForScreen.dart';
 
 class ViewLesson extends StatelessWidget {

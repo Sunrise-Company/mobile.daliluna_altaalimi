@@ -4,7 +4,10 @@ import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
 import 'package:daliluna_altaalimi/data/model/breadcrumb_model.dart';
 
+import 'package:flutter/widgets.dart';
+
 class HomeController extends GetxController {
+  final GlobalKey cartKey = GlobalKey();
   List<dynamic> cities = [];
   bool isLoadingCities = false;
   String? citiesError;

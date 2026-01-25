@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 // import 'package:gradients/gradients.dart';
 import 'package:daliluna_altaalimi/controller/viewlesson_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:shimmer/shimmer.dart';

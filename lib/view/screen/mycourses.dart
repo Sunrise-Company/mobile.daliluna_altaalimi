@@ -285,17 +285,94 @@ class MyCourses extends StatelessWidget {
                           child: FadeInAnimation(
                             child: CustomCard(
                               text: controller.myClassess[index]['name'],
-                              subtitle:
-                                  controller
-                                          .myClassess[index]['institute_name'] !=
-                                      null
-                                  ? controller
-                                        .myClassess[index]['institute_name']
-                                  : (controller.myClassess[index]['institute'] !=
-                                            null
-                                        ? controller
-                                              .myClassess[index]['institute']['name']
-                                        : null),
+                              subtitleWidget: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (controller
+                                              .myClassess[index]['institute_name'] !=
+                                          null ||
+                                      controller
+                                              .myClassess[index]['institute'] !=
+                                          null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.school_outlined,
+                                            size: getValueForScreenType<double>(
+                                              context: context,
+                                              mobile: 14,
+                                              tablet: 18,
+                                            ),
+                                            color: AppColor.grey,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            controller
+                                                    .myClassess[index]['institute_name'] ??
+                                                controller
+                                                    .myClassess[index]['institute']['name'] ??
+                                                '',
+                                            style: TextStyle(
+                                              color: AppColor.grey,
+                                              fontSize:
+                                                  getValueForScreenType<double>(
+                                                    context: context,
+                                                    mobile: 12,
+                                                    tablet: 16,
+                                                  ),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  if (controller
+                                              .myClassess[index]['institute'] !=
+                                          null &&
+                                      controller
+                                              .myClassess[index]['institute']['address'] !=
+                                          null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.location_on_outlined,
+                                            size: getValueForScreenType<double>(
+                                              context: context,
+                                              mobile: 14,
+                                              tablet: 18,
+                                            ),
+                                            color: AppColor.grey,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Expanded(
+                                            child: Text(
+                                              controller
+                                                  .myClassess[index]['institute']['address'],
+                                              style: TextStyle(
+                                                color: AppColor.grey,
+                                                fontSize:
+                                                    getValueForScreenType<
+                                                      double
+                                                    >(
+                                                      context: context,
+                                                      mobile: 11,
+                                                      tablet: 15,
+                                                    ),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
                               onTap: () {
                                 controller.goToMySubjects(
                                   controller.myClassess[index]['id'],

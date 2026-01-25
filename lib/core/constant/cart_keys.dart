@@ -23,5 +23,6 @@ class CartAnimationKeys {
   static GlobalKey get sectionSelected => getKeyForScreen('sectionselected');
   static GlobalKey get sectionsSubject => getKeyForScreen('sectionssubject');
   static GlobalKey get lessons => getKeyForScreen('lessons');
-  static GlobalKey get home => getKeyForScreen('home');
+
+  static GlobalKey get ourCourses => getKeyForScreen('ourcourses');
 }

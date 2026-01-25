@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/home_controller.dart';
-import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
+
 import 'package:daliluna_altaalimi/controller/ourcourses_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/constant/imageasset.dart';
@@ -1012,7 +1012,6 @@ class Home extends GetView<HomeController> {
             ),
             child: BasketWidget(
               heroTag: 'one',
-              customKey: CartAnimationKeys.home,
             ),
           ),
         ),
