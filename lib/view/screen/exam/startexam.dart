@@ -1,397 +1,3 @@
-// import 'dart:convert';
-//
-// import 'package:audioplayers/audioplayers.dart';
-// import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-//
-// import '../../../controller/exam/startExamController.dart';
-// import '../../../core/constant/color.dart';
-// import '../../../linkapi.dart';
-//
-// class StartExam extends GetView<StartExamControllerss> {
-//   int type;
-//   int index;
-//   dynamic ckechid;
-//   final yourScrollController = ScrollController();
-//   final yourScrollController2 = ScrollController();
-//
-//   StartExam({required this.type, required this.index, required this.ckechid});
-//   @override
-//   Widget build(BuildContext context) {
-//     final List<dynamic> options;
-//     String answer;
-//     if (type == 1) {
-//       options = jsonDecode(
-//           controller.questionlist[index].option!.myOptions.toString());
-//     } else {
-//       options = [];
-//     }
-//
-//     MediaQueryData queryData;
-//
-//     queryData = MediaQuery.of(context);
-//     var width = queryData.size.width;
-//     return Obx(() => SafeArea(
-//           child: SingleChildScrollView(
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.start,
-//               children: [
-//                 Padding(
-//                     padding: const EdgeInsets.all(10),
-//                     child: Scrollbar(
-//                         controller: yourScrollController2,
-//                         radius: Radius.circular(8),
-//                         thickness: 6,
-//                         scrollbarOrientation: ScrollbarOrientation.right,
-//                         thumbVisibility: true,
-//                         child: SingleChildScrollView(
-//                           controller: yourScrollController2,
-//                           physics: ScrollPhysics(),
-//                           scrollDirection: Axis.vertical,
-//                           child: Column(
-//                             children: [
-//                               controller.questionlist[index].section == null
-//                                   ? Text("")
-//                                   : controller.questionlist[index].section!
-//                                               .type ==
-//                                           0
-//                                       ? SizedBox(
-//                                           height: 100,
-//                                           child: Scrollbar(
-//                                             controller: yourScrollController,
-//                                             radius: Radius.circular(8),
-//                                             thickness: 6,
-//                                             thumbVisibility: true,
-//                                             child: SingleChildScrollView(
-//                                               controller: yourScrollController,
-//                                               child: Padding(
-//                                                 padding: EdgeInsets.all(7.0),
-//                                                 child: Container(
-//                                                   width: double.infinity,
-//                                                   child: controller
-//                                                               .questionlist[
-//                                                                   index]
-//                                                               .lesson!
-//                                                               .isEnglish ==
-//                                                           '1'
-//                                                       ? Text(
-//                                                           controller
-//                                                               .questionlist[
-//                                                                   index]
-//                                                               .section!
-//                                                               .content
-//                                                               .toString(),
-//                                                           textAlign:
-//                                                               TextAlign.left,
-//                                                           style: TextStyle(
-//                                                               color:
-//                                                                   Colors.black,
-//                                                               fontSize: 15,
-//                                                               fontWeight:
-//                                                                   FontWeight
-//                                                                       .w600),
-//                                                         )
-//                                                       : Text(
-//                                                           controller
-//                                                               .questionlist[
-//                                                                   index]
-//                                                               .section!
-//                                                               .content
-//                                                               .toString(),
-//                                                           textAlign:
-//                                                               TextAlign.right,
-//                                                           style: TextStyle(
-//                                                               color:
-//                                                                   Colors.black,
-//                                                               fontSize: 15,
-//                                                               fontWeight:
-//                                                                   FontWeight
-//                                                                       .w600),
-//                                                         ),
-//                                                 ),
-//                                               ),
-//                                             ),
-//                                           ),
-//                                         )
-//                                       : controller.questionlist[index].section!
-//                                                   .type ==
-//                                               3
-//                                           ? SizedBox(
-//                                               height: 250,
-//                                               child: Scrollbar(
-//                                                   controller:
-//                                                       yourScrollController,
-//                                                   radius: Radius.circular(8),
-//                                                   thickness: 6,
-//                                                   thumbVisibility: true,
-//                                                   child: SingleChildScrollView(
-//                                                       controller:
-//                                                           yourScrollController,
-//                                                       child: Image.network(
-//                                                         AppLink.image +
-//                                                             controller
-//                                                                 .questionlist[
-//                                                                     index]
-//                                                                 .section!
-//                                                                 .content
-//                                                                 .toString(),
-//                                                       ))))
-//                                           : controller.questionlist[index]
-//                                                       .section?.type ==
-//                                                   2
-//                                               ? Row(
-//                                                   children: [
-//                                                     CircleAvatar(
-//                                                       radius: 20,
-//                                                       backgroundColor:
-//                                                           AppColor.BackGround2,
-//                                                       child: IconButton(
-//                                                           icon: Icon(
-//                                                             controller.isplaying[
-//                                                                         index] ==
-//                                                                     true
-//                                                                 ? Icons.stop
-//                                                                 : Icons
-//                                                                     .play_arrow,
-//                                                             color: Colors.white,
-//                                                           ),
-//                                                           onPressed: () async {
-//                                                             if (controller
-//                                                                         .isplaying[
-//                                                                     index] ==
-//                                                                 true) {
-//                                                               controller
-//                                                                       .isplaying[
-//                                                                   index](false);
-//                                                               await controller
-//                                                                   .player
-//                                                                   .pause();
-//                                                             } else {
-//                                                               controller
-//                                                                       .isplaying[
-//                                                                   index](true);
-//                                                               await controller.player.play(UrlSource(AppLink
-//                                                                       .image +
-//                                                                   controller
-//                                                                       .questionlist[
-//                                                                           index]
-//                                                                       .section!
-//                                                                       .content
-//                                                                       .toString()));
-//                                                             }
-//                                                           }),
-//                                                     ),
-//                                                     Obx(
-//                                                       () {
-//                                                         return Slider(
-//                                                           activeColor: AppColor
-//                                                               .BackGround2,
-//                                                           inactiveColor:
-//                                                               Colors.grey,
-//                                                           value: double.parse(
-//                                                               controller
-//                                                                   .positions[
-//                                                                       index]
-//                                                                   .toString()),
-//                                                           min: 0,
-//                                                           max: double.parse(
-//                                                               controller
-//                                                                   .durations[
-//                                                                       index]
-//                                                                   .toString()),
-//                                                           onChanged:
-//                                                               (Value) async {
-//                                                             controller
-//                                                                     .positions()[
-//                                                                 index] = Value;
-//
-//                                                             await controller
-//                                                                 .player
-//                                                                 .seek(Duration(
-//                                                                     milliseconds:
-//                                                                         Value
-//                                                                             .toInt()));
-//                                                           },
-//                                                         );
-//                                                       },
-//                                                     )
-//                                                   ],
-//                                                 )
-//                                               : Text(""),
-//                               SizedBox(
-//                                 height: 15,
-//                               ),
-//                               Text(
-//                                 controller.questionlist[index].questionForm
-//                                         .toString() +
-//                                     "؟",
-//                                 style: TextStyle(
-//                                     color: Colors.black,
-//                                     fontSize: 17,
-//                                     fontWeight: FontWeight.w600),
-//                               ),
-//                               type == 1
-//                                   ? ListView.builder(
-//                                       scrollDirection: Axis.vertical,
-//                                       physics: ScrollPhysics(
-//                                           parent: ScrollPhysics()),
-//                                       shrinkWrap: true,
-//                                       itemCount: options.length,
-//                                       itemBuilder: (context, ind) {
-//                                         return Obx(() {
-//                                           final isSelected = controller.check[
-//                                                   index]()[options[ind]] ??
-//                                               false;
-//                                           return Container(
-//                                             height: 60,
-//                                             decoration: BoxDecoration(
-//                                               borderRadius:
-//                                                   BorderRadius.circular(15),
-//                                             ),
-//                                             child: Card(
-//                                               shape: RoundedRectangleBorder(
-//                                                 borderRadius:
-//                                                     BorderRadius.circular(15),
-//                                               ),
-//                                               child: CheckboxListTile(
-//                                                   value: isSelected,
-//                                                   onChanged: (newValue) {
-//                                                     controller.itemChange(
-//                                                         options[ind], index);
-//                                                   },
-//                                                   title: Text(
-//                                                     options[ind],
-//                                                     style: TextStyle(
-//                                                         fontSize: 15,
-//                                                         fontWeight:
-//                                                             FontWeight.w400),
-//                                                   ),
-//                                                   controlAffinity:
-//                                                       ListTileControlAffinity
-//                                                           .leading,
-//                                                   activeColor:
-//                                                       AppColor.DeepPurple),
-//                                             ),
-//                                           );
-//                                         });
-//                                       },
-//                                     )
-//                                   : TextField(
-//                                       onChanged: (value) {
-//                                         controller.check[index]()[
-//                                             "answer$index"] = value;
-//                                         print(controller
-//                                             .check[index]()["answer$index"]);
-//                                       },
-//                                       keyboardType: TextInputType.multiline,
-//                                       maxLines: 8,
-//                                       decoration: InputDecoration(
-//                                         hintText: "أدخل الجواب",
-//                                         hintStyle: TextStyle(
-//                                             fontFamily: "Cairo-",
-//                                             color: Colors.black),
-//                                         errorBorder: OutlineInputBorder(
-//                                           borderSide: BorderSide(
-//                                               color: AppColor.BackGround2,
-//                                               width: 1.5),
-//                                           borderRadius: BorderRadius.all(
-//                                               Radius.circular(15)),
-//                                         ),
-//                                         focusedErrorBorder: OutlineInputBorder(
-//                                           borderRadius: BorderRadius.all(
-//                                               Radius.circular(25)),
-//                                           borderSide: BorderSide(
-//                                               width: 1.5,
-//                                               color: AppColor.DeepPurple),
-//                                         ),
-//                                         enabledBorder: OutlineInputBorder(
-//                                           borderRadius: BorderRadius.all(
-//                                               Radius.circular(15)),
-//                                           borderSide: new BorderSide(
-//                                               color: AppColor.DeepPurple,
-//                                               width: 1.5),
-//                                         ),
-//                                         focusedBorder: OutlineInputBorder(
-//                                           borderRadius: BorderRadius.all(
-//                                               Radius.circular(25)),
-//                                           borderSide: BorderSide(
-//                                               width: 1.5,
-//                                               color: AppColor.DeepPurple),
-//                                         ),
-//                                       ),
-//                                     ),
-//                             ],
-//                           ),
-//                         ))),
-//
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//                   children: [
-//                     if (index == controller.questionlist.length - 1)
-//                       ElevatedButton(
-//                         style: ElevatedButton.styleFrom(
-//                           foregroundColor: Colors.white,
-//                           backgroundColor: AppColor.DeepPurple,
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(5),
-//                           ),
-//                         ),
-//                         onPressed: () {
-//                           controller.submit();
-//                         },
-//                         child: Text(
-//                           'إنهاء الامتحان',
-//                           style: TextStyle(
-//                             fontSize: 17,
-//                           ),
-//                         ),
-//                       ),
-//                     ElevatedButton(
-//                       style: ElevatedButton.styleFrom(
-//                         // primary: ThirdColor,
-//                         backgroundColor: AppColor.BackGround2,
-//                         // onPrimary: Colors.white,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(5),
-//                         ),
-//                       ),
-//                       onPressed: index == 0
-//                           ? null
-//                           : () {
-//                               controller.previousQuestion();
-//                             },
-//                       child: Text('السابق',
-//                           style: TextStyle(
-//                               fontSize: 17, color: AppColor.DeepPurple)),
-//                     ),
-//                     if (index < controller.questionlist.length - 1)
-//                       ElevatedButton(
-//                         style: ElevatedButton.styleFrom(
-//                           foregroundColor: Colors.white,
-//                           backgroundColor: AppColor.DeepPurple,
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(5),
-//                             // side: BorderSide(
-//                             //   // color: Color.fromARGB(255, 131, 129, 129),
-//                             //   width: 2,
-//                             // ),
-//                           ),
-//                         ),
-//                         onPressed: index == controller.questionlist.length - 1
-//                             ? null
-//                             : () {
-//                                 controller.nextQuestion();
-//                               },
-//                         child: Text('التالي', style: TextStyle(fontSize: 17)),
-//                       ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ));
-//   }
-// }
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -407,403 +13,419 @@ class StartExam extends GetView<StartExamControllerss> {
   final dynamic ckechid;
 
   final yourScrollController = ScrollController();
-  final yourScrollController2 = ScrollController();
 
-  StartExam({required this.type, required this.index, required this.ckechid});
+  StartExam({Key? key, required this.type, required this.index, required this.ckechid})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Determine options based on type
     final List<dynamic> options = type == 1
-        ? jsonDecode(
-            controller.questionlist[index].option!.myOptions.toString(),
-          )
+        ? jsonDecode(controller.questionlist[index].option!.myOptions.toString())
         : [];
 
-    return Obx(
-      () => SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Obx(() {
+      // Accessing reactive variables to ensure rebuilds
+      // We also ensure this entire page rebuilds when data changes
+      return Scaffold(
+        backgroundColor: Colors.grey[50], // Light background for better contrast
+        body: SafeArea(
+          child: Column(
+            children: [
+              // 1. Header with Question Count
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // القسم / محتوى الصورة / الصوت
-                    if (controller.questionlist[index].section != null)
-                      ..._buildSectionContent(index),
-
-                    const SizedBox(height: 15),
-
-                    Text(
-                      controller.questionlist[index].questionForm.toString() +
-                          "؟",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: responsiveValue(
-                          context: context,
-                          mobile: 20,
-                          tablet: 30,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColor.DeepPurple.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "السؤال ${index + 1} من ${controller.questionlist.length}",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.DeepPurple,
                         ),
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
                       ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // الخيارات
-                    if (type == 1)
-                      // ListView.builder(
-                      //   shrinkWrap: true,
-                      //   physics: const NeverScrollableScrollPhysics(),
-                      //   itemCount: options.length,
-                      //   itemBuilder: (context, ind) {
-                      //     final isSelected =
-                      //         controller.check[index]()[options[ind]] ?? false;
-                      //     final optionLabel = String.fromCharCode(65 + ind); // A, B, C
-                      //     return Container(
-                      //       margin: const EdgeInsets.symmetric(vertical: 6),
-                      //       child: Card(
-                      //         color: isSelected
-                      //             ? AppColor.DeepPurple.withOpacity(0.1) // خلفية خفيفة عند التحديد
-                      //             : Colors.white, // اللون العادي
-                      //         shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(12),
-                      //           side: BorderSide(
-                      //             color: isSelected
-                      //                 ? AppColor.DeepPurple
-                      //                 : Colors.grey.withOpacity(0.3),
-                      //             width: 1.5,
-                      //           ),
-                      //         ),
-                      //         elevation: isSelected ? 4 : 1, // ظل بسيط للخيار المحدد
-                      //         child: ListTile(
-                      //           onTap: () {
-                      //             controller.itemChange(options[ind], index);
-                      //           },
-                      //           leading: CircleAvatar(
-                      //             radius: 14,
-                      //             backgroundColor:
-                      //             isSelected ? AppColor.DeepPurple : Colors.grey[300],
-                      //             child: isSelected
-                      //                 ? const Icon(Icons.check, color: Colors.white, size: 16)
-                      //                 : Text(
-                      //               optionLabel,
-                      //               style: const TextStyle(
-                      //                 color: Colors.black,
-                      //                 fontWeight: FontWeight.bold,
-                      //               ),
-                      //             ),
-                      //           ),
-                      //           title: Text(
-                      //             options[ind],
-                      //             textAlign: TextAlign.right,
-                      //             style: TextStyle(
-                      //               fontSize: 16,
-                      //               color: isSelected
-                      //                   ? AppColor.DeepPurple
-                      //                   : Colors.black, // تغيّر لون النص عند الاختيار
-                      //               fontWeight: isSelected
-                      //                   ? FontWeight.w600
-                      //                   : FontWeight.normal, // زيادة سماكة النص عند التحديد
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     );
-                      //
-                      //     // return Container(
-                      //     //   margin: const EdgeInsets.symmetric(vertical: 6),
-                      //     //   child: Card(
-                      //     //     shape: RoundedRectangleBorder(
-                      //     //       borderRadius: BorderRadius.circular(12),
-                      //     //       side: BorderSide(
-                      //     //         color: isSelected
-                      //     //             ? AppColor.DeepPurple
-                      //     //             : Colors.grey.withOpacity(0.3),
-                      //     //         width: 1.5,
-                      //     //       ),
-                      //     //     ),
-                      //     //     child: ListTile(
-                      //     //       onTap: () {
-                      //     //         controller.itemChange(options[ind], index);
-                      //     //       },
-                      //     //       leading: CircleAvatar(
-                      //     //         radius: 14,
-                      //     //         backgroundColor: isSelected
-                      //     //             ? AppColor.DeepPurple
-                      //     //             : Colors.grey[300],
-                      //     //         child: isSelected
-                      //     //             ? const Icon(Icons.check,
-                      //     //             color: Colors.white, size: 16)
-                      //     //             : Text(
-                      //     //           optionLabel,
-                      //     //           style: const TextStyle(
-                      //     //             color: Colors.black,
-                      //     //             fontWeight: FontWeight.bold,
-                      //     //           ),
-                      //     //         ),
-                      //     //       ),
-                      //     //       title: Text(
-                      //     //         options[ind],
-                      //     //         textAlign: TextAlign.right,
-                      //     //         style: const TextStyle(fontSize: 16),
-                      //     //       ),
-                      //     //     ),
-                      //     //   ),
-                      //     // );
-                      //   },
-                      // )
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: options.length,
-                        itemBuilder: (context, ind) {
-                          final optionLabel = String.fromCharCode(
-                            65 + ind,
-                          ); // A, B, C...
-
-                          return Obx(() {
-                            final isSelected =
-                                controller.check[index]()[options[ind]] ??
-                                false;
-
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-                              child: Card(
-                                color: isSelected
-                                    ? AppColor.DeepPurple2
-                                    : Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(
-                                    color: isSelected
-                                        ? AppColor.DeepPurple
-                                        : Colors.grey.withOpacity(0.3),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                elevation: isSelected ? 4 : 1,
-                                child: ListTile(
-                                  onTap: () {
-                                    controller.itemChange(options[ind], index);
-                                  },
-                                  leading: CircleAvatar(
-                                    radius: 14,
-                                    backgroundColor: isSelected
-                                        ? AppColor.DeepPurple
-                                        : Colors.grey[300],
-                                    child: isSelected
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.white,
-                                            size: 16,
-                                          )
-                                        : Text(
-                                            optionLabel,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                  ),
-                                  title: Text(
-                                    options[ind],
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: isSelected
-                                          ? AppColor.DeepPurple
-                                          : Colors.black,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          });
-                        },
-                      )
-                    else
-                      TextField(
-                        onChanged: (value) {
-                          controller.check[index]()["answer$index"] = value;
-                        },
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 8,
-                        decoration: InputDecoration(
-                          hintText: "أدخل الجواب",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: AppColor.DeepPurple,
-                              width: 1.5,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(15),
-                            borderSide: BorderSide(
-                              color: AppColor.DeepPurple,
-                              width: 2,
-                            ),
-                          ),
-                        ),
-                      ),
+                    // Optional: You could add a timer here if available in controller
                   ],
                 ),
               ),
-            ),
 
-            // أزرار السابق / التالي / إنهاء الامتحان
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              color: Colors.white,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  if (index == controller.questionlist.length - 1)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColor.SecondryColor,
-                        padding: EdgeInsets.symmetric(
-                          vertical: responsiveValue(
-                            context: context,
-                            mobile: 12,
-                            tablet: 20,
+              // 2. Main Content Area
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Section Content (Image, Audio, Passage)
+                      if (controller.questionlist[index].section != null)
+                        _buildSectionContainer(index),
+
+                      const SizedBox(height: 20),
+
+                      // Question Text Card
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              offset: const Offset(0, 4),
+                              blurRadius: 16,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          controller.questionlist[index].questionForm.toString() + "؟",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: responsiveValue(
+                              context: context,
+                              mobile: 18,
+                              tablet: 24,
+                            ),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            height: 1.4,
                           ),
-                          horizontal: responsiveValue(
-                            context: context,
-                            mobile: 20,
-                            tablet: 40,
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Options Header
+                      if (type == 1)
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 15, right: 8),
+                          child: Text(
+                            "اختر الإجابة الصحيحة:",
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54,
+                            ),
                           ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+
+                      // Options List or Text Field
+                      if (type == 1)
+                        ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: options.length,
+                          separatorBuilder: (context, i) => const SizedBox(height: 12),
+                          itemBuilder: (context, ind) {
+                            final optionLabel = String.fromCharCode(65 + ind); // A, B, C...
+
+                            return Obx(() {
+                              final isSelected = controller.check[index]()[options[ind]] ?? false;
+                              return Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    controller.itemChange(options[ind], index);
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    curve: Curves.easeInOut,
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColor.DeepPurple
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: isSelected
+                                            ? AppColor.DeepPurple
+                                            : Colors.grey.shade300,
+                                        width: isSelected ? 2 : 1.5,
+                                      ),
+                                      boxShadow: isSelected
+                                          ? [
+                                              BoxShadow(
+                                                color: AppColor.DeepPurple.withOpacity(0.3),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 4),
+                                              )
+                                            ]
+                                          : [
+                                              BoxShadow(
+                                                color: Colors.grey.withOpacity(0.05),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
+                                              )
+                                            ],
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Option Label (A, B, C)
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? Colors.white.withOpacity(0.2)
+                                                : Colors.grey.shade100,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            optionLabel,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : Colors.grey.shade700,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        // Option Content
+                                        Expanded(
+                                          child: Text(
+                                            options[ind],
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w600
+                                                  : FontWeight.normal,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                        // Check Icon
+                                        if (isSelected) ...[
+                                          const SizedBox(width: 10),
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            });
+                          },
+                        )
+                      else
+                        TextField(
+                          onChanged: (value) {
+                            controller.check[index]()["answer$index"] = value;
+                          },
+                          keyboardType: TextInputType.multiline,
+                          maxLines: 6,
+                          style: const TextStyle(fontSize: 16),
+                          decoration: InputDecoration(
+                            hintText: "أدخل إجابتك هنا...",
+                            hintStyle: TextStyle(color: Colors.grey.shade400),
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.all(20),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(
+                                color: AppColor.DeepPurple,
+                                width: 2,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      onPressed: () {
-                        controller.submit();
-                      },
-                      child: const Text(
-                        'إنهاء ',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColor.BackGround2,
-                      padding: EdgeInsets.symmetric(
-                        vertical: responsiveValue(
-                          context: context,
-                          mobile: 12,
-                          tablet: 20,
-                        ),
-                        horizontal: responsiveValue(
-                          context: context,
-                          mobile: 20,
-                          tablet: 40,
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: index == 0 ? null : controller.previousQuestion,
-                    child: Text(
-                      'السابق',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                  if (index < controller.questionlist.length - 1)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: responsiveValue(
-                            context: context,
-                            mobile: 12,
-                            tablet: 20,
-                          ),
-                          horizontal: responsiveValue(
-                            context: context,
-                            mobile: 20,
-                            tablet: 40,
+                ),
+              ),
+
+              // 3. Bottom Navigation Bar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    if (index != 0)
+                      Expanded(
+                        child: SizedBox(
+                          height: 50,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: AppColor.DeepPurple, width: 1.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: controller.previousQuestion,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.arrow_forward_ios, size: 16, color: AppColor.DeepPurple),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'السابق',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColor.DeepPurple,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        foregroundColor: Colors.white,
-                        backgroundColor: AppColor.SecondryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      )
+                    else
+                      const Spacer(),
+
+                    const SizedBox(width: 16),
+
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 50,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.DeepPurple,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 4,
+                            shadowColor: AppColor.DeepPurple.withOpacity(0.4),
+                          ),
+                          onPressed: index == controller.questionlist.length - 1
+                              ? controller.submit
+                              : controller.nextQuestion,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                index == controller.questionlist.length - 1
+                                    ? 'إنهاء الامتحان'
+                                    : 'السؤال التالي',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              if (index != controller.questionlist.length - 1) ...[
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_back_ios, size: 16, color: Colors.white),
+                              ],
+                            ],
+                          ),
                         ),
-                      ),
-                      onPressed: index == controller.questionlist.length - 1
-                          ? null
-                          : controller.nextQuestion,
-                      child: const Text(
-                        'التالي',
-                        style: TextStyle(fontSize: 16),
                       ),
                     ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+      );
+    });
+  }
+
+  // Helper widget to wrap section content
+  Widget _buildSectionContainer(int index) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+         border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        children: _buildSectionContent(index),
       ),
     );
   }
 
+
   List<Widget> _buildSectionContent(int index) {
     final section = controller.questionlist[index].section!;
     switch (section.type) {
-      case 0: // نص
+      case 0: // Text Content
         return [
           SizedBox(
-            height: 100,
+            height: 150,
             child: Scrollbar(
               controller: yourScrollController,
               radius: const Radius.circular(8),
-              thickness: 6,
               thumbVisibility: true,
               child: SingleChildScrollView(
                 controller: yourScrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(7.0),
-                  child: Text(
-                    section.content.toString(),
-                    textAlign:
-                        controller.questionlist[index].lesson!.isEnglish == '1'
-                        ? TextAlign.left
-                        : TextAlign.right,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                child: Text(
+                  section.content.toString(),
+                  textAlign: controller.questionlist[index].lesson!.isEnglish == '1'
+                      ? TextAlign.left
+                      : TextAlign.right,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 16,
+                    height: 1.6,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
           ),
         ];
-      case 2: // صوت
+      case 2: // Audio Content
         return [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColor.BackGround2,
-                child: IconButton(
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColor.DeepPurple.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(15)
+            ),
+            child: Row(
+              children: [
+                IconButton(
+                  iconSize: 40,
                   icon: Icon(
-                    controller.isplaying[index] ? Icons.stop : Icons.play_arrow,
-                    color: Colors.white,
+                    controller.isplaying[index].value
+                        ? Icons.pause_circle_filled
+                        : Icons.play_circle_filled,
+                    color: AppColor.DeepPurple,
                   ),
                   onPressed: () async {
-                    if (controller.isplaying[index]) {
+                    if (controller.isplaying[index].value) {
                       controller.isplaying[index](false);
                       await controller.player.pause();
                     } else {
@@ -814,34 +436,46 @@ class StartExam extends GetView<StartExamControllerss> {
                     }
                   },
                 ),
-              ),
-              Obx(
-                () => Expanded(
-                  child: Slider(
-                    activeColor: AppColor.BackGround2,
-                    inactiveColor: Colors.grey,
-                    value: double.parse(controller.positions[index].toString()),
-                    min: 0,
-                    max: double.parse(controller.durations[index].toString()),
-                    onChanged: (value) async {
-                      controller.positions()[index] = value;
-                      await controller.player.seek(
-                        Duration(milliseconds: value.toInt()),
-                      );
-                    },
-                  ),
+                Expanded(
+                  child: Obx(() => SliderTheme(
+                    data: SliderTheme.of(Get.context!).copyWith(
+                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8),
+                      overlayShape: RoundSliderOverlayShape(overlayRadius: 16),
+                      activeTrackColor: AppColor.DeepPurple,
+                      thumbColor: AppColor.DeepPurple,
+                      inactiveTrackColor: Colors.grey[300],
+                    ),
+                    child: Slider(
+                      value: double.parse(controller.positions[index].toString()),
+                      min: 0,
+                      max: double.parse(controller.durations[index].toString()),
+                      onChanged: (val) async {
+                         controller.positions()[index] = val;
+                         // Optimization: No need to await seek for UI responsiveness usually, but kept for consistency
+                         await controller.player.seek(Duration(milliseconds: val.toInt()));
+                      },
+                    ),
+                  )),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ];
-      case 3: // صورة
+      case 3: // Image Content
         return [
-          SizedBox(
-            height: 250,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
             child: Image.network(
               AppLink.image + section.content.toString(),
               fit: BoxFit.contain,
+              height: 250,
+              width: double.infinity,
+              errorBuilder: (context, error, stackTrace) =>
+                  Container(
+                    height: 250,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                  ),
             ),
           ),
         ];

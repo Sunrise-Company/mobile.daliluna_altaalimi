@@ -53,23 +53,36 @@ class testPage extends StatelessWidget {
           () => controller.isloded.value
               ? Directionality(
                   textDirection: TextDirection.rtl,
-                  child: Stack(
+                  child: Column(
                     children: [
+                      // Progress Bar
+                      Obx(() => LinearProgressIndicator(
+                            value: controller.questionlist.isEmpty 
+                                ? 0 
+                                : (controller.activePage.value + 1) / controller.questionlist.length,
+                            backgroundColor: Colors.grey[100],
+                            minHeight: 6,
+                            valueColor: AlwaysStoppedAnimation<Color>(AppColor.SecondryColor),
+                          )),
+                      
                       // the page view
-                      PageView.builder(
-                        controller: controller.pageController,
-                        onPageChanged: (int page) {
-                          controller.isplaying[page](false);
-                          controller.player.stop();
-                          controller.positions.refresh();
-                          controller.positions[page] = 0;
-                          controller.activePage(page);
-                        },
-                        itemCount: controller.pages.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return controller.pages[index %
-                              controller.pages.length];
-                        },
+                      Expanded(
+                        child: PageView.builder(
+                          physics: const NeverScrollableScrollPhysics(), // Prevent swiping if we want to enforce button navigation
+                          controller: controller.pageController,
+                          onPageChanged: (int page) {
+                            controller.isplaying[page](false);
+                            controller.player.stop();
+                            controller.positions.refresh();
+                            controller.positions[page] = 0;
+                            // Update activePage when page changes
+                            controller.activePage(page);
+                          },
+                          itemCount: controller.pages.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return controller.pages[index % controller.pages.length];
+                          },
+                        ),
                       ),
                     ],
                   ),
