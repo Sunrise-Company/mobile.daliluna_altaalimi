@@ -1,10 +1,13 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:daliluna_altaalimi/controller/chatStudnet/RecoringController.dart';
+import 'package:daliluna_altaalimi/controller/chatStudnet/chat.dart';
+import 'package:daliluna_altaalimi/controller/homepage_controller.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideoPlayer.dart';
-import 'package:daliluna_altaalimi/controller/teacherController/homeTeacherController.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
+
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -13,145 +16,133 @@ import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:path/path.dart' as path;
-import '../../../controller/teacherController/chat/chatTeacherController.dart';
 import '../../../core/constant/color.dart';
 import '../../widget/GetValueForScreen.dart';
 
-class ChatPage extends GetView<ChatTeacherController> {
+// ignore: must_be_immutable
+class ChatStudent extends StatelessWidget {
+  ChatStudentMessageController chatController = Get.put(
+    ChatStudentMessageController(),
+  );
   final RecorderController recorderController = Get.put(RecorderController());
   final TextEditingController messageController = TextEditingController();
-  // ignore: unused_field
   File? _file;
-
+  ChatStudent({Key? key}) : super(key: key) {}
+  
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        try {
-          HomePageTeacherController homeController = Get.find();
-          homeController.changePage(0);
-          Get.offNamed('/homepageTeacher');
-        } catch (e) {
-          Get.back();
-        }
-        return false;
-      },
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          backgroundColor: Color(0xFFF5F7FA),
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(
-              getValueForScreenType<double>(
-                context: context,
-                mobile: 70,
-                tablet: 100,
-              ),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColor.DeepPurple,
-                    AppColor.PrimaryColor,
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColor.DeepPurple.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: AppBar(
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: Colors.white,
-                    size: responsiveValue(
-                      context: context,
-                      mobile: 20,
-                      tablet: 30,
-                    ),
-                  ),
-                  onPressed: () {
-                    try {
-                      HomePageTeacherController homeController = Get.find();
-                      homeController.changePage(0);
-                      Get.offNamed('/homepageTeacher');
-                    } catch (e) {
-                      Get.back();
-                    }
-                  },
-                ),
-                centerTitle: true,
-                title: Column(
-                  children: [
-                    Text(
-                      controller.name.toString(),
-                      style: TextStyle(
-                        fontSize: responsiveValue(
-                          context: context,
-                          mobile: 18,
-                          tablet: 32,
-                        ),
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'متاح الآن',
-                      style: TextStyle(
-                        fontSize: responsiveValue(
-                          context: context,
-                          mobile: 11,
-                          tablet: 18,
-                        ),
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+    chatController.message.value = '';
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: Color(0xFFF5F7FA),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(
+            getValueForScreenType<double>(
+              context: context,
+              mobile: 70,
+              tablet: 100,
             ),
           ),
-          body: Container(
+          child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFFF5F7FA),
-                  Color(0xFFE8EBF0),
+                  AppColor.DeepPurple,
+                  AppColor.PrimaryColor,
                 ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColor.DeepPurple.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: responsiveValue(
+                    context: context,
+                    mobile: 20,
+                    tablet: 30,
+                  ),
+                ),
+                onPressed: () => Get.back(),
+              ),
+              centerTitle: true,
+              title: Column(
+                children: [
+                  Text(
+                    chatController.studentName.toString(),
+                    style: TextStyle(
+                      fontSize: responsiveValue(
+                        context: context,
+                        mobile: 18,
+                        tablet: 32,
+                      ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'متاح الآن',
+                    style: TextStyle(
+                      fontSize: responsiveValue(
+                        context: context,
+                        mobile: 11,
+                        tablet: 18,
+                      ),
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
               ),
             ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Obx(() {
-                    return controller.isloded.value
-                        ? controller.dataList.isNotEmpty
+          ),
+        ),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFF5F7FA),
+                Color(0xFFE8EBF0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Column(
+            children: [
+              Expanded(
+                child: Obx(() {
+                  return chatController.isloded.value
+                      ? chatController.dataList.isNotEmpty
                             ? ListView.builder(
-                                controller: controller.scrollController,
+                                controller: chatController.scrollController,
                                 reverse: true,
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,
                                 ),
-                                itemCount: controller.dataList.length +
-                                    (controller.hasMoreData.value ? 1 : 0),
+                                itemCount:
+                                    chatController.dataList.length +
+                                    (chatController.hasMoreData.value ? 1 : 0),
                                 itemBuilder: (context, index) {
-                                  if (index == controller.dataList.length) {
+                                  if (index == chatController.dataList.length) {
                                     return Center(
                                       child: Padding(
                                         padding: EdgeInsets.all(8.0),
@@ -159,11 +150,12 @@ class ChatPage extends GetView<ChatTeacherController> {
                                       ),
                                     );
                                   }
-                                  final message = controller.dataList[index];
+                                  final message =
+                                      chatController.dataList[index];
                                   final bool isMe =
                                       message['sender_id'].toString() ==
-                                          controller.senderId.toString();
-
+                                      chatController.senderId.toString();
+                                  
                                   return _buildMessageBubble(
                                     context: context,
                                     message: message,
@@ -200,12 +192,11 @@ class ChatPage extends GetView<ChatTeacherController> {
                                   ],
                                 ),
                               )
-                        : Center(child: Loading());
-                  }),
-                ),
-                _buildInputArea(context),
-              ],
-            ),
+                      : Center(child: Loading());
+                }),
+              ),
+              _buildInputArea(context),
+            ],
           ),
         ),
       ),
@@ -217,9 +208,8 @@ class ChatPage extends GetView<ChatTeacherController> {
     required Map<String, dynamic> message,
     required bool isMe,
   }) {
-    final isLoading =
-        message.containsKey('isLoading') && message['isLoading'] == true;
-
+    final isLoading = message.containsKey('isLoading') && message['isLoading'] == true;
+    
     return AnimatedOpacity(
       opacity: isLoading ? 0.6 : 1.0,
       duration: Duration(milliseconds: 300),
@@ -231,9 +221,9 @@ class ChatPage extends GetView<ChatTeacherController> {
           right: isMe ? 8 : 60,
         ),
         child: Column(
-          crossAxisAlignment:
-              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
+            // Show sender name for received messages
             if (!isMe && message['sender_name'] != null)
               Padding(
                 padding: EdgeInsets.only(
@@ -298,35 +288,15 @@ class ChatPage extends GetView<ChatTeacherController> {
                     if (isLoading)
                       Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: CircularProgressIndicator(
-                                value: message['uploadProgress'] is double
-                                    ? message['uploadProgress']
-                                    : null,
-                                strokeWidth: 3,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  isMe ? Colors.white : AppColor.DeepPurple,
-                                ),
-                                backgroundColor:
-                                    isMe ? Colors.white24 : Colors.grey[200],
-                              ),
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              isMe ? Colors.white : AppColor.DeepPurple,
                             ),
-                            if (message['uploadProgress'] is double)
-                              Text(
-                                "${((message['uploadProgress'] as double) * 100).toInt()}%",
-                                style: TextStyle(
-                                  color:
-                                      isMe ? Colors.white : AppColor.DeepPurple,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                          ],
+                          ),
                         ),
                       ),
                     if (!isLoading) ...[
@@ -346,12 +316,9 @@ class ChatPage extends GetView<ChatTeacherController> {
                       if (message['m_file'] != null)
                         Padding(
                           padding: EdgeInsets.only(
-                            top: message['msg'] != null &&
-                                    message['msg'].isNotEmpty
-                                ? 8
-                                : 0,
+                            top: message['msg'] != null && message['msg'].isNotEmpty ? 8 : 0,
                           ),
-                          child: _buildFileWidget(message['m_file']),
+                          child: _buildFileWidget(message['m_file'], isMe),
                         ),
                       SizedBox(height: 6),
                       Row(
@@ -368,20 +335,18 @@ class ChatPage extends GetView<ChatTeacherController> {
                               color: isMe ? Colors.white70 : Colors.black45,
                             ),
                           ),
-                          if (isMe) ...[
+                          if (isMe && message['is_read'] != null) ...[
                             SizedBox(width: 4),
                             Icon(
-                              message['is_read'] == 1 ||
-                                      message['is_read'] == '1'
+                              message['is_read'] == 1
                                   ? Icons.done_all
-                                  : Icons.done,
+                                  : Icons.check,
                               size: responsiveValue(
                                 context: context,
                                 mobile: 14,
-                                tablet: 20,
+                                tablet: 18,
                               ),
-                              color: message['is_read'] == 1 ||
-                                      message['is_read'] == '1'
+                              color: message['is_read'] == 1
                                   ? Color(0xFF4FFFB0)
                                   : Colors.white70,
                             ),
@@ -438,10 +403,9 @@ class ChatPage extends GetView<ChatTeacherController> {
                             tablet: 22,
                           ),
                         ),
-                        minLines: 1,
-                        maxLines: 4,
+                        maxLines: null,
                         decoration: InputDecoration(
-                          hintText: 'اكتب رسالة...',
+                          hintText: 'اكتب رسالتك...',
                           hintStyle: TextStyle(
                             color: Colors.grey[400],
                             fontSize: responsiveValue(
@@ -453,7 +417,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 10,
+                            vertical: 12,
                           ),
                         ),
                       ),
@@ -463,7 +427,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                       children: [
                         _buildActionButton(
                           icon: Icons.photo_library,
-                          color: AppColor.DeepPurple,
+                          color: Color(0xFF6C63FF),
                           onPressed: () async {
                             await pickAndConfirmImage(context);
                           },
@@ -471,7 +435,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                         ),
                         _buildActionButton(
                           icon: Icons.attach_file,
-                          color: AppColor.DeepPurple,
+                          color: Color(0xFF00D4FF),
                           onPressed: () async {
                             await pickAndShowFileDialog(context);
                           },
@@ -484,7 +448,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                                 : Icons.mic,
                             color: recorderController.isRecording.value
                                 ? Colors.red
-                                : AppColor.DeepPurple,
+                                : Color(0xFFFF6584),
                             onPressed: () async {
                               if (!recorderController.isRecording.value) {
                                 await recorderController.startRecording();
@@ -507,8 +471,7 @@ class ChatPage extends GetView<ChatTeacherController> {
             Obx(() {
               return recorderController.isRecording.value
                   ? Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(20),
@@ -600,14 +563,14 @@ class ChatPage extends GetView<ChatTeacherController> {
         child: InkWell(
           onTap: () {
             if (messageController.text.isNotEmpty) {
-              controller.sendMessage(
+              chatController.sendMessage(
                 text: messageController.text,
-                receiverId: controller.receiverId.value,
+                receiverId: chatController.receiverId.value,
               );
               messageController.clear();
             }
           },
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(30),
           child: Container(
             width: responsiveValue(
               context: context,
@@ -637,41 +600,55 @@ class ChatPage extends GetView<ChatTeacherController> {
   void _showRecordingDialog(BuildContext context) {
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.all(16.0),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
         ),
+        padding: EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 40,
               height: 4,
-              margin: EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
+            SizedBox(height: 20),
+            Text(
+              'التسجيل الصوتي',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            SizedBox(height: 20),
             ListTile(
               leading: Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColor.PrimaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
+                  color: AppColor.DeepPurple.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.send, color: AppColor.DeepPurple),
+                child: Icon(
+                  Icons.send,
+                  color: AppColor.DeepPurple,
+                ),
               ),
               title: Text(
-                'إرسال التسجيل الصوتي',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                'إرسال التسجيل',
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: Text('سيتم إرسال التسجيل إلى المحادثة'),
               onTap: () {
                 if (recorderController.recordingPath.value.isNotEmpty) {
-                  controller.sendMessage(
-                    receiverId: controller.receiverId.value,
+                  chatController.sendMessage(
+                    receiverId: chatController.receiverId.value,
                     file: File(recorderController.recordingPath.value),
                   );
                   recorderController.deleteRecording();
@@ -679,117 +656,46 @@ class ChatPage extends GetView<ChatTeacherController> {
                 }
               },
             ),
-            SizedBox(height: 8),
             ListTile(
               leading: Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.red.withOpacity(0.1),
-                  shape: BoxShape.circle,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.delete, color: Colors.red),
+                child: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                ),
               ),
               title: Text(
                 'حذف التسجيل',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               onTap: () {
                 recorderController.deleteRecording();
                 Get.back();
               },
             ),
-            SizedBox(height: 10),
           ],
         ),
       ),
       backgroundColor: Colors.transparent,
+      isDismissible: true,
     );
   }
 
-  Future<void> pickAndConfirmImage(BuildContext context) async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-    );
+  Future<void> downloadAndOpenFile(String fileUrl, String name) async {
+    try {
+      String fileName = path.basename(fileUrl);
+      Directory tempDir = await getTemporaryDirectory();
+      String savePath = '${tempDir.path}/$fileName';
 
-    if (image != null) {
-      final File imageFile = File(image.path);
-      String fileName = image.name;
+      Dio dio = Dio();
+      await dio.download(fileUrl, savePath);
 
-      showDialog(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Row(
-              children: [
-                Icon(Icons.image, color: AppColor.DeepPurple),
-                SizedBox(width: 10),
-                Text(
-                  "تأكيد إرسال الصورة",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    imageFile,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  fileName,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                child: Text(
-                  "إلغاء",
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-                onPressed: () => Navigator.pop(ctx),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.DeepPurple,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text("إرسال", style: TextStyle(color: Colors.white)),
-                onPressed: () {
-                  controller.sendMessage(
-                    file: imageFile,
-                    receiverId: controller.receiverId.value,
-                  );
-                  Navigator.pop(ctx);
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+      OpenFilex.open(savePath);
+    } catch (e) {}
   }
 
   Future<void> pickAndShowFileDialog(BuildContext context) async {
@@ -808,64 +714,78 @@ class ChatPage extends GetView<ChatTeacherController> {
         context: context,
         builder: (ctx) {
           return AlertDialog(
-            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
-            title: Row(
-              children: [
-                Icon(Icons.attach_file, color: AppColor.DeepPurple),
-                SizedBox(width: 10),
-                Text(
-                  "تأكيد إرسال الملف",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+            backgroundColor: Colors.white,
+            title: Center(
+              child: Text(
+                "تأكيد إرسال الملف",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: AppColor.DeepPurple,
                 ),
-              ],
+              ),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    shape: BoxShape.circle,
+                if (fileExtension == "pdf")
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.picture_as_pdf,
+                      size: 60,
+                      color: Colors.red,
+                    ),
+                  )
+                else if (["jpg", "png", "jpeg"].contains(fileExtension))
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(file, height: 150),
+                  )
+                else
+                  Container(
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.insert_drive_file,
+                      size: 60,
+                      color: Colors.blue,
+                    ),
                   ),
-                  child: Icon(
-                    fileExtension == "pdf"
-                        ? Icons.picture_as_pdf
-                        : ["jpg", "png", "jpeg"].contains(fileExtension)
-                            ? Icons.image
-                            : Icons.insert_drive_file,
-                    size: 50,
-                    color: fileExtension == "pdf"
-                        ? Colors.red
-                        : ["jpg", "png", "jpeg"].contains(fileExtension)
-                            ? Colors.purple
-                            : Colors.blue,
-                  ),
-                ),
                 SizedBox(height: 16),
                 Text(
                   fileName,
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
                   textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 4),
-                Text(
-                  fileExtension.toUpperCase(),
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
             ),
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
               TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
                 child: Text(
                   "إلغاء",
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onPressed: () {
                   Navigator.pop(ctx);
@@ -875,15 +795,23 @@ class ChatPage extends GetView<ChatTeacherController> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColor.DeepPurple,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text("إرسال", style: TextStyle(color: Colors.white)),
+                child: Text(
+                  "إرسال",
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onPressed: () {
-                  controller.sendMessage(
+                  chatController.sendMessage(
                     file: _file,
-                    receiverId: controller.receiverId.value,
+                    receiverId: chatController.receiverId.value,
                   );
                   Navigator.pop(ctx);
                 },
@@ -944,62 +872,35 @@ class ChatPage extends GetView<ChatTeacherController> {
             ),
           );
         },
-        child: Hero(
-          tag: filePath,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.0),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.2),
-                  width: 1,
-                ),
-              borderRadius: BorderRadius.circular(12),
-              ),
-              child: Image.network(
-                filePath,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: Image.network(
+            filePath,
+            height: 200,
+            width: 250,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
                 height: 200,
                 width: 250,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    height: 200,
-                    width: 250,
-                    color: Colors.grey[200],
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                            : null,
-                        color: isMe ? Colors.white : AppColor.DeepPurple,
-                      ),
-                    ),
-                  );
-                },
-                errorBuilder: (context, error, stackTrace) {
-                   return Container(
-                    height: 200,
-                    width: 250,
-                    color: Colors.grey[200],
-                     child: Icon(Icons.broken_image, color: Colors.grey),
-                   );
-                },
-              ),
-            ),
+                color: Colors.grey[200],
+                child: Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                    color: isMe ? Colors.white : AppColor.DeepPurple,
+                  ),
+                ),
+              );
+            },
           ),
         ),
       );
     } else if (fileType == 'm4a' || fileType == 'mp3') {
-      return Container(
-        padding: EdgeInsets.all(4), 
-        decoration: BoxDecoration(
-           color: isMe? Colors.white.withOpacity(0.1) : Colors.grey[50],
-           borderRadius: BorderRadius.circular(12),
-        ),
-        child: AudioPlayerWidget(audioUrl: filePath),
-      );
+      return AudioPlayerWidget(audioUrl: filePath);
     } else if (fileType == 'mp4') {
       return GestureDetector(
         onTap: () {
@@ -1035,85 +936,80 @@ class ChatPage extends GetView<ChatTeacherController> {
                       height: 200,
                       width: 250,
                       decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(12),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.grey[800]!,
+                            Colors.grey[600]!,
+                          ],
+                        ),
                       ),
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Icon(Icons.videocam, size: 50, color: Colors.white70),
                     );
                   }
                 },
               ),
               Container(
-                padding: EdgeInsets.all(12),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.black45,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.play_arrow, size: 40, color: Colors.white),
+                child: Icon(
+                  Icons.play_arrow,
+                  size: 40,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
         ),
       );
-    } else {
-      IconData fileIcon;
-      Color iconColor;
-      Color iconBgColor;
-
-      if (fileType == 'pdf') {
-        fileIcon = Icons.picture_as_pdf;
-        iconColor = Colors.red;
-        iconBgColor = Colors.red.shade50;
-      } else if (['doc', 'docx'].contains(fileType)) {
-        fileIcon = Icons.description;
-        iconColor = Colors.blue;
-        iconBgColor = Colors.blue.shade50;
-      } else if (['xls', 'xlsx'].contains(fileType)) {
-        fileIcon = Icons.table_chart;
-        iconColor = Colors.green;
-        iconBgColor = Colors.green.shade50;
-      } else {
-        fileIcon = Icons.insert_drive_file;
-        iconColor = AppColor.DeepPurple;
-        iconBgColor = AppColor.DeepPurple.withOpacity(0.1);
-      }
-
+    } else if (fileType == 'pdf' ||
+        fileType == 'doc' ||
+        fileType == 'docx' ||
+        fileType == 'xlsx') {
       return GestureDetector(
         onTap: () {
           downloadAndOpenFile(filePath, fileName);
         },
         child: Container(
-          width: 250,
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isMe ? Colors.white.withOpacity(0.15) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-             boxShadow: isMe 
-               ? [] 
-               : [
-                   BoxShadow(
-                     color: Colors.black.withOpacity(0.05),
-                     blurRadius: 5,
-                     offset: Offset(0, 2),
-                   ),
-                 ],
+            color: isMe ? Colors.white.withOpacity(0.2) : Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isMe ? Colors.white30 : Colors.grey[300]!,
+            ),
           ),
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(12),
+                  color: fileType == 'pdf'
+                      ? Colors.red.shade50
+                      : fileType == 'doc' || fileType == 'docx'
+                          ? Colors.blue.shade50
+                          : Colors.green.shade50,
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  fileIcon,
-                  color: iconColor,
-                  size: 28,
+                  fileType == 'pdf'
+                      ? Icons.picture_as_pdf
+                      : fileType == 'doc' || fileType == 'docx'
+                          ? Icons.article
+                          : Icons.table_chart,
+                  color: fileType == 'pdf'
+                      ? Colors.red
+                      : fileType == 'doc' || fileType == 'docx'
+                          ? Colors.blue
+                          : Colors.green,
+                  size: 30,
                 ),
               ),
               SizedBox(width: 12),
-              Expanded(
+              Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1121,62 +1017,63 @@ class ChatPage extends GetView<ChatTeacherController> {
                       fileName,
                       style: TextStyle(
                         color: isMe ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 2),
                     Text(
                       fileType.toUpperCase(),
                       style: TextStyle(
                         color: isMe ? Colors.white70 : Colors.grey[600],
                         fontSize: 11,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
+              SizedBox(width: 8),
               Icon(
-                Icons.download_rounded,
-                color: isMe ? Colors.white70 : Colors.grey[400],
-                size: 24,
+                Icons.download,
+                color: isMe ? Colors.white70 : Colors.grey[600],
+                size: 20,
               ),
             ],
           ),
         ),
       );
-    }
-  }
-
-  Future<void> downloadAndOpenFile(String fileUrl, String name) async {
-    try {
-      String fileName = path.basename(fileUrl);
-      Directory tempDir = await getTemporaryDirectory();
-      String savePath = '${tempDir.path}/$fileName';
-
-      // Show loading indicator
-      Get.dialog(
-        Center(child: Loading()),
-        barrierDismissible: false,
-      );
-
-      Dio dio = Dio();
-      await dio.download(fileUrl, savePath);
-
-      // Hide loading
-      Get.back();
-
-      await OpenFilex.open(savePath);
-    } catch (e) {
-      Get.back(); // Hide loading if error
-      Get.snackbar(
-        "خطأ",
-        "فشل فتح الملف",
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+    } else {
+      return GestureDetector(
+        onTap: () {
+          downloadAndOpenFile(filePath, fileName);
+        },
+        child: Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isMe ? Colors.white.withOpacity(0.2) : Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.insert_drive_file,
+                color: isMe ? Colors.white : AppColor.DeepPurple,
+              ),
+              SizedBox(width: 8),
+              Text(
+                "اضغط لفتح الملف",
+                style: TextStyle(
+                  color: isMe ? Colors.white : AppColor.DeepPurple,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
   }
@@ -1193,6 +1090,104 @@ class ChatPage extends GetView<ChatTeacherController> {
       return thumbnailPath;
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<void> pickAndConfirmImage(BuildContext context) async {
+    final ImagePicker _picker = ImagePicker();
+
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+
+    if (image != null) {
+      final File imageFile = File(image.path);
+      String fileName = image.name;
+
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            backgroundColor: Colors.white,
+            title: Center(
+              child: Text(
+                "تأكيد إرسال الصورة",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: AppColor.DeepPurple,
+                ),
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    imageFile,
+                    height: 200,
+                    width: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  fileName,
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actionsAlignment: MainAxisAlignment.spaceEvenly,
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: Text(
+                  "إلغاء",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                },
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.DeepPurple,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text(
+                  "إرسال",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onPressed: () {
+                  chatController.sendMessage(
+                    file: imageFile,
+                    receiverId: chatController.receiverId.value,
+                  );
+                  Navigator.pop(ctx);
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 }

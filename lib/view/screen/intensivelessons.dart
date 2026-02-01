@@ -49,8 +49,9 @@ class IntensiveLessons extends StatelessWidget {
                             lesson: LessonList[index].lesson!,
                             // detailsLesson: LessonList[index].detailsLesson!,
                             price: LessonList[index].price!,
-                            onTapShop: () {
+                            onTapShop: () async {
                               Get.toNamed(AppRoute.login);
+                              return false;
                             },
                             count: '',
                           ),

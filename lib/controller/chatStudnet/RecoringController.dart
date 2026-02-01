@@ -249,7 +249,14 @@ class RecorderController extends GetxController {
     currentDuration.value = '00:00';
   }
 
+  @override
+  void onClose() {
+    _audioRecorder.dispose();
+    super.onClose();
+  }
+
   void updateDuration() {
+    if (isClosed) return;
     if (_startTime != null && isRecording.value) {
       final now = DateTime.now();
       final duration = now.difference(_startTime!);

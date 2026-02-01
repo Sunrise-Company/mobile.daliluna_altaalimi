@@ -474,8 +474,8 @@ class Lessons extends GetView<LessonsController> {
                                                     }
 
                                                     return CustomButtonBuy(
-                                                      onTap: () {
-                                                        baskerc.updateBasket(
+                                                      onTap: () async {
+                                                        var res = await baskerc.updateBasket(
                                                           controller
                                                               .dataList[index]['id']
                                                               .toString(),
@@ -507,6 +507,7 @@ class Lessons extends GetView<LessonsController> {
                                                         print(
                                                           'lesson add success',
                                                         );
+                                                        return res;
                                                       },
                                                       targetCartKey:
                                                           CartAnimationKeys

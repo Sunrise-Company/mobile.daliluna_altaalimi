@@ -19,6 +19,7 @@ import 'package:emulator_checker/emulator_checker.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:daliluna_altaalimi/download_service.dart';
 import 'package:daliluna_altaalimi/background_download_service.dart';
+import 'package:daliluna_altaalimi/core/services/upload_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ void main() async {
   };
 
   Get.put(BreadcrumbService()); // Initialize BreadcrumbService
+  Get.put(UploadService()); // Initialize UploadService
 
   // ═══════════════════════════════════════════════════════════════
   // 🧪 DEBUG MODE: Test Error Screen Without Real Device

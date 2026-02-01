@@ -400,6 +400,16 @@ class Login extends GetView<LoginController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Text(
+                              "لديك حساب مدرس؟  ",
+                              style: TextStyle(
+                                fontSize: getValueForScreenType<double>(
+                                  context: context,
+                                  mobile: 14,
+                                  tablet: 20,
+                                ),
+                              ),
+                            ),
                             InkWell(
                               onTap: () {
                                 Get.to(LoginTeacher());
@@ -414,16 +424,6 @@ class Login extends GetView<LoginController> {
                                   ),
                                   color: AppColor.SecondryColor,
                                   fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              " لديك حساب مدرس؟  ",
-                              style: TextStyle(
-                                fontSize: getValueForScreenType<double>(
-                                  context: context,
-                                  mobile: 14,
-                                  tablet: 20,
                                 ),
                               ),
                             ),
@@ -461,6 +461,16 @@ class Login extends GetView<LoginController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Text(
+                              " لا تمتلك حساب؟ ",
+                              style: TextStyle(
+                                fontSize: getValueForScreenType<double>(
+                                  context: context,
+                                  mobile: 14,
+                                  tablet: 20,
+                                ),
+                              ),
+                            ),
                             InkWell(
                               onTap: () {
                                 Get.toNamed(AppRoute.register);
@@ -475,16 +485,6 @@ class Login extends GetView<LoginController> {
                                   ),
                                   color: AppColor.SecondryColor,
                                   fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              " اذا كنت لا تمتلك حساب؟",
-                              style: TextStyle(
-                                fontSize: getValueForScreenType<double>(
-                                  context: context,
-                                  mobile: 14,
-                                  tablet: 20,
                                 ),
                               ),
                             ),

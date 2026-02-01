@@ -1,17 +1,13 @@
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-// import 'package:gradients/gradients.dart';
-import 'package:shimmer/shimmer.dart';
-
 import '../../../../core/constant/color.dart';
 import '../../widget/GetValueForScreen.dart';
 
 class GroupChatListPageStudent extends StatelessWidget {
-  ChatStudentListTeacherController chatController = Get.put(
+  final ChatStudentListTeacherController chatController = Get.put(
     ChatStudentListTeacherController(),
   );
 
@@ -20,67 +16,75 @@ class GroupChatListPageStudent extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.white,
-        // appBar: PreferredSize(
-        //   preferredSize: Size.fromHeight(
-        //     getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 55,
-        //       tablet: 100,
-        //     ),
-        //   ),
-        //   child: AppBar(
-        //     titleSpacing: getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 30,
-        //       tablet: 50,
-        //     ),
-        //     elevation: 0,
-        //     flexibleSpace: Container(
-        //       decoration: BoxDecoration(
-        //         gradient: LinearGradientPainter(
-        //           begin: Alignment.topCenter,
-        //           end: Alignment.bottomRight,
-        //           colors: <Color>[AppColor.DeepPurple, AppColor.PrimaryColor],
-        //         ),
-        //       ),
-        //     ),
-        //     title: const Text(
-        //       "مجموعات الدردشة",
-        //       style: TextStyle(color: AppColor.White),
-        //     ),
-        //     leading: IconButton(
-        //         onPressed: () {
-        //           Get.offNamed('/homepage');
-        //         },
-        //         icon: Icon(Icons.arrow_back)),
-        //   ),
-        // ),
+        backgroundColor: Color(0xFFF5F7FA),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(
             getValueForScreenType<double>(
               context: context,
-              mobile: 55,
+              mobile: 70,
               tablet: 100,
             ),
           ),
-          child: AppBar(
-            elevation: 0,
-            backgroundColor: AppColor.PrimaryColor,
-
-            title: Shimmer.fromColors(
-              baseColor: Colors.white,
-              highlightColor: AppColor.SecondryColor,
-              child: Text(
-                "مجموعات الدردشة",
-                style: TextStyle(
-                  fontSize: responsiveValue(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColor.DeepPurple, AppColor.PrimaryColor],
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColor.DeepPurple.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              leading: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: Colors.white,
+                  size: responsiveValue(
                     context: context,
                     mobile: 20,
-                    tablet: 35,
+                    tablet: 30,
                   ),
-                  fontWeight: FontWeight.bold,
                 ),
+                onPressed: () {
+                  Get.back();
+                },
+              ),
+              centerTitle: true,
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.groups,
+                    color: Colors.white,
+                    size: responsiveValue(
+                      context: context,
+                      mobile: 24,
+                      tablet: 35,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    "مجموعات الدردشة",
+                    style: TextStyle(
+                      fontSize: responsiveValue(
+                        context: context,
+                        mobile: 20,
+                        tablet: 35,
+                      ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -88,170 +92,284 @@ class GroupChatListPageStudent extends StatelessWidget {
         body: Obx(
           () => chatController.roomlist.isNotEmpty
               ? AnimationLimiter(
-                  child: GlowingOverscrollIndicator(
-                    axisDirection: AxisDirection.down,
-                    color: AppColor.SecondryColor,
-                    child: ListView.separated(
-                      separatorBuilder: (context, index) => SizedBox(
-                        height: getValueForScreenType<double>(
-                          context: context,
-                          mobile: 15,
-                          tablet: 40,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    separatorBuilder: (context, index) => SizedBox(height: 12),
+                    itemCount: chatController.roomlist.length,
+                    itemBuilder: (context, index) {
+                      final group = chatController.roomlist[index];
+                      final unreadCount = group['pivot']['count_view'] ?? 0;
+
+                      return AnimationConfiguration.staggeredList(
+                        position: index,
+                        duration: const Duration(milliseconds: 500),
+                        child: SlideAnimation(
+                          horizontalOffset: 100.0,
+                          curve: Curves.easeOutCubic,
+                          duration: const Duration(milliseconds: 600),
+                          child: FadeInAnimation(
+                            child: _buildGroupChatCard(
+                              context: context,
+                              group: group,
+                              unreadCount: unreadCount,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.group_off_outlined,
+                        size: 100,
+                        color: Colors.grey[300],
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        "لا توجد مجموعات",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      itemCount: chatController.roomlist.length,
-                      itemBuilder: (context, index) {
-                        final group = chatController.roomlist[index];
+                      SizedBox(height: 8),
+                      Text(
+                        "التحق بمجموعة لبدء المحادثة",
+                        style: TextStyle(fontSize: 14, color: Colors.grey[400]),
+                      ),
+                    ],
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
 
-                        final unreadCount = group['pivot']['count_view'] ?? 0;
-
-                        return AnimationConfiguration.staggeredList(
-                          position: index,
-                          duration: const Duration(milliseconds: 500),
-                          child: SlideAnimation(
-                            horizontalOffset: 150.0,
-                            curve: Curves.decelerate,
-                            duration: const Duration(milliseconds: 700),
-                            child: FadeInAnimation(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Get.toNamed(
-                                    '/gorupchatStudent',
-                                    arguments: {
-                                      'idRoom': group['id'].toString(),
-                                      'name': group['name'],
-                                    },
-                                  );
-                                },
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: CircleAvatar(
-                                              child: Text(
-                                                group['name'][0].toUpperCase(),
-                                                style: TextStyle(
-                                                  fontSize: 18.0,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              radius: responsiveValue(
-                                                context: context,
-                                                mobile: 30,
-                                                tablet: 50,
-                                              ),
-                                              backgroundColor:
-                                                  AppColor.DeepPurple2,
-                                            ),
-                                          ),
-                                          SizedBox(width: 16.0),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  group['name'],
-                                                  style: TextStyle(
-                                                    fontSize: responsiveValue(
-                                                      context: context,
-                                                      mobile: 15,
-                                                      tablet: 20,
-                                                    ),
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  group['last_message'] != null
-                                                      ? group['last_message']['msg'] !=
-                                                                null
-                                                            ? '${group['last_message']['msg']}'
-                                                            : "مرفق "
-                                                      : " ",
-                                                  style: TextStyle(
-                                                    fontSize: responsiveValue(
-                                                      context: context,
-                                                      mobile: 12,
-                                                      tablet: 20,
-                                                    ),
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.all(5.0),
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  group['last_message'] != null
-                                                      ? '${(DateTime.parse(group['last_message']['created_at']).hour % 12).toString().padLeft(2, '0')}:${DateTime.parse(group['last_message']['created_at']).minute.toString().padLeft(2, '0')} ${DateTime.parse(group['last_message']['created_at']).hour >= 12 ? 'م' : 'ص'}'
-                                                      : '',
-                                                  style: TextStyle(
-                                                    fontSize: responsiveValue(
-                                                      context: context,
-                                                      mobile: 13,
-                                                      tablet: 20,
-                                                    ),
-                                                    color: Colors.black54,
-                                                  ),
-                                                ),
-                                                if (unreadCount > 0)
-                                                  Container(
-                                                    padding:
-                                                        const EdgeInsets.all(8),
-                                                    decoration: BoxDecoration(
-                                                      color: AppColor
-                                                          .SecondryColor,
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      unreadCount.toString(),
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize:
-                                                            responsiveValue(
-                                                              context: context,
-                                                              mobile: 12,
-                                                              tablet: 20,
-                                                            ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Divider(
-                                      height: 10,
-                                      thickness: 1.5,
-                                      color: AppColor.SecondaryColor,
-                                    ),
-                                  ],
-                                ),
+  Widget _buildGroupChatCard({
+    required BuildContext context,
+    required Map<String, dynamic> group,
+    required int unreadCount,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(
+          '/gorupchatStudent',
+          arguments: {'idRoom': group['id'].toString(), 'name': group['name']},
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: Offset(0, 2),
+            ),
+          ],
+          border: Border.all(
+            color: unreadCount > 0
+                ? AppColor.DeepPurple.withOpacity(0.2)
+                : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColor.DeepPurple.withOpacity(0.2),
+                        AppColor.PrimaryColor.withOpacity(0.2),
+                      ],
+                    ),
+                    border: Border.all(
+                      color: unreadCount > 0
+                          ? AppColor.DeepPurple
+                          : Colors.grey[300]!,
+                      width: 2,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: responsiveValue(
+                      context: context,
+                      mobile: 28,
+                      tablet: 48,
+                    ),
+                    child: Text(
+                      group['name'][0].toUpperCase(),
+                      style: TextStyle(
+                        fontSize: responsiveValue(
+                          context: context,
+                          mobile: 22,
+                          tablet: 32,
+                        ),
+                        fontWeight: FontWeight.bold,
+                        color: AppColor.DeepPurple,
+                      ),
+                    ),
+                  ),
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF4FFFB0),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            SizedBox(width: 16.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          group['name'],
+                          style: TextStyle(
+                            fontSize: responsiveValue(
+                              context: context,
+                              mobile: 16,
+                              tablet: 24,
+                            ),
+                            fontWeight: unreadCount > 0
+                                ? FontWeight.bold
+                                : FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (group['last_message'] != null &&
+                          group['last_message']['created_at'] != null)
+                        Text(
+                          '${(DateTime.parse(group['last_message']['created_at']).hour % 12).toString().padLeft(2, '0')}:${DateTime.parse(group['last_message']['created_at']).minute.toString().padLeft(2, '0')} ${DateTime.parse(group['last_message']['created_at']).hour >= 12 ? 'م' : 'ص'}',
+                          style: TextStyle(
+                            fontSize: responsiveValue(
+                              context: context,
+                              mobile: 11,
+                              tablet: 18,
+                            ),
+                            color: unreadCount > 0
+                                ? AppColor.DeepPurple
+                                : Colors.grey[500],
+                            fontWeight: unreadCount > 0
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (group['institute_name'] != null ||
+                      group['class_name'] != null) ...[
+                    SizedBox(height: 4),
+                    Text(
+                      '${group['institute_name'] ?? ''} ${group['institute_name'] != null && group['class_name'] != null ? '-' : ''} ${group['class_name'] ?? ''}',
+                      style: TextStyle(
+                        fontSize: responsiveValue(
+                          context: context,
+                          mobile: 11,
+                          tablet: 16,
+                        ),
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w400,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  SizedBox(height: 6),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          group['last_message'] != null
+                              ? group['last_message']['msg'] != null
+                                    ? '${group['last_message']['msg']}'
+                                    : "📎 مرفق"
+                              : "بداية المحادثة",
+                          style: TextStyle(
+                            fontSize: responsiveValue(
+                              context: context,
+                              mobile: 13,
+                              tablet: 20,
+                            ),
+                            color: unreadCount > 0
+                                ? Colors.black87
+                                : Colors.grey[600],
+                            fontWeight: unreadCount > 0
+                                ? FontWeight.w500
+                                : FontWeight.normal,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (unreadCount > 0)
+                        Container(
+                          margin: EdgeInsets.only(right: 8),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColor.DeepPurple,
+                                AppColor.PrimaryColor,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColor.DeepPurple.withOpacity(0.3),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            unreadCount > 99 ? '99+' : unreadCount.toString(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: responsiveValue(
+                                context: context,
+                                mobile: 11,
+                                tablet: 18,
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                    ],
                   ),
-                )
-              : Center(child: Text("لا يوجد")),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

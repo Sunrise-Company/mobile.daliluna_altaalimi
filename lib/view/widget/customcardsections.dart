@@ -12,7 +12,7 @@ class CustomCardSections extends StatelessWidget {
   final String section;
   final String price;
   final String countVideos;
-  final void Function()? onTapShop;
+  final Future<bool> Function()? onTapShop;
   final void Function()? onTap;
   final String sectionId;
   final String teacherId;
@@ -212,7 +212,7 @@ class CustomCardSections extends StatelessWidget {
 class CustomListTileSectionWidget extends StatelessWidget {
   final Map<String, dynamic> item;
   final bool isChecking;
-  final void Function()? onTapShop;
+  final Future<bool> Function()? onTapShop;
   final void Function()? onTap;
   final Widget? trailing;
   final String? province;

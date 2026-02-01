@@ -49,15 +49,19 @@ class ChatStudentListTeacherController extends GetxController {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
       };
+      log("token" + token!);
+      log("${AppLink.server + '/getListUsersStudent'}");
       final response = await http.get(
         Uri.parse(AppLink.server + '/getListUsersStudent'),
         headers: headers,
       );
+      log("getListUsersStudent ${jsonDecode(response.body)}");
 
       if (token == null) {
         isloded.value = true;
         dataList.value = [];
       }
+
       if (response.statusCode == 200) {
         isloded.value = true;
         final responseData = jsonDecode(response.body);

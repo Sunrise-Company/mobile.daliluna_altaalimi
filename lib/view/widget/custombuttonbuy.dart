@@ -4,7 +4,7 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/function/cart_animation_helper.dart';
 
 class CustomButtonBuy extends StatefulWidget {
-  final void Function()? onTap;
+  final Future<bool> Function()? onTap;
   final GlobalKey? targetCartKey;
 
   const CustomButtonBuy({super.key, required this.onTap, this.targetCartKey});
@@ -46,6 +46,10 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
     await _controller.forward();
     await _controller.reverse();
 
+    // Execute logic first
+    bool success = await widget.onTap!();
+    if (!success) return;
+
     // Get button position
     final RenderBox? box =
         _buttonKey.currentContext?.findRenderObject() as RenderBox?;
@@ -59,12 +63,9 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
         cartKey: widget.targetCartKey!,
         startPosition: position,
         onComplete: () {
-          widget.onTap!();
+          // Logic already done
         },
       );
-    } else {
-      // No animation, just execute
-      widget.onTap!();
     }
   }
 

@@ -378,8 +378,8 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                 }
 
                                                 return CustomButtonBuy(
-                                                  onTap: () {
-                                                    baskerc.updateBasket(
+                                                  onTap: () async {
+                                                    return await baskerc.updateBasket(
                                                       item['id'].toString(),
                                                       'unit',
                                                       item['name'],

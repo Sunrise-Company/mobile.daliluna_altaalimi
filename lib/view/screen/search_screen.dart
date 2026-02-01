@@ -1229,8 +1229,8 @@ class SearchScreen extends StatelessWidget {
         onTap: () {
           _navigateToLessonDepDetails(lessonDep);
         },
-        onTapShop: () {
-          _addLessonDepToCart(lessonDep);
+        onTapShop: () async {
+          return await _addLessonDepToCart(lessonDep);
         },
         trailing: Obx(() {
           final allSectionItem = lessonDep;
@@ -1525,7 +1525,7 @@ class SearchScreen extends StatelessWidget {
     );
   }
 
-  void _addLessonDepToCart(Map<String, dynamic> lessonDep) {
+  Future<bool> _addLessonDepToCart(Map<String, dynamic> lessonDep) async {
     final basketController = Get.find<BasketController>();
 
     // Extract lesson_dep details
@@ -1546,7 +1546,7 @@ class SearchScreen extends StatelessWidget {
     final mainDepId = mainDep?['id']?.toString() ?? '';
 
     // Add to basket
-    basketController.updateBasket(
+    bool success = await basketController.updateBasket(
       lessonDepId,
       'lesson_dep', // item type
       lessonDepName,
@@ -1562,14 +1562,17 @@ class SearchScreen extends StatelessWidget {
       '',
     );
 
-    Get.snackbar(
-      'تمت الإضافة',
-      'تمت إضافة القسم إلى السلة',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: AppColor.PrimaryColor,
-      colorText: Colors.white,
-      duration: Duration(seconds: 2),
-    );
+    if (success) {
+      Get.snackbar(
+        'تمت الإضافة',
+        'تمت إضافة القسم إلى السلة',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: AppColor.PrimaryColor,
+        colorText: Colors.white,
+        duration: Duration(seconds: 2),
+      );
+    }
+    return success;
   }
 
   Widget _buildFilterDropdown(BuildContext context) {

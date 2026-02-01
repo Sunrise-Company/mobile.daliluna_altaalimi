@@ -730,10 +730,13 @@ class ApiService {
     }
   }
 
-  static Future<String> app_basket_student_store(List body) async {
+  static Future<Map<String, dynamic>> app_basket_student_store(
+    List body,
+  ) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? student_id = prefs.getString('student_id');
 
+    log(AppLink.app_basket_student_store + '/' + student_id.toString());
     Map<String, dynamic> data = {};
 
     for (int i = 0; i < body.length; i++) {
@@ -751,14 +754,20 @@ class ApiService {
       Uri.parse(AppLink.app_basket_student_store + '/' + student_id.toString()),
       body: data,
     );
-    log(response.body);
+    log('${jsonDecode(response.body).toString()}');
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      // Ensure we return a string "true" or "false"
-      return responseData['status'].toString();
+
+      return {
+        'status': responseData['status'].toString(),
+        'message': responseData['msg'] ?? 'حدث خطأ غير معروف',
+      };
     } else {
-      return "false";
+      return {
+        'status': 'false',
+        'message': 'خطأ في الاتصال: ${response.statusCode}',
+      };
     }
   }
 }

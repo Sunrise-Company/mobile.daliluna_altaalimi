@@ -27,10 +27,10 @@ Future<bool> alertPaidMethod(String message) async {
             baskerc.isload(true);
             Get.back();
             try {
-              String res = await baskerc.app_basket_student_store();
+              var res = await baskerc.app_basket_student_store();
 
               baskerc.isload(false);
-              if (res == "true") {
+              if (res['status'] == "true") {
                 Get.snackbar(
                   'تمت عملية الشراء بنجاح',
                   'شكراً لك',
@@ -42,7 +42,7 @@ Future<bool> alertPaidMethod(String message) async {
               } else {
                 Get.snackbar(
                   'فشلت عملية الشراء',
-                  'الرجاء المحاولة مرة أخرى',
+                  res['message'] ?? 'الرجاء المحاولة مرة أخرى',
                   backgroundColor: AppColor.BackGround3,
                 );
               }

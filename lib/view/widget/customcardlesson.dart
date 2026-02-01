@@ -8,7 +8,7 @@ import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 class CustomCardLesson extends StatelessWidget {
   final String lesson;
   final String price;
-  final void Function() onTapShop;
+  final Future<bool> Function() onTapShop;
   final void Function()? onTap;
   final String count;
   final bool isChecking;

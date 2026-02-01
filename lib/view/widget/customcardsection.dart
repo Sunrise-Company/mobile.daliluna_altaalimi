@@ -9,7 +9,7 @@ import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 
 class CustomCardSectionSelected extends StatelessWidget {
   final Function() onTap;
-  final void Function()? onTapShop;
+  final Future<bool> Function()? onTapShop;
   final String textIcon;
   final String price;
   final item;

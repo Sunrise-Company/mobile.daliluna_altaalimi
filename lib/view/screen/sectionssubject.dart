@@ -259,8 +259,8 @@ class SectionsSubject extends GetView<SectionsSubjectController> {
                                                   item,
                                                 );
                                               },
-                                              onTapShop: () {
-                                                baskerc.updateBasket(
+                                              onTapShop: () async {
+                                                return await baskerc.updateBasket(
                                                   item['id'].toString(),
                                                   'section',
                                                   item['name'],

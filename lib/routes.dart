@@ -15,6 +15,7 @@ import 'package:daliluna_altaalimi/view/screen/exam/examsoltuions.dart';
 import 'package:daliluna_altaalimi/view/screen/exam/test.dart';
 import 'package:daliluna_altaalimi/view/teacher/chatTeacher/chatTeacher.dart';
 import 'package:daliluna_altaalimi/view/teacher/chatTeacher/groupChat/groupChatTeacher.dart';
+import 'package:daliluna_altaalimi/view/teacher/chatTeacher/groupChat/listgroupChat.dart';
 import 'package:daliluna_altaalimi/view/teacher/homepageTeacher.dart';
 import 'package:daliluna_altaalimi/view/teacher/lectureTeacher.dart';
 import 'package:daliluna_altaalimi/view/teacher/lessonTeacher.dart';
@@ -161,6 +162,10 @@ List<GetPage<dynamic>>? routes = [
     name: '/groupChatTeacher',
     binding: ChatTeacherGroupBinding(),
     page: () => GroupChatPageTeacher(),
+  ),
+  GetPage(
+    name: '/GroupChatListPageTeacher',
+    page: () => GroupChatListPage(),
   ),
   GetPage(
     name: '/lectureTeacher',

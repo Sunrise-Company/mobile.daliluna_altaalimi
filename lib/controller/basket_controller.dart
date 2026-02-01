@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:get/get.dart';
@@ -27,11 +26,11 @@ class BasketController extends GetxController {
   }
 
   RxBool isload = false.obs;
-  Future<void> updateBasket(
+  Future<bool> updateBasket(
     String itemId,
     String itemType,
     String itemName,
-    int itemPrice,
+    dynamic itemPrice,
     String teacherName,
     String className,
     String subjectName,
@@ -42,10 +41,17 @@ class BasketController extends GetxController {
     String instituteId, [
     String? unitId,
   ]) async {
+    // 0️⃣ Check for Price (Must be > 0)
+    double priceVal = double.tryParse(itemPrice.toString()) ?? 0;
+    if (priceVal <= 0) {
+      _showSnackbar('تنبيه', 'لا يمكن إضافة عنصر بدون سعر للسلة');
+      return false;
+    }
+
     // 1️⃣ Check for duplicates
     if (_isItemDuplicate(itemId, teacherId, subjectId, classId)) {
       _showSnackbar('تنبيه', 'تم إضافة هذا العنصر بالفعل');
-      return;
+      return false;
     }
 
     // 2️⃣ Check for different institute
@@ -54,7 +60,7 @@ class BasketController extends GetxController {
         'تنبيه',
         ' لا يمكن الإضافة من أكثر من معهد اشتري من كل معهد على حدى',
       );
-      return;
+      return false;
     }
 
     // 3️⃣ Check for Main Section vs Children conflict
@@ -63,7 +69,7 @@ class BasketController extends GetxController {
         'تنبيه',
         'لا يمكن إضافة هذا العنصر لأن القسم الرئيسي موجود بالسلة',
       );
-      return;
+      return false;
     }
 
     if (_hasChildConflict(itemType, itemId)) {
@@ -71,12 +77,12 @@ class BasketController extends GetxController {
         'تنبيه',
         'لا يمكن إضافة القسم لأن هناك أجزاء تابعة له في السلة',
       );
-      return;
+      return false;
     }
 
     // 4️⃣ Check for Unit vs Lesson conflict
     if (_hasUnitLessonConflict(itemType, unitId, itemId)) {
-      return; // Snackbar handled inside helper for specific messages
+      return false; // Snackbar handled inside helper for specific messages
     }
 
     // ✅ Add to cart
@@ -95,6 +101,7 @@ class BasketController extends GetxController {
       instituteId,
       unitId,
     );
+    return true;
   }
 
   // --- Helper Methods ---
@@ -173,7 +180,7 @@ class BasketController extends GetxController {
     String itemId,
     String itemType,
     String itemName,
-    int itemPrice,
+    dynamic itemPrice,
     String teacherName,
     String className,
     String subjectName,
@@ -184,6 +191,9 @@ class BasketController extends GetxController {
     String instituteId,
     String? unitId,
   ) async {
+    // Parse price to int safely
+    int price = int.tryParse(itemPrice.toString()) ?? 0;
+
     // If instituteId is empty, try to get it from SharedPreferences
     String effectiveInstituteId = instituteId;
     if (effectiveInstituteId.isEmpty && this.instituteId.value.isEmpty) {
@@ -201,7 +211,7 @@ class BasketController extends GetxController {
       'id': itemId,
       'itemType': itemType,
       'itemName': itemName,
-      'itemPrice': itemPrice,
+      'itemPrice': price,
       'teacherName': teacherName,
       'className': className,
       'subjectName': subjectName,
@@ -212,7 +222,7 @@ class BasketController extends GetxController {
       'instituteId': effectiveInstituteId,
       'unitId': unitId,
     });
-    count = count + itemPrice;
+    count.value = count.value + price;
     update();
   }
 
@@ -269,7 +279,7 @@ class BasketController extends GetxController {
   }
 
   app_basket_student_store() async {
-    String responseData = await ApiService.app_basket_student_store(mycart);
+    var responseData = await ApiService.app_basket_student_store(mycart);
     return responseData;
   }
 

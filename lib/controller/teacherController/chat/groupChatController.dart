@@ -10,6 +10,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/core/services/upload_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -125,10 +126,7 @@ class ChatGroupMessageTeacherController extends GetxController {
     required String receiverId,
   }) async {
     if ((text?.trim().isEmpty ?? true) && file == null) return;
-    if (!sockectcontroller.isSocketConnected.value) {
-      return;
-    }
-    final url = Uri.parse(AppLink.server + '/message_groupForTeacher');
+
     String tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
     if (file != null)
       messageList.insert(0, {
@@ -138,99 +136,105 @@ class ChatGroupMessageTeacherController extends GetxController {
         'receiver_id': receiverId,
         'created_at': DateTime.now().toIso8601String(),
         'isLoading': file != null,
+        'uploadProgress': 0.0,
       });
     // update();
     try {
-      var request = http.MultipartRequest('POST', url)
-        ..headers.addAll({
+      final uploadService = Get.find<UploadService>();
+      final fields = <String, String>{
+        'receiver_id': receiverId,
+      };
+      if (text != null && text.trim().isNotEmpty) {
+        fields['msg'] = text;
+      }
+
+      final responseData = await uploadService.uploadFile(
+        url: AppLink.server + '/message_groupForTeacher',
+        headers: {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
+        },
+        fields: fields,
+        file: file,
+        onProgress: (progress) {
+          if (!isClosed) {
+            int index = messageList
+                .indexWhere((msg) => msg['message_id'] == tempMessageId);
+            if (index != -1) {
+              messageList[index]['uploadProgress'] = progress;
+              messageList.refresh();
+              update();
+            }
+          }
+        },
+      );
+
+      if (isClosed) return;
+
+      String? messageId = responseData['data']['message']['id'].toString();
+      List<dynamic> socketIds = responseData['data']['socket_ids'];
+      Map<String, dynamic>? fileData =
+          responseData['data']['message']['m_file'];
+      String? filePath = fileData?['path'];
+      String? fileTypeResponse = fileData?['type'];
+
+      if (file == null)
+        messageList.insert(0, {
+          'message_id': tempMessageId,
+          'msg': text ?? '',
+          'sender_id': senderId.toString(),
+          'receiver_id': receiverId,
+          'created_at': DateTime.now().toIso8601String(),
+          'isLoading': file != null,
         });
 
-      if (text != null && text.trim().isNotEmpty) {
-        request.fields['msg'] = text;
+      int index = messageList.indexWhere(
+        (msg) => msg['message_id'] == tempMessageId,
+      );
+      if (index != -1) {
+        messageList[index] = {
+          'msg': text ?? '',
+          'message_id': messageId,
+          'sender_id': senderId.toString(),
+          'receiver_id': Get.arguments['idRoom'].toString(),
+          'created_at':
+              responseData['data']['message']['created_at'] ??
+              DateTime.now().toIso8601String(),
+          'm_file': filePath != null
+              ? {'path': filePath, 'type': fileTypeResponse}
+              : null,
+        };
+        update();
       }
-
-      request.fields['receiver_id'] = receiverId;
-
-      if (file != null) {
-        String fileType = file.path.split('.').last.toLowerCase();
-        request.fields['type'] = fileType;
-        request.files.add(await http.MultipartFile.fromPath('file', file.path));
-      }
-
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        String? messageId = responseData['data']['message']['id'].toString();
-        List<dynamic> socketIds = responseData['data']['socket_ids'];
-        Map<String, dynamic>? fileData =
-            responseData['data']['message']['m_file'];
-        String? filePath = fileData?['path'];
-        String? fileTypeResponse = fileData?['type'];
-        if (file == null)
-          messageList.insert(0, {
-            'message_id': tempMessageId,
-            'msg': text ?? '',
-            'sender_id': senderId.toString(),
-            'receiver_id': receiverId,
-            'created_at': DateTime.now().toIso8601String(),
-            'isLoading': file != null,
-          });
-
-        int index = messageList.indexWhere(
-          (msg) => msg['message_id'] == tempMessageId,
-        );
-        if (index != -1) {
-          messageList[index] = {
-            'msg': text ?? '',
-            'message_id': messageId,
-            'sender_id': senderId.toString(),
-            'receiver_id': Get.arguments['id'].toString(),
-            'created_at':
-                responseData['data']['message']['created_at'] ??
-                DateTime.now().toIso8601String(),
-            'm_file': filePath != null
-                ? {'path': filePath, 'type': fileTypeResponse}
-                : null,
-          };
-          update();
-        }
-        ListStudentChatController listStudentChatController = Get.find();
+      ListStudentChatController listStudentChatController = Get.find();
+      try {
         listStudentChatController.chatStudent();
-        // messageList.refresh();
-        // update();
-        if (socketIds.isNotEmpty) {
-          sockectcontroller.socket.emit('sendChatToServer', {
-            'msg': text ?? '',
-            'message_id': messageId,
-            'created_at':
-                responseData['data']['message']['created_at'] ??
-                DateTime.now().toIso8601String(),
-            'sender_name': responseData['data']['message']['sender']['name'],
-            'group_name': name.value.toString(),
-            'sender_id': senderId.toString(),
-            'sender_type': responseData['data']['message']['sender_type'],
-            'receiver_id': receiverId,
-            'receiver_type': responseData['data']['message']['receiver_type'],
-            'receiver_socket_id': socketIds,
-            'm_file': filePath != null
-                ? {'path': filePath, 'type': fileTypeResponse}
-                : null,
-          });
-        }
-      } else {
-        log(
-          'ChatGroupMessageTeacherController فشل إرسال الرسالة: ${response.reasonPhrase}',
-        );
+      } catch (e) {}
+
+      if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
+        sockectcontroller.socket.emit('sendChatToServer', {
+          'msg': text ?? '',
+          'message_id': messageId,
+          'created_at':
+              responseData['data']['message']['created_at'] ??
+              DateTime.now().toIso8601String(),
+          'sender_name': responseData['data']['message']['sender']['name'],
+          'group_name': name.value.toString(),
+          'sender_id': senderId.toString(),
+          'sender_type': responseData['data']['message']['sender_type'],
+          'receiver_id': receiverId,
+          'receiver_type': responseData['data']['message']['receiver_type'],
+          'receiver_socket_id': socketIds,
+          'm_file': filePath != null
+              ? {'path': filePath, 'type': fileTypeResponse}
+              : null,
+        });
+      }
+    } catch (e) {
+      if (!isClosed) {
         messageList.removeWhere((msg) => msg['message_id'] == tempMessageId);
         update();
       }
-    } catch (e) {
-      messageList.removeWhere((msg) => msg['message_id'] == tempMessageId);
-      update();
     }
   }
 

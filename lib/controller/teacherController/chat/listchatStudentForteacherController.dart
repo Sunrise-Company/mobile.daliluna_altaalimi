@@ -39,6 +39,7 @@ class ListStudentChatController extends GetxController {
         Uri.parse(AppLink.server + '/getListUsersTeacher'),
         headers: headers,
       );
+      log("getListUsersTeacher" + jsonDecode(response.body).toString());
       if (response.statusCode == 200) {
         isloded.value = true;
         final responseData = jsonDecode(response.body);

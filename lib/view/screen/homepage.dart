@@ -120,6 +120,9 @@ class HomePage extends GetView<HomePageController> {
             onTap: () {
               controller.changePage(index);
               ourcontroller.fetchmyClassess();
+              if (index == 1) {
+                chatStudentListTeacherController.chatStudent();
+              }
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),

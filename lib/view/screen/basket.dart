@@ -178,9 +178,7 @@ class Basket extends StatelessWidget {
                                   : item['itemType'] == 'section'
                                   ? 'قسم كامل'
                                   : 'درس كامل';
-                              print(
-                                "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${baskerc.mycart[index]}",
-                              );
+
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,

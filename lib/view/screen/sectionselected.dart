@@ -728,20 +728,30 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             final mainDepId =
                                                                 itemId;
 
-
                                                             // نتحقق من أن القسم موجود في mysection
                                                             // نطابق بناءً على ID
-                                                            final isInMySections = controller.mysection.any((section) {
-                                                              final departments = section as Map;
-                                                              final purchasedId = departments['id']?.toString();
-                                                              final currentId = allSectionItem['id']?.toString();
-                                                              return purchasedId == currentId;
+                                                            final isInMySections = controller.mysection.any((
+                                                              section,
+                                                            ) {
+                                                              final departments =
+                                                                  section
+                                                                      as Map;
+                                                              final purchasedId =
+                                                                  departments['id']
+                                                                      ?.toString();
+                                                              final currentId =
+                                                                  allSectionItem['id']
+                                                                      ?.toString();
+                                                              return purchasedId ==
+                                                                  currentId;
                                                             });
 
                                                             if (isInMySections) {
                                                               return Icon(
-                                                                Icons.check_circle,
-                                                                color: AppColor.SecondryColor,
+                                                                Icons
+                                                                    .check_circle,
+                                                                color: AppColor
+                                                                    .SecondryColor,
                                                               );
                                                             }
 
@@ -760,12 +770,12 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                                       .sectionSelected,
                                                               color: AppColor
                                                                   .PrimaryColor,
-                                                              onPressed: () {
+                                                              onPressed: () async {
                                                                 baskerc
                                                                     .updatemaindepId(
                                                                       itemId,
                                                                     );
-                                                                baskerc.updateBasket(
+                                                                return await baskerc.updateBasket(
                                                                   itemId,
                                                                   'main_dep',
                                                                   allSectionItem['name'],

@@ -54,8 +54,9 @@ class Foundation extends StatelessWidget {
                             lesson: LessonList[index].lesson!,
                             // detailsLesson: LessonList[index].detailsLesson!,
                             price: LessonList[index].price!,
-                            onTapShop: () {
-                              Get.toNamed(AppRoute.login);
+                            onTapShop: () async {
+                              await Get.toNamed(AppRoute.login);
+                              return false;
                             },
                             count: '',
                           ),

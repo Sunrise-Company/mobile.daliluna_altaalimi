@@ -3,7 +3,7 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/function/cart_animation_helper.dart';
 
 class AnimatedCartIcon extends StatefulWidget {
-  final VoidCallback? onPressed;
+  final Future<bool> Function()? onPressed;
   final Color? color;
   final double? size;
   final GlobalKey? targetCartKey;
@@ -53,6 +53,10 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
     await _controller.forward();
     await _controller.reverse();
 
+    // Check logic first
+    bool success = await widget.onPressed!();
+    if (!success) return;
+
     // Get icon position
     final RenderBox? box =
         _iconKey.currentContext?.findRenderObject() as RenderBox?;
@@ -66,12 +70,9 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
         cartKey: widget.targetCartKey!,
         startPosition: position,
         onComplete: () {
-          widget.onPressed!();
+          // Logic already done
         },
       );
-    } else {
-      // No animation, just execute
-      widget.onPressed!();
     }
   }
 
