@@ -297,10 +297,12 @@ class GroupChatListPage extends StatelessWidget {
                     ],
                   ),
                   if (group['institute_name'] != null ||
-                      group['class_name'] != null) ...[
+                      (group['app_lesson'] != null &&
+                          group['app_lesson']['classes'] != null &&
+                          group['app_lesson']['classes']['name'] != null)) ...[
                     SizedBox(height: 4),
                     Text(
-                      '${group['institute_name'] ?? ''} ${group['institute_name'] != null && group['class_name'] != null ? '-' : ''} ${group['class_name'] ?? ''}',
+                      '${group['institute_name'] ?? ''} ${(group['institute_name'] != null && group['app_lesson'] != null && group['app_lesson']['classes'] != null) ? '-' : ''} ${group['app_lesson']?['classes']?['name'] ?? ''}',
                       style: TextStyle(
                         fontSize: responsiveValue(
                           context: context,

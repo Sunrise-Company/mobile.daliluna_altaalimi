@@ -168,32 +168,34 @@ class TeacherProfileWidget extends StatelessWidget {
                           ),
 
                           /// التعليم
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isTablet ? 20 : 14,
-                              vertical: isTablet ? 10 : 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColor.SecondryColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                color: AppColor.SecondryColor,
-                                width: 1.2,
+                          if (education.isNotEmpty &&
+                              education != 'تعليم غير متوفر')
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isTablet ? 20 : 14,
+                                vertical: isTablet ? 10 : 8,
                               ),
-                            ),
-                            child: Text(
-                              education,
-                              style: TextStyle(
-                                color: AppColor.SecondryColor,
-                                fontSize: responsiveValue(
-                                  context: context,
-                                  mobile: 14,
-                                  tablet: 20,
+                              decoration: BoxDecoration(
+                                color: AppColor.SecondryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                  color: AppColor.SecondryColor,
+                                  width: 1.2,
                                 ),
-                                fontWeight: FontWeight.w600,
+                              ),
+                              child: Text(
+                                education,
+                                style: TextStyle(
+                                  color: AppColor.SecondryColor,
+                                  fontSize: responsiveValue(
+                                    context: context,
+                                    mobile: 14,
+                                    tablet: 20,
+                                  ),
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
 
                           const SizedBox(height: 25),
 
@@ -206,6 +208,114 @@ class TeacherProfileWidget extends StatelessWidget {
 
                           /// نص الوصف (بشكل مختصر إذا طويل)
                           CustomReadMore(text: description),
+
+                          const SizedBox(height: 25),
+
+                          // Institutes Section
+                          if (teacherController.institutes.isNotEmpty) ...[
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: CustomTitle(text: "المعهد"),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Wrap(
+                                spacing: 8.0,
+                                runSpacing: 8.0,
+                                direction: Axis.horizontal,
+                                children: teacherController.institutes.map((
+                                  inst,
+                                ) {
+                                  // Handle if inst is String or Object
+                                  String name = "";
+                                  if (inst is String) {
+                                    name = inst;
+                                  } else if (inst is Map &&
+                                      inst['name'] != null) {
+                                    name = inst['name'];
+                                  }
+
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.PrimaryColor.withOpacity(
+                                        0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColor
+                                            .PrimaryColor.withOpacity(0.5),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      name,
+                                      style: TextStyle(
+                                        color: AppColor.PrimaryColor,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 25),
+                          ],
+
+                          // Classes/Subjects Section
+                          if (teacherController.classes.isNotEmpty) ...[
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: CustomTitle(text: "المواد"),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Wrap(
+                                spacing: 8.0,
+                                runSpacing: 8.0,
+                                children: teacherController.classes.map((cls) {
+                                  String name = "";
+                                  if (cls is String) {
+                                    name = cls;
+                                  } else if (cls is Map &&
+                                      cls['name'] != null) {
+                                    name = cls['name'];
+                                  }
+
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.DeepPurple.withOpacity(
+                                        0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColor.DeepPurple.withOpacity(
+                                          0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      name,
+                                      style: TextStyle(
+                                        color: AppColor.DeepPurple,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
 
                           const SizedBox(height: 40),
                         ],

@@ -348,11 +348,13 @@ class StudentListPage extends StatelessWidget {
                         ),
                     ],
                   ),
-                  if (student['institute_name'] != null ||
-                      student['class_name'] != null) ...[
+                  if ((student['institutes'] != null &&
+                          (student['institutes'] as List).isNotEmpty) ||
+                      (student['subjects'] != null &&
+                          (student['subjects'] as List).isNotEmpty)) ...[
                     SizedBox(height: 4),
                     Text(
-                      '${student['institute_name'] ?? ''} ${student['institute_name'] != null && student['class_name'] != null ? '-' : ''} ${student['class_name'] ?? ''}',
+                      '${student['institutes'] != null ? (student['institutes'] as List).join(' - ') : ''} ${(student['institutes'] != null && (student['institutes'] as List).isNotEmpty) && (student['subjects'] != null && (student['subjects'] as List).isNotEmpty) ? '-' : ''} ${student['subjects'] != null ? (student['subjects'] as List).join(' - ') : ''}',
                       style: TextStyle(
                         fontSize: responsiveValue(
                           context: context,
