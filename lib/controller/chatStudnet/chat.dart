@@ -1,5 +1,3 @@
-
-
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
 import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
@@ -81,9 +79,11 @@ class ChatStudentMessageController extends GetxController {
               ? {'path': data['m_file']['path'], 'type': data['m_file']['type']}
               : null,
         });
-        ChatStudentListTeacherController chatStudentListTeacherController =
-            Get.find();
-        chatStudentListTeacherController.chatStudent();
+        if (Get.isRegistered<ChatStudentListTeacherController>()) {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
         dataList.refresh();
         update();
       }
@@ -109,9 +109,11 @@ class ChatStudentMessageController extends GetxController {
         },
       );
       if (response.statusCode == 200) {
-        ChatStudentListTeacherController chatStudentListTeacherController =
-            Get.find();
-        chatStudentListTeacherController.chatStudent();
+        if (Get.isRegistered<ChatStudentListTeacherController>()) {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
 
         update();
       } else {
@@ -187,8 +189,6 @@ class ChatStudentMessageController extends GetxController {
   }) async {
     if ((text?.trim().isEmpty ?? true) && file == null) return;
 
-
-
     String tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
     // insert temporary message immediately for better UX
     dataList.insert(0, {
@@ -221,8 +221,9 @@ class ChatStudentMessageController extends GetxController {
         file: file,
         onProgress: (progress) {
           if (!isClosed) {
-            int index = dataList
-                .indexWhere((msg) => msg['message_id'] == tempMessageId);
+            int index = dataList.indexWhere(
+              (msg) => msg['message_id'] == tempMessageId,
+            );
             if (index != -1) {
               dataList[index]['uploadProgress'] = progress;
               dataList.refresh();

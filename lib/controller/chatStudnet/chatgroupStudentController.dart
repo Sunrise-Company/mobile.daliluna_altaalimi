@@ -64,9 +64,12 @@ class ChatGroupMessageStudentController extends GetxController {
               ? {'path': data['m_file']['path'], 'type': data['m_file']['type']}
               : null,
         });
-        // ChatStudentListTeacherController chatStudentListTeacherController =
-        //     Get.find();
-        // chatStudentListTeacherController.chatStudent();
+
+        if (Get.isRegistered<ChatStudentListTeacherController>()) {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
         messageList.refresh();
         update();
       }
@@ -102,9 +105,11 @@ class ChatGroupMessageStudentController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        ChatStudentListTeacherController chatStudentListTeacherController =
-            Get.find();
-        chatStudentListTeacherController.chatStudent();
+        if (Get.isRegistered<ChatStudentListTeacherController>()) {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
         // GetMessages();
         update();
       } else {
@@ -211,11 +216,13 @@ class ChatGroupMessageStudentController extends GetxController {
         });
       }
 
-      ChatStudentListTeacherController chatStudentListTeacherController =
-          Get.find();
-      try {
-        chatStudentListTeacherController.chatStudent();
-      } catch (e) {}
+      if (Get.isRegistered<ChatStudentListTeacherController>()) {
+        try {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        } catch (e) {}
+      }
 
       if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
         sockectcontroller.socket.emit('sendChatToServer', {

@@ -65,8 +65,11 @@ class ChatTeacherController extends GetxController {
               : null,
         });
 
-        ListStudentChatController chatStudentListTeacherController = Get.find();
-        chatStudentListTeacherController.chatStudent();
+        if (Get.isRegistered<ListStudentChatController>()) {
+          ListStudentChatController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
         // GetMessages();
         dataList.refresh();
         update();
@@ -101,8 +104,10 @@ class ChatTeacherController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-        ListStudentChatController listStudentChatController = Get.find();
-        listStudentChatController.chatStudent();
+        if (Get.isRegistered<ListStudentChatController>()) {
+          ListStudentChatController listStudentChatController = Get.find();
+          listStudentChatController.chatStudent();
+        }
         // GetMessages();
         update();
       } else {}

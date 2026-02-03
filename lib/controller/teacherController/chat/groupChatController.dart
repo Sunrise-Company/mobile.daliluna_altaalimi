@@ -77,8 +77,11 @@ class ChatGroupMessageTeacherController extends GetxController {
               ? {'path': data['m_file']['path'], 'type': data['m_file']['type']}
               : null,
         });
-        ListStudentChatController chatStudentListTeacherController = Get.find();
-        chatStudentListTeacherController.chatStudent();
+        if (Get.isRegistered<ListStudentChatController>()) {
+          ListStudentChatController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
         // messageList.refresh();
         // cancelNotification();
         update();
@@ -100,8 +103,11 @@ class ChatGroupMessageTeacherController extends GetxController {
         body: jsonEncode({'receiver_id': chatId}),
       );
       if (response.statusCode == 200) {
-        ListStudentChatController chatStudentListTeacherController = Get.find();
-        chatStudentListTeacherController.chatStudent();
+        if (Get.isRegistered<ListStudentChatController>()) {
+          ListStudentChatController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        }
 
         update();
       } else {}
@@ -142,9 +148,7 @@ class ChatGroupMessageTeacherController extends GetxController {
     // update();
     try {
       final uploadService = Get.find<UploadService>();
-      final fields = <String, String>{
-        'receiver_id': receiverId,
-      };
+      final fields = <String, String>{'receiver_id': receiverId};
       if (text != null && text.trim().isNotEmpty) {
         fields['msg'] = text;
       }
@@ -159,8 +163,9 @@ class ChatGroupMessageTeacherController extends GetxController {
         file: file,
         onProgress: (progress) {
           if (!isClosed) {
-            int index = messageList
-                .indexWhere((msg) => msg['message_id'] == tempMessageId);
+            int index = messageList.indexWhere(
+              (msg) => msg['message_id'] == tempMessageId,
+            );
             if (index != -1) {
               messageList[index]['uploadProgress'] = progress;
               messageList.refresh();
@@ -210,10 +215,12 @@ class ChatGroupMessageTeacherController extends GetxController {
               : null,
         });
       }
-      ListStudentChatController listStudentChatController = Get.find();
-      try {
-        listStudentChatController.chatStudent();
-      } catch (e) {}
+      if (Get.isRegistered<ListStudentChatController>()) {
+        ListStudentChatController listStudentChatController = Get.find();
+        try {
+          listStudentChatController.chatStudent();
+        } catch (e) {}
+      }
 
       if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
         sockectcontroller.socket.emit('sendChatToServer', {
