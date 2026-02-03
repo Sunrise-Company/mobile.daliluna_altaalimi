@@ -127,17 +127,17 @@ class ChatGroupMessageStudentController extends GetxController {
 
     final url = Uri.parse(AppLink.server + '/message_group');
     String tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (file != null)
-      messageList.insert(0, {
-        'message_id': tempMessageId,
-        'msg': text ?? '',
-        'sender_id': senderId.toString(),
-        'receiver_id': receiverId,
-        'created_at': DateTime.now().toIso8601String(),
-        // ignore: unnecessary_null_comparison
-        'isLoading': file != null,
-        'uploadProgress': 0.0,
-      });
+    // insert temporary message immediately for better UX
+    messageList.insert(0, {
+      'message_id': tempMessageId,
+      'msg': text ?? '',
+      'sender_id': senderId.toString(),
+      'receiver_id': receiverId,
+      'created_at': DateTime.now().toIso8601String(),
+      'isLoading': file != null,
+      'uploadProgress': 0.0,
+      'm_file': file != null ? {'path': file.path, 'type': 'file'} : null,
+    });
     update();
     try {
       final uploadService = Get.find<UploadService>();
@@ -178,19 +178,10 @@ class ChatGroupMessageStudentController extends GetxController {
       String? filePath = fileData?['path'];
       String? fileTypeResponse = fileData?['type'];
 
-      if (file == null)
-        messageList.insert(0, {
-          'message_id': tempMessageId,
-          'msg': text ?? '',
-          'sender_id': senderId.toString(),
-          'receiver_id': receiverId,
-          'created_at': DateTime.now().toIso8601String(),
-          'isLoading': file != null,
-        });
-
       int index = messageList.indexWhere(
         (msg) => msg['message_id'] == tempMessageId,
       );
+
       if (index != -1) {
         messageList[index] = {
           'msg': text ?? '',
@@ -205,6 +196,19 @@ class ChatGroupMessageStudentController extends GetxController {
               : null,
         };
         update();
+      } else {
+        // Fallback: Insert if message wasn't found in list
+        messageList.insert(0, {
+          'message_id': messageId,
+          'msg': text ?? '',
+          'sender_id': senderId.toString(),
+          'receiver_id': receiverId,
+          'created_at': DateTime.now().toIso8601String(),
+          'm_file': filePath != null
+              ? {'path': filePath, 'type': fileTypeResponse}
+              : null,
+          'isLoading': file != null,
+        });
       }
 
       ChatStudentListTeacherController chatStudentListTeacherController =

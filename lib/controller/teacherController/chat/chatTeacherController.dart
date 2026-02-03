@@ -198,18 +198,18 @@ class ChatTeacherController extends GetxController {
     if ((text?.trim().isEmpty ?? true) && file == null) return;
 
     String tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (file != null)
-      dataList.insert(0, {
-        'message_id': tempMessageId,
-        'is_read': 0,
-        'msg': text ?? '',
-        'sender_id': senderId.toString(),
-        'receiver_id': receiverId,
-        'created_at': DateTime.now().toIso8601String(),
-        // ignore: unnecessary_null_comparison
-        'isLoading': file != null,
-        'uploadProgress': 0.0,
-      });
+    // insert temporary message immediately for better UX
+    dataList.insert(0, {
+      'message_id': tempMessageId,
+      'is_read': 0,
+      'msg': text ?? '',
+      'sender_id': senderId.toString(),
+      'receiver_id': receiverId,
+      'created_at': DateTime.now().toIso8601String(),
+      'isLoading': file != null,
+      'uploadProgress': 0.0,
+      'm_file': file != null ? {'path': file.path, 'type': 'file'} : null,
+    });
     update();
 
     try {
@@ -253,16 +253,7 @@ class ChatTeacherController extends GetxController {
       int index = dataList.indexWhere(
         (msg) => msg['message_id'] == tempMessageId,
       );
-      if (file == null)
-        dataList.insert(0, {
-          'message_id': tempMessageId,
-          'is_read': 0,
-          'msg': text ?? '',
-          'sender_id': senderId.toString(),
-          'receiver_id': receiverId,
-          'created_at': DateTime.now().toIso8601String(),
-          'isLoading': file != null,
-        });
+
       if (index != -1) {
         dataList[index] = {
           'msg': text ?? '',
@@ -278,6 +269,19 @@ class ChatTeacherController extends GetxController {
               : null,
         };
         update();
+      } else {
+        dataList.insert(0, {
+          'message_id': messageId,
+          'is_read': 0,
+          'msg': text ?? '',
+          'sender_id': senderId.toString(),
+          'receiver_id': receiverId,
+          'created_at': DateTime.now().toIso8601String(),
+          'isLoading': file != null,
+          'm_file': filePath != null
+              ? {'path': filePath, 'type': fileTypeResponse}
+              : null,
+        });
       }
 
       ListStudentChatController listStudentChatController = Get.find();

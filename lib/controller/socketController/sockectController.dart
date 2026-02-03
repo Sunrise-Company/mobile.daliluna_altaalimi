@@ -45,7 +45,7 @@ class Sockectcontroller extends GetxController {
     socket.onConnect((_) {
       socketId = socket.id;
       isSocketConnected.value = true;
-
+      log("Socket Connected Successfully. ID: $socketId");
       saveStudentSocketIdToDatabase(socketId!);
       saveTeacherSocketIdToDatabase(socketId!);
     });
@@ -86,12 +86,15 @@ class Sockectcontroller extends GetxController {
     });
     socket.onDisconnect((_) {
       isSocketConnected.value = false;
+      log("Socket Disconnected");
     });
     socket.onConnectError((err) {
       isSocketConnected.value = false;
+      log("Socket Connect Error: $err");
     });
     socket.onError((err) {
       isSocketConnected.value = false;
+      log("Socket Error: $err");
     });
   }
 

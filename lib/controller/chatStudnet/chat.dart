@@ -190,18 +190,18 @@ class ChatStudentMessageController extends GetxController {
 
 
     String tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
-    if (file != null)
-      dataList.insert(0, {
-        'message_id': tempMessageId,
-        'msg': text ?? '',
-        'sender_id': senderId.toString(),
-        'receiver_id': receiverId,
-        'created_at': DateTime.now().toIso8601String(),
-        // ignore: unnecessary_null_comparison
-        'isLoading': file != null,
-        'uploadProgress': 0.0,
-        'is_read': 0,
-      });
+    // insert temporary message immediately for better UX
+    dataList.insert(0, {
+      'message_id': tempMessageId,
+      'msg': text ?? '',
+      'sender_id': senderId.toString(),
+      'receiver_id': receiverId,
+      'created_at': DateTime.now().toIso8601String(),
+      'isLoading': file != null,
+      'uploadProgress': 0.0,
+      'is_read': 0,
+      'm_file': file != null ? {'path': file.path, 'type': 'file'} : null,
+    });
     update();
 
     try {
@@ -261,8 +261,8 @@ class ChatStudentMessageController extends GetxController {
               ? {'path': filePath, 'type': fileTypeResponse}
               : null,
         };
-      } else if (file == null) {
-        // Only insert if message wasn't added before (text-only message)
+      } else {
+        // Fallback: Insert if message wasn't found in list (e.g. cleared or text message)
         dataList.insert(0, {
           'message_id': messageId,
           'msg': text ?? '',
