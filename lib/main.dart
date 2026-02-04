@@ -1,15 +1,13 @@
 import 'dart:io';
 import 'dart:async';
-import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_observer.dart';
 import 'package:daliluna_altaalimi/core/services/version_service.dart';
 import 'package:daliluna_altaalimi/data/model/version_model.dart';
 import 'package:daliluna_altaalimi/view/screen/update_app.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:daliluna_altaalimi/core/services/notification_helper.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/apptheme.dart';
 import 'package:daliluna_altaalimi/modules/bindings/basket_bindings.dart';
@@ -95,7 +93,7 @@ void main() async {
 
   // 2. Initialize Notifications (Non-blocking)
   try {
-    await _initializeNotifications();
+    await NotificationHelper.initialize();
   } catch (e) {
     debugPrint("Notification init failed: $e");
   }
@@ -627,30 +625,7 @@ Future<String?> checkIfEmulator() async {
   return null;
 }
 
-Future<void> _initializeNotifications() async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  if (await Permission.notification.isDenied) {
-    await Permission.notification.request();
-  }
 
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) {
-      if (response.payload != null) {
-        Sockectcontroller sockectcontroller = Get.put(Sockectcontroller());
-        sockectcontroller.navigateToChatScreen(response.payload!);
-      }
-    },
-  );
-}
 
 Future<bool> checkVersionNeedsUpdate() async {
   try {

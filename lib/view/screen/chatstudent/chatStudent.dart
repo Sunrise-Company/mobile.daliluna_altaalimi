@@ -220,22 +220,23 @@ class ChatStudent extends StatelessWidget {
               : CrossAxisAlignment.start,
           children: [
             // Show sender name for received messages
-            if (!isMe && message['sender_name'] != null)
-              Padding(
-                padding: EdgeInsets.only(right: 12, left: 12, bottom: 4),
-                child: Text(
-                  message['sender_name'],
-                  style: TextStyle(
-                    fontSize: responsiveValue(
-                      context: context,
-                      mobile: 11,
-                      tablet: 16,
-                    ),
-                    color: AppColor.DeepPurple,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            // Removed for single chat as requested
+            // if (!isMe && message['sender_name'] != null)
+            //   Padding(
+            //     padding: EdgeInsets.only(right: 12, left: 12, bottom: 4),
+            //     child: Text(
+            //       message['sender_name'],
+            //       style: TextStyle(
+            //         fontSize: responsiveValue(
+            //           context: context,
+            //           mobile: 11,
+            //           tablet: 16,
+            //         ),
+            //         color: AppColor.DeepPurple,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //     ),
+            //   ),
             Align(
               alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(

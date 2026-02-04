@@ -7,11 +7,14 @@ import 'package:daliluna_altaalimi/controller/teacherController/chat/listchatStu
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/screen/chatstudent/chatStudent.dart';
 import 'package:daliluna_altaalimi/view/teacher/chatTeacher/chatTeacher.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:daliluna_altaalimi/core/services/notification_helper.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:daliluna_altaalimi/core/constant/color.dart';
 
 class Sockectcontroller extends GetxController {
   late IO.Socket socket;
@@ -53,33 +56,80 @@ class Sockectcontroller extends GetxController {
     Set<int> activeNotifications = {};
 
     socket.on('sendChatToClient', (data) async {
+      log("Socket: Received 'sendChatToClient': $data");
+
       int notificationId =
           int.tryParse(data['message_id']) ??
           DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+      // Prevent duplicate notifications for same message
+      if (activeNotifications.contains(notificationId)) {
+        log("Socket: Skipping duplicate notification $notificationId");
+        return;
+      }
+
       activeNotifications.add(notificationId);
-      _showNotification(
-        data['sender_name'] ?? "رسالة جديدة",
-        data['msg'] == " "
-            ? _getFileTypeDescription(data['m_file']['type'])
-            : data['msg'],
-        data['group_name'] == null ? false : true,
-        data['group_name'],
-        data['receiver_id'],
-        data['receiver_type'],
-        data['sender_type'],
-        data['message_id'],
-        data['sender_id'],
-      );
+
+      // Check if app is in foreground
+      final isInForeground =
+          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+
+      try {
+        if (isInForeground) {
+          // App is active - show in-app notification with navigation
+          log("Socket: App in foreground, showing in-app notification");
+          _showInAppChatNotification(
+            data['sender_name'] ?? "رسالة جديدة",
+            data['msg'] == " "
+                ? _getFileTypeDescription(data['m_file']['type'])
+                : data['msg'],
+            data['receiver_id'],
+            data['receiver_type'],
+            data['group_name'],
+            data['sender_id'],
+            data['sender_type'],
+            data['message_id'],
+          );
+        } else {
+          // App is in background - show system notification
+          log(
+            "Socket: App in background, showing system notification for $notificationId",
+          );
+          await _showNotification(
+            data['sender_name'] ?? "رسالة جديدة",
+            data['msg'] == " "
+                ? _getFileTypeDescription(data['m_file']['type'])
+                : data['msg'],
+            data['group_name'] == null ? false : true,
+            data['group_name'],
+            data['receiver_id'],
+            data['receiver_type'],
+            data['sender_type'],
+            data['message_id'],
+            data['sender_id'],
+          );
+        }
+      } catch (e) {
+        log("Socket: Error showing notification: $e");
+      }
 
       if (Get.isRegistered<ChatStudentListTeacherController>()) {
-        ChatStudentListTeacherController chatStudentListTeacherController =
-            Get.find();
-        chatStudentListTeacherController.chatStudent();
+        try {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        } catch (e) {
+          log("Socket: Error updating ChatStudentListTeacherController: $e");
+        }
       }
 
       if (Get.isRegistered<ListStudentChatController>()) {
-        ListStudentChatController listStudentChatController = Get.find();
-        listStudentChatController.chatStudent();
+        try {
+          ListStudentChatController listStudentChatController = Get.find();
+          listStudentChatController.chatStudent();
+        } catch (e) {
+          log("Socket: Error updating ListStudentChatController: $e");
+        }
       }
 
       update();
@@ -112,8 +162,15 @@ class Sockectcontroller extends GetxController {
         body: {'socket_id': socketId},
       );
       if (response.statusCode == 200) {
-      } else {}
-    } catch (e) {}
+        log("Socket: Saved Teacher Socket ID");
+      } else {
+        log(
+          "Socket: Failed to save Teacher Socket ID: ${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      log("Socket: Error saving Teacher Socket ID: $e");
+    }
   }
 
   Future<void> saveTeacherSocketIdToDatabase(String socketId) async {
@@ -130,10 +187,95 @@ class Sockectcontroller extends GetxController {
       );
 
       if (response.statusCode == 200) {
-      } else {}
-    } catch (e) {}
+        log("Socket: Saved Teacher Socket ID");
+      } else {
+        log(
+          "Socket: Failed to save Teacher Socket ID: ${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      log("Socket: Error saving Teacher Socket ID: $e");
+    }
   }
 
+  // Show in-app notification when app is in foreground
+  void _showInAppChatNotification(
+    String senderName,
+    String message,
+    String receiverId,
+    String receiverType,
+    String? groupName,
+    String senderId,
+    String senderType,
+    String messageId,
+  ) {
+    log("Socket: Showing in-app notification dialog");
+
+    Get.snackbar(
+      senderName,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: AppColor.PrimaryColor,
+      colorText: AppColor.White,
+      duration: const Duration(seconds: 4),
+      margin: const EdgeInsets.all(15),
+      borderRadius: 15,
+      isDismissible: true,
+      dismissDirection: DismissDirection.horizontal,
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.3),
+          blurRadius: 10,
+          spreadRadius: 2,
+          offset: const Offset(0, 3),
+        ),
+      ],
+      icon: const Icon(
+        Icons.notifications_active,
+        color: AppColor.SecondryColor,
+        size: 30,
+      ),
+      shouldIconPulse: true,
+      onTap: (_) {
+        // Navigate to chat when tapped
+        String payload = jsonEncode({
+          'receiver_id': receiverId,
+          'receiver_type': receiverType,
+          'group_name': groupName ?? "",
+          'sender_name': senderName,
+          'sender_id': senderId,
+          'sender_type': senderType,
+          'notification_id': messageId,
+        });
+        navigateToChatScreen(payload);
+      },
+      mainButton: TextButton(
+        onPressed: () {
+          String payload = jsonEncode({
+            'receiver_id': receiverId,
+            'receiver_type': receiverType,
+            'group_name': groupName ?? "",
+            'sender_name': senderName,
+            'sender_id': senderId,
+            'sender_type': senderType,
+            'notification_id': messageId,
+          });
+          navigateToChatScreen(payload);
+          Get.closeCurrentSnackbar();
+        },
+        child: const Text(
+          'فتح',
+          style: TextStyle(
+            color: AppColor.SecondryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ignore: unused_element
   Future<void> _showNotification(
     String senderName,
     String message,
@@ -145,8 +287,10 @@ class Sockectcontroller extends GetxController {
     String messageId,
     String senderID,
   ) async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
+    // Global flutterLocalNotificationsPlugin used
+    // Use NotificationHelper's static instance
+    final flutterLocalNotificationsPlugin =
+        NotificationHelper.flutterLocalNotificationsPlugin;
 
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
@@ -156,6 +300,12 @@ class Sockectcontroller extends GetxController {
           importance: Importance.max,
           priority: Priority.high,
           playSound: true,
+          enableVibration: true,
+          autoCancel: true,
+          ongoing: false,
+          // These settings ensure the notification is interactive
+          category: AndroidNotificationCategory.message,
+          visibility: NotificationVisibility.public,
         );
 
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
@@ -180,6 +330,9 @@ class Sockectcontroller extends GetxController {
       'notification_id': notificationId.toString(),
     });
 
+    log("Socket: About to show notification with ID: $notificationId");
+    log("Socket: Notification payload: $payload");
+
     await flutterLocalNotificationsPlugin.show(
       notificationId,
       title,
@@ -187,9 +340,12 @@ class Sockectcontroller extends GetxController {
       platformChannelSpecifics,
       payload: payload,
     );
+
+    log("Socket: Notification shown successfully with ID: $notificationId");
   }
 
   void navigateToChatScreen(String payload) async {
+    log("Socket: Navigating with payload: $payload");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? teacherToken = prefs.getString('tokenTeacher');
@@ -199,26 +355,33 @@ class Sockectcontroller extends GetxController {
     int? notificationId = int.tryParse(data['notification_id'] ?? '');
 
     if (notificationId != null) {
-      // ignore: unused_local_variable
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-          FlutterLocalNotificationsPlugin();
-      // await flutterLocalNotificationsPlugin.cancel(notificationId);
+      try {
+        await NotificationHelper.flutterLocalNotificationsPlugin.cancel(
+          notificationId,
+        );
+      } catch (e) {
+        log("Socket: Error canceling notification: $e");
+      }
     }
 
     //notification from Group to student
     if (data['receiver_type'].toString() == "App\\Models\\Room" &&
         token != null) {
-      // Get.lazyPut(() => HomePageController());
-      Get.put(() => ChatStudentListTeacherController());
+      log("Socket: Navigating to Group Chat Student");
+      Get.put(ChatStudentListTeacherController());
       Get.toNamed(
         '/gorupchatStudent',
-        arguments: {'idRoom': data['receiver_id'], 'name': data['group_name']},
+        arguments: {
+          'idRoom': data['receiver_id'].toString(),
+          'name': data['group_name'],
+        },
       );
 
       // notification from teacher to student
     } else if (data['receiver_type'].toString() == "App\\Models\\App_student" &&
         data['sender_type'] == 'App\\Models\\App_teacher' &&
         token != null) {
+      log("Socket: Navigating to Chat Student (Teacher -> Student)");
       Get.to(() {
         final chatController = Get.put(ChatStudentMessageController());
         chatController.receiverId.value = data['sender_id'].toString();
@@ -229,7 +392,7 @@ class Sockectcontroller extends GetxController {
       //notification from group to teacher
     } else if (data['receiver_type'].toString() == "App\\Models\\Room" &&
         teacherToken != null) {
-      // Get.lazyPut(() => HomePageTeacherController());
+      log("Socket: Navigating to Group Chat Teacher");
 
       Get.toNamed(
         '/groupChatTeacher',
@@ -243,7 +406,7 @@ class Sockectcontroller extends GetxController {
     } else if (teacherToken != null &&
         data['receiver_type'].toString() == "App\\Models\\App_teacher" &&
         data['sender_type'] == 'App\\Models\\App_student') {
-      // final HomeController = Get.put(HomePageTeacherController());
+      log("Socket: Navigating to Chat Teacher (Student -> Teacher)");
       Get.to(() {
         final chatController = Get.put(ChatTeacherController());
         chatController.receiverId.value = data['sender_id'].toString();
@@ -251,6 +414,8 @@ class Sockectcontroller extends GetxController {
         chatController.markChatAsRead(data['sender_id'].toString());
         return ChatPage();
       });
+    } else {
+      log("Socket: No matching navigation path found for payload.");
     }
   }
 

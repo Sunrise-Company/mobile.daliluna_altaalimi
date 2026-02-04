@@ -38,7 +38,6 @@ class ChatStudentListTeacherController extends GetxController {
   }
 
   Future<void> chatStudent() async {
-    print("sssssssssssssssssssssssssssss");
     isloded.value = false;
     update();
     try {
@@ -49,8 +48,13 @@ class ChatStudentListTeacherController extends GetxController {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
       };
-      log("token" + token!);
+      if (token != null) {
+        log("token: $token");
+      } else {
+        log("token is null");
+      }
       log("${AppLink.server + '/getListUsersStudent'}");
+
       final response = await http.get(
         Uri.parse(AppLink.server + '/getListUsersStudent'),
         headers: headers,

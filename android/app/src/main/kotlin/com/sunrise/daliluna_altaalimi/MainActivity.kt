@@ -46,6 +46,12 @@ class MainActivity : FlutterActivity() {
         setupOverlayView()
     }
 
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        // This is crucial for handling notification clicks when app is already running
+        setIntent(intent)
+    }
+
     override fun onResume() {
         super.onResume()
         // تسجيل الـ Listener عند عودة التطبيق للواجهة
