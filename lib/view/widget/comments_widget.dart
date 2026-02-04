@@ -66,7 +66,12 @@ class CommentsWidget extends StatelessWidget {
               }),
             ),
           ),
-          _buildCommentInputField(controller),
+          Obx(() {
+            if (controller.isLoading.value) return SizedBox.shrink();
+            return controller.isTeacher.value
+                ? SizedBox.shrink()
+                : _buildCommentInputField(controller);
+          }),
         ],
       ),
     );

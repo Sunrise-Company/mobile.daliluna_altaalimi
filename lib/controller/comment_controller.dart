@@ -22,6 +22,7 @@ class CommentController extends GetxController {
   SharedPreferences? prefs;
   String? studentId;
   bool isUserLoggedIn = false;
+  var isTeacher = false.obs;
   String type = '';
   @override
   void onInit() {
@@ -43,6 +44,10 @@ class CommentController extends GetxController {
     prefs = await SharedPreferences.getInstance();
     studentId = prefs!.getString('student_id');
     isUserLoggedIn = prefs!.getBool('isLogin') ?? false;
+    int? teacherId = prefs!.getInt('teacher_id');
+    if (teacherId != null && teacherId != 0) {
+      isTeacher.value = true;
+    }
     await fetchComments(type);
   }
 

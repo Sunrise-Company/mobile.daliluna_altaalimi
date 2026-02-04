@@ -146,9 +146,7 @@ class ChatGroupMessageStudentController extends GetxController {
     update();
     try {
       final uploadService = Get.find<UploadService>();
-      final fields = <String, String>{
-        'receiver_id': receiverId,
-      };
+      final fields = <String, String>{'receiver_id': receiverId};
       if (text != null && text.trim().isNotEmpty) {
         fields['msg'] = text;
       }
@@ -163,8 +161,9 @@ class ChatGroupMessageStudentController extends GetxController {
         file: file,
         onProgress: (progress) {
           if (!isClosed) {
-            int index = messageList
-                .indexWhere((msg) => msg['message_id'] == tempMessageId);
+            int index = messageList.indexWhere(
+              (msg) => msg['message_id'] == tempMessageId,
+            );
             if (index != -1) {
               messageList[index]['uploadProgress'] = progress;
               messageList.refresh();
@@ -225,6 +224,9 @@ class ChatGroupMessageStudentController extends GetxController {
       }
 
       if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
+        log(
+          "Group Chat: Emitting sendChatToServer to ${socketIds.length} sockets",
+        );
         sockectcontroller.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
@@ -243,8 +245,13 @@ class ChatGroupMessageStudentController extends GetxController {
               ? {'path': filePath, 'type': fileTypeResponse}
               : null,
         });
+      } else {
+        log(
+          "Group Chat: assert failed - socketIds: ${socketIds.length}, connected: ${sockectcontroller.isSocketConnected.value}",
+        );
       }
     } catch (e) {
+      log("Error in Group sendMessage: $e");
       if (!isClosed) {
         messageList.removeWhere((msg) => msg['message_id'] == tempMessageId);
         update();

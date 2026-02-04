@@ -134,7 +134,11 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
       final manifest = await yt.videos.streamsClient.getManifest(
         widget.videoId,
-        ytClients: [YoutubeApiClient.safari, YoutubeApiClient.androidVr],
+        ytClients: [
+          YoutubeApiClient.ios,
+          YoutubeApiClient.android,
+          YoutubeApiClient.safari,
+        ],
       );
       final List<DownloadOption> options = [];
 
@@ -165,30 +169,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       // معالجة الأخطاء مع عرض معلومات مفيدة
       debugPrint('Error fetching download options for ${widget.videoId}: $e');
 
-      if (mounted) {
-        String errorMessage = 'لا يمكن تحميل هذا الفيديو';
-
-        // تخصيص الرسالة حسب نوع الخطأ
-        if (e.toString().contains('VideoUnplayableException')) {
-          errorMessage = 'هذا الفيديو غير متاح للتشغيل';
-        } else if (e.toString().contains('VideoUnavailableException')) {
-          errorMessage = 'هذا الفيديو غير متاح (قد يكون محذوفاً أو خاصاً)';
-        } else if (e.toString().contains('VideoRequiresPurchaseException')) {
-          errorMessage = 'هذا الفيديو يتطلب شراء';
-        } else if (e.toString().contains('SocketException') ||
-            e.toString().contains('TimeoutException')) {
-          errorMessage = 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى';
-        }
-
-        // عرض الخطأ للمستخدم
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
+      // Removed automatic SnackBar to prevent confusing the user if playback works but download fails.
+      // The download button handler already manages the error state if clicked.
     } finally {
       if (mounted) setState(() => _isFetchingQualities = false);
       yt.close();

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
 import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
@@ -279,11 +280,23 @@ class ChatStudentMessageController extends GetxController {
         });
       }
       update();
-      ChatStudentListTeacherController chatStudentListTeacherController =
-          Get.find();
-      chatStudentListTeacherController.chatStudent();
+      if (Get.isRegistered<ChatStudentListTeacherController>()) {
+        try {
+          ChatStudentListTeacherController chatStudentListTeacherController =
+              Get.find();
+          chatStudentListTeacherController.chatStudent();
+        } catch (e) {
+          log("Error updating chat list: $e");
+        }
+      }
+
       update();
+      for (int i = 0; i < socketIds.length; i++) {
+        log("socketId: ${socketIds[i]}");
+      }
+
       if (socketIds.isNotEmpty) {
+        log("Emitting sendChatToServer with ${socketIds.length} recipients");
         sockectcontroller.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
@@ -302,8 +315,11 @@ class ChatStudentMessageController extends GetxController {
               ? {'path': filePath, 'type': fileTypeResponse}
               : null,
         });
+      } else {
+        log("Warning: socketIds is empty, skipping emit");
       }
     } catch (e) {
+      log("Error in sendMessage: $e");
       dataList.removeWhere((msg) => msg['message_id'] == tempMessageId);
       update();
     }

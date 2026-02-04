@@ -288,20 +288,22 @@ class ChatStudent extends StatelessWidget {
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   isMe ? Colors.white : AppColor.DeepPurple,
                                 ),
-                                backgroundColor:
-                                    isMe ? Colors.white24 : Colors.grey[200],
+                                backgroundColor: isMe
+                                    ? Colors.white24
+                                    : Colors.grey[200],
                               ),
                             ),
                             if (message['uploadProgress'] is double)
                               Text(
                                 "${((message['uploadProgress'] as double) * 100).toInt()}%",
                                 style: TextStyle(
-                                  color:
-                                      isMe ? Colors.white : AppColor.DeepPurple,
+                                  color: isMe
+                                      ? Colors.white
+                                      : AppColor.DeepPurple,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
-                              )
+                              ),
                           ],
                         ),
                       ),
