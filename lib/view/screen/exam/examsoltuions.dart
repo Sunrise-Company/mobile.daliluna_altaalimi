@@ -108,44 +108,44 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
             style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 20),
-          _buildTimerDisplay(context),
+          // _buildTimerDisplay(context),
         ],
       ),
     );
   }
 
   /// ⏰ الساعة التي تظهر المدة
-  Widget _buildTimerDisplay(BuildContext context) {
-    final duration = controller.exam_period.value.toString();
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        SizedBox(
-          height: responsiveValue(context: context, mobile: 100, tablet: 140),
-          width: responsiveValue(context: context, mobile: 100, tablet: 140),
-          child: CircularProgressIndicator(
-            value: 1, // يمكن لاحقًا ربطها بنسبة الوقت الفعلي
-            strokeWidth: 8,
-            backgroundColor: Colors.white24,
-            valueColor: AlwaysStoppedAnimation<Color>(AppColor.SecondryColor),
-          ),
-        ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.timer, color: Colors.white, size: 30),
-            Text(
-              "$duration دقيقة",
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _buildTimerDisplay(BuildContext context) {
+  //   final duration = controller.exam_period.value.toString();
+  //   return Stack(
+  //     alignment: Alignment.center,
+  //     children: [
+  //       SizedBox(
+  //         height: responsiveValue(context: context, mobile: 100, tablet: 140),
+  //         width: responsiveValue(context: context, mobile: 100, tablet: 140),
+  //         child: CircularProgressIndicator(
+  //           value: 1, // يمكن لاحقًا ربطها بنسبة الوقت الفعلي
+  //           strokeWidth: 8,
+  //           backgroundColor: Colors.white24,
+  //           valueColor: AlwaysStoppedAnimation<Color>(AppColor.SecondryColor),
+  //         ),
+  //       ),
+  //       Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           const Icon(Icons.timer, color: Colors.white, size: 30),
+  //           Text(
+  //             "$duration دقيقة",
+  //             style: const TextStyle(
+  //               color: Colors.white,
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 
   /// 🧮 العلامة
   Widget _buildScoreSummary() {
@@ -186,6 +186,7 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
         final myOptions = json.decode(question['option']['myOptions']);
         final correctAnswers = json.decode(question['answer']);
         final mark = "${question['mark']}/${question['deserved_mark']}";
+
 
         return Container(
           decoration: BoxDecoration(

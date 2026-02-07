@@ -25,7 +25,7 @@ class LessonDetailsController extends GetxController {
   fetchTeacherInfo() async {
     try {
       dataList = await ApiService.fetchTeacherInfo();
-
+      print("ddddddddddddddddddddddd$dataList");
       isLoading = true;
       update();
     } catch (error) {}

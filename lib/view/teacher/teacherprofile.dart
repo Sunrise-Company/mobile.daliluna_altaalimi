@@ -20,36 +20,6 @@ class TeacherProfileWidget extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.white,
-        // appBar: PreferredSize(
-        //   preferredSize: Size.fromHeight(
-        //     getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 55,
-        //       tablet: 100,
-        //     ),
-        //   ),
-        //   child: AppBar(
-        //     titleSpacing: getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 30,
-        //       tablet: 50,
-        //     ),
-        //     elevation: 0,
-        //     flexibleSpace: Container(
-        //       decoration: BoxDecoration(
-        //         gradient: LinearGradient(
-        //           begin: Alignment.topCenter,
-        //           end: Alignment.bottomRight,
-        //           colors: <Color>[AppColor.DeepPurple, AppColor.PrimaryColor],
-        //         ),
-        //       ),
-        //     ),
-        //     title: const Text(
-        //       "البروفايل",
-        //       style: TextStyle(color: AppColor.White),
-        //     ),
-        //   ),
-        // ),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(
             getValueForScreenType<double>(
@@ -83,6 +53,7 @@ class TeacherProfileWidget extends StatelessWidget {
           final name = teacherController.arabicName.value;
           final description = "${teacherController.description.value}";
           final education = teacherController.education.value;
+
 
           return ResponsiveBuilder(
             builder: (context, sizingInformation) {
@@ -211,111 +182,61 @@ class TeacherProfileWidget extends StatelessWidget {
 
                           const SizedBox(height: 25),
 
-                          // Institutes Section
-                          if (teacherController.institutes.isNotEmpty) ...[
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: CustomTitle(text: "المعهد"),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Wrap(
-                                spacing: 8.0,
-                                runSpacing: 8.0,
-                                direction: Axis.horizontal,
-                                children: teacherController.institutes.map((
-                                  inst,
-                                ) {
-                                  // Handle if inst is String or Object
-                                  String name = "";
-                                  if (inst is String) {
-                                    name = inst;
-                                  } else if (inst is Map &&
-                                      inst['name'] != null) {
-                                    name = inst['name'];
-                                  }
+                          Obx(() {
+                            if (teacherController.institutes.isEmpty) return SizedBox();
 
-                                  return Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.PrimaryColor.withOpacity(
-                                        0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: AppColor
-                                            .PrimaryColor.withOpacity(0.5),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      name,
-                                      style: TextStyle(
-                                        color: AppColor.PrimaryColor,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            const SizedBox(height: 25),
-                          ],
+                            return Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: CustomTitle(text: "المعهد"),
+                                ),
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: teacherController.institutes.map((inst) {
+                                    String name = "";
+                                    if (inst is String) {
+                                      name = inst;
+                                    } else if (inst is Map && inst['name'] != null) {
+                                      name = inst['name'];
+                                    }
 
-                          // Classes/Subjects Section
-                          if (teacherController.classes.isNotEmpty) ...[
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: CustomTitle(text: "المواد"),
-                            ),
-                            const SizedBox(height: 10),
-                            SizedBox(
-                              width: double.infinity,
-                              child: Wrap(
-                                spacing: 8.0,
-                                runSpacing: 8.0,
-                                children: teacherController.classes.map((cls) {
-                                  String name = "";
-                                  if (cls is String) {
-                                    name = cls;
-                                  } else if (cls is Map &&
-                                      cls['name'] != null) {
-                                    name = cls['name'];
-                                  }
+                                    return Chip(label: Text(name));
+                                  }).toList(),
+                                ),
+                                const SizedBox(height: 25),
+                              ],
+                            );
+                          }),
+                          Obx(() {
+                            if (teacherController.classes.isEmpty) return SizedBox();
 
-                                  return Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.DeepPurple.withOpacity(
-                                        0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: AppColor.DeepPurple.withOpacity(
-                                          0.5,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      name,
-                                      style: TextStyle(
-                                        color: AppColor.DeepPurple,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
+                            return Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: CustomTitle(text: "المواد"),
+                                ),
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: teacherController.classes.map((cls) {
+                                    String name = "";
+                                    if (cls is String) {
+                                      name = cls;
+                                    } else if (cls is Map && cls['name'] != null) {
+                                      name = cls['name'];
+                                    }
+
+                                    return Chip(label: Text(name));
+                                  }).toList(),
+                                ),
+                              ],
+                            );
+                          }),
 
                           const SizedBox(height: 40),
                         ],
@@ -327,121 +248,6 @@ class TeacherProfileWidget extends StatelessWidget {
             },
           );
         }),
-
-        // body: Center(
-        //   child: Padding(
-        //     padding: const EdgeInsets.all(8.0),
-        //     child: Obx(() => Column(
-        //           crossAxisAlignment: CrossAxisAlignment.center,
-        //           children: [
-        //             SizedBox(height: 40),
-        //             Row(
-        //               children: [
-        //                 CircleAvatar(
-        //                   radius: 48,
-        //                   backgroundImage: NetworkImage(AppLink.image +
-        //                       '/' +
-        //                       teacherController
-        //                           .image.value), // Use the fetched image
-        //                 ),
-        //                 SizedBox(width: 8),
-        //                 Text(
-        //                   teacherController
-        //                       .arabicName.value, // Display the fetched name
-        //                   style: TextStyle(
-        //                     fontSize: 17,
-        //                     fontWeight: FontWeight.bold,
-        //                     color: AppColor.DeepPurple,
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //             SizedBox(height: 16),
-        //             Padding(
-        //               padding: const EdgeInsets.all(8.0),
-        //               child: Container(
-        //                 decoration: BoxDecoration(
-        //                   borderRadius: BorderRadius.circular(15),
-        //                   color: AppColor.BackGround,
-        //                 ),
-        //                 child: Padding(
-        //                   padding: const EdgeInsets.all(14.0),
-        //                   child: Column(
-        //                     crossAxisAlignment: CrossAxisAlignment.start,
-        //                     children: [
-        //                       Text(
-        //                         'الوصف:',
-        //                         style: TextStyle(
-        //                           fontSize: 17,
-        //                           color: AppColor.DeepPurple,
-        //                           fontWeight: FontWeight.bold,
-        //                         ),
-        //                       ),
-        //                       Row(
-        //                         mainAxisAlignment: MainAxisAlignment.start,
-        //                         children: [
-        //                           Flexible(
-        //                             child: Text(
-        //                               teacherController.description
-        //                                   .value, // Display the fetched description
-        //                               style: TextStyle(fontSize: 15),
-        //                             ),
-        //                           )
-        //                         ],
-        //                       ),
-        //                       SizedBox(height: 8),
-        //                       Text(
-        //                         'التعليم:',
-        //                         textAlign: TextAlign.center,
-        //                         style: TextStyle(
-        //                             fontSize: 17,
-        //                             color: AppColor.DeepPurple,
-        //                             fontWeight: FontWeight.bold),
-        //                       ),
-        //                       Row(
-        //                         mainAxisAlignment: MainAxisAlignment.start,
-        //                         children: [
-        //                           Container(
-        //                               child: Flexible(
-        //                             child: Text(
-        //                                 teacherController.education
-        //                                     .value, // Display the fetched education
-        //                                 style: TextStyle(fontSize: 15)),
-        //                           )),
-        //                         ],
-        //                       ),
-        //                       SizedBox(height: 8),
-        //                       // Text(
-        //                       //   'المواد:',
-        //                       //   textAlign:
-        //                       //       TextAlign.center,
-        //                       //   style:
-        //                       //       TextStyle(fontSize:
-        //                       //           17, color:
-        //                       //           AppColor.DeepPurple, fontWeight:
-        //                       //           FontWeight.bold),
-        //                       // ),
-        //                       // Row(
-        //                       //   mainAxisAlignment:
-        //                       //       MainAxisAlignment.start,
-        //                       //   children:
-        //                       //       [
-        //                       //         Container(child:
-        //                       //             Text('مادة العلوم, مادة اللغة العربية',
-        //                       //             style:
-        //                       //                 TextStyle(fontSize:
-        //                       //                     15))),
-        //                       //       ],
-        //                       // ),
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ),
-        //             ),
-        //           ],
-        //         )),
-        //   ),
-        // ),
       ),
     );
   }

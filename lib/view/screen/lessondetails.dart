@@ -233,39 +233,46 @@ class LessonDetailsPage extends GetView<LessonDetailsController> {
                                           tablet: 30,
                                         ),
                                       ),
+                                      // if (controller
+                                      //             .dataList['teacher_info']?['education'] !=
+                                      //         '' &&
+                                      //     controller
+                                      //             .dataList['teacher_info']?['education'] !=
+                                      //         null) ...[
+                                      //   Container(
+                                      //     padding: EdgeInsets.symmetric(
+                                      //       horizontal: isTablet ? 20 : 14,
+                                      //       vertical: isTablet ? 10 : 8,
+                                      //     ),
+                                      //     decoration: BoxDecoration(
+                                      //       color: AppColor
+                                      //           .SecondryColor.withOpacity(0.1),
+                                      //       borderRadius: BorderRadius.circular(
+                                      //         25,
+                                      //       ),
+                                      //       border: Border.all(
+                                      //         color: AppColor.SecondryColor,
+                                      //         width: 1.2,
+                                      //       ),
+                                      //     ),
+                                      //     child: Text(
+                                      //       controller
+                                      //               .dataList['teacher_info']?['education'] ??
+                                      //           '',
+                                      //       style: TextStyle(
+                                      //         color: AppColor.SecondryColor,
+                                      //         fontSize: responsiveValue(
+                                      //           context: context,
+                                      //           mobile: 14,
+                                      //           tablet: 20,
+                                      //         ),
+                                      //         fontWeight: FontWeight.w600,
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      //   const SizedBox(height: 25),
+                                      // ],
 
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: isTablet ? 20 : 14,
-                                          vertical: isTablet ? 10 : 8,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColor
-                                              .SecondryColor.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            25,
-                                          ),
-                                          border: Border.all(
-                                            color: AppColor.SecondryColor,
-                                            width: 1.2,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          controller
-                                                  .dataList['teacher_info']?['education'] ??
-                                              '',
-                                          style: TextStyle(
-                                            color: AppColor.SecondryColor,
-                                            fontSize: responsiveValue(
-                                              context: context,
-                                              mobile: 14,
-                                              tablet: 20,
-                                            ),
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 25),
                                       Align(
                                         alignment: Alignment.centerRight,
                                         child: CustomTitle(text: "الوصف"),
