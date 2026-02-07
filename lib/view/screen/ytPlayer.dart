@@ -9,8 +9,6 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
-// import 'package:better_player/better_player.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class YoutubePlayer extends StatefulWidget {
   final String videoId;
@@ -32,6 +30,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   bool _isFetchingQualities = false;
   bool _embedErrorDetected = false;
   String? _videoTitle;
+  String? _fetchError;
 
   BetterPlayerController? _betterPlayerController;
   late final WebViewController _webViewController;
@@ -124,20 +123,25 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
     final yt = ytd.YoutubeExplode();
     try {
+      String cleanId = widget.videoId;
+      try {
+        cleanId = ytd.VideoId(widget.videoId).value;
+      } catch (_) {}
+
       // جلب معلومات الفيديو (بما في ذلك العنوان) في الخلفية
       yt.videos
-          .get(widget.videoId)
+          .get(cleanId)
           .then((video) {
             if (mounted) setState(() => _videoTitle = video.title);
           })
           .catchError((_) {});
 
       final manifest = await yt.videos.streamsClient.getManifest(
-        widget.videoId,
+        cleanId,
         ytClients: [
-          YoutubeApiClient.ios,
-          YoutubeApiClient.android,
-          YoutubeApiClient.safari,
+          ytd.YoutubeApiClient.ios,
+          ytd.YoutubeApiClient.android,
+          ytd.YoutubeApiClient.safari,
         ],
       );
       final List<DownloadOption> options = [];
@@ -168,6 +172,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     } catch (e) {
       // معالجة الأخطاء مع عرض معلومات مفيدة
       debugPrint('Error fetching download options for ${widget.videoId}: $e');
+      if (mounted) setState(() => _fetchError = e.toString());
 
       // Removed automatic SnackBar to prevent confusing the user if playback works but download fails.
       // The download button handler already manages the error state if clicked.
@@ -181,9 +186,11 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     if (_prefetchedQualities == null || _prefetchedQualities!.isEmpty) {
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'لا يمكن تحميل هذا الفيديو. حاول إعادة تشغيل الفيديو.',
+              _fetchError != null
+                  ? 'فشل جلب خيارات التحميل: $_fetchError'
+                  : 'لا يمكن تحميل هذا الفيديو. حاول إعادة تشغيل الفيديو.',
             ),
             backgroundColor: Colors.red,
           ),
@@ -206,7 +213,13 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
   Future<String> _getLocalFilePath() async {
     final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/${widget.videoId}.mp4';
+    String cleanId = widget.videoId;
+    try {
+      cleanId = ytd.VideoId(widget.videoId).value;
+    } catch (_) {
+      cleanId = widget.videoId.replaceAll(RegExp(r'[^\w\d_-]'), '');
+    }
+    return '${directory.path}/$cleanId.mp4';
   }
 
   Future<void> _initializePlayer() async {

@@ -734,6 +734,7 @@ class DownloadService {
 
   /// معالجة خطأ التحميل
   Future<void> _handleDownloadError(DownloadTask task, dynamic error) async {
+    print('❌ Download failed for ${task.videoId}: $error');
     task.status = DownloadStatus.failed;
     task.statusText = 'فشل التحميل بعد ${task.retryCount} محاولات';
     _notifyUpdates();
@@ -751,7 +752,13 @@ class DownloadService {
 
   Future<String> _getLocalFilePath(String videoId) async {
     final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/$videoId.mp4';
+    String cleanId = videoId;
+    try {
+      cleanId = ytd.VideoId(videoId).value;
+    } catch (_) {
+      cleanId = videoId.replaceAll(RegExp(r'[^\w\d_-]'), '');
+    }
+    return '${directory.path}/$cleanId.mp4';
   }
 
   Future<void> _muxMp4(
