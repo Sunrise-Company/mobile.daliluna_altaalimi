@@ -47,8 +47,7 @@ void main() async {
   // - "generic"          : Test generic fingerprint
   // - "generic_checker"  : Test generic EmulatorChecker
   // ═══════════════════════════════════════════════════════════════
-  const String? DEBUG_ERROR_SCREEN_MODE =
-      null; // Change to test different scenarios
+  const String? DEBUG_ERROR_SCREEN_MODE = null;
 
   if (DEBUG_ERROR_SCREEN_MODE != null) {
     String deviceInfo = await _getDeviceInfoString();
@@ -624,8 +623,6 @@ Future<String?> checkIfEmulator() async {
 
   return null;
 }
-
-
 
 Future<bool> checkVersionNeedsUpdate() async {
   try {

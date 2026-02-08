@@ -59,6 +59,7 @@ class DownloadTask {
   int totalBytes; // إضافة حقل لحجم الملف الكامل
   int? audioDownloadedBytes; // للتحميلات المنفصلة
   int? audioTotalBytes; // للتحميلات المنفصلة
+  String? qualityLabel; // لتذكر الدقة المختارة عند التجديد
 
   DownloadTask({
     required this.videoId,
@@ -75,6 +76,7 @@ class DownloadTask {
     this.totalBytes = 0,
     this.audioDownloadedBytes,
     this.audioTotalBytes,
+    this.qualityLabel,
   });
 
   Map<String, dynamic> toJson() => {
@@ -92,6 +94,7 @@ class DownloadTask {
     'totalBytes': totalBytes,
     'audioDownloadedBytes': audioDownloadedBytes,
     'audioTotalBytes': audioTotalBytes,
+    'qualityLabel': qualityLabel,
   };
 
   factory DownloadTask.fromJson(Map<String, dynamic> json) => DownloadTask(
@@ -111,6 +114,7 @@ class DownloadTask {
     totalBytes: json['totalBytes'] ?? 0,
     audioDownloadedBytes: json['audioDownloadedBytes'],
     audioTotalBytes: json['audioTotalBytes'],
+    qualityLabel: json['qualityLabel'],
   );
 }
 
@@ -296,6 +300,7 @@ class DownloadService {
       isMuxed: option.isMuxed,
       startTime: DateTime.now(),
       totalBytes: totalSize,
+      qualityLabel: option.label,
     );
 
     _tasks[videoId] = task;
@@ -306,7 +311,6 @@ class DownloadService {
     await _executeDownload(task, option);
   }
 
-  /// بدء التحميل في الخلفية (يستمر حتى بعد إغلاق التطبيق)
   Future<void> startDownloadInBackground(
     String videoId,
     DownloadOption option, {
@@ -517,86 +521,116 @@ class DownloadService {
   /// تنفيذ التحميل الفعلي مع إعادة المحاولة
   Future<void> _executeDownload(
     DownloadTask task,
-    DownloadOption option,
+    DownloadOption? option,
   ) async {
     try {
       final outPath = await _getLocalFilePath(task.videoId);
+      final cancelToken = _cancelTokens[task.videoId];
 
-      if (option.isMuxed) {
-        await _downloadWithRetry(
-          url: option.streamInfo.url.toString(),
-          path: outPath,
-          task: task,
-          onProgress: (received, total) {
-            task.progress = received / total;
-            task.downloadedBytes = received; // حفظ البايتات المحملة
-            task.statusText =
-                'جاري التحميل... ${(task.progress * 100).toStringAsFixed(0)}%';
-            _notifyUpdates();
-            _showProgressNotification(task);
+      // عرض الإشعار والبدء
+      _showProgressNotification(task);
+
+      // جلب دفق البيانات (Streams) المناسب
+      ytd.StreamInfo? videoStreamInfo;
+      ytd.StreamInfo? audioStreamInfo;
+
+      if (option != null) {
+        videoStreamInfo = option.streamInfo;
+        audioStreamInfo = option.audioStream;
+      } else {
+        final streams = await _refreshUrls(task);
+        if (streams == null) throw Exception('فشل تجديد الروابط');
+        videoStreamInfo = streams['video'];
+        audioStreamInfo = streams['audio'];
+      }
+
+      if (task.isMuxed && videoStreamInfo != null) {
+        await _dio.download(
+          videoStreamInfo.url.toString(),
+          outPath,
+          cancelToken: cancelToken,
+          onReceiveProgress: (received, total) {
+            final t = total > 0 ? total : task.totalBytes;
+            if (t > 0) {
+              task.progress = received / t;
+              task.downloadedBytes = received;
+              task.statusText =
+                  'جاري التحميل... ${(task.progress * 100).toStringAsFixed(0)}%';
+              _notifyUpdates();
+              _showProgressNotification(task);
+            }
           },
         );
-      } else {
-        final v = option.videoStream!;
-        final a = option.audioStream!;
+      } else if (videoStreamInfo != null && audioStreamInfo != null) {
         final vTmp = '$outPath.video.tmp';
         final aTmp = '$outPath.audio.tmp';
-        final totalSize = v.size.totalBytes + a.size.totalBytes;
+        final totalSize =
+            videoStreamInfo.size.totalBytes + audioStreamInfo.size.totalBytes;
 
         // تحميل الفيديو
         task.statusText = 'جاري تحميل الفيديو...';
         _notifyUpdates();
-        await _downloadWithRetry(
-          url: v.url.toString(),
-          path: vTmp,
-          task: task,
-          onProgress: (received, total) {
-            task.progress = received / totalSize;
-            task.downloadedBytes = received; // حفظ البايتات المحملة للفيديو
-            task.statusText =
-                'جاري تحميل الفيديو... ${(task.progress * 100).toStringAsFixed(0)}%';
-            _notifyUpdates();
-            _showProgressNotification(task);
+        _showProgressNotification(task);
+
+        await _dio.download(
+          videoStreamInfo.url.toString(),
+          vTmp,
+          cancelToken: cancelToken,
+          onReceiveProgress: (received, total) {
+            if (totalSize > 0) {
+              task.progress = received / totalSize;
+              task.downloadedBytes = received;
+              task.statusText =
+                  'جاري تحميل الفيديو... ${(task.progress * 100).toStringAsFixed(0)}%';
+              _notifyUpdates();
+              _showProgressNotification(task);
+            }
           },
         );
 
         // تحميل الصوت
         task.statusText = 'جاري تحميل الصوت...';
         _notifyUpdates();
-        await _downloadWithRetry(
-          url: a.url.toString(),
-          path: aTmp,
-          task: task,
-          onProgress: (received, total) {
-            task.progress = (v.size.totalBytes + received) / totalSize;
-            task.audioDownloadedBytes = received; // حفظ البايتات المحملة للصوت
-            task.statusText =
-                'جاري تحميل الصوت... ${(task.progress * 100).toStringAsFixed(0)}%';
-            _notifyUpdates();
-            _showProgressNotification(task);
+        _showProgressNotification(task);
+
+        await _dio.download(
+          audioStreamInfo.url.toString(),
+          aTmp,
+          cancelToken: cancelToken,
+          onReceiveProgress: (received, total) {
+            if (totalSize > 0) {
+              final vSize = task.downloadedBytes; // حجم الفيديو المحمل فعلياً
+              task.progress = (vSize + received) / totalSize;
+              task.audioDownloadedBytes = received;
+              task.statusText =
+                  'جاري تحميل الصوت... ${(task.progress * 100).toStringAsFixed(0)}%';
+              _notifyUpdates();
+              _showProgressNotification(task);
+            }
           },
         );
 
-        // دمج الفيديو والصوت
+        if (!(await File(vTmp).exists()) ||
+            (await File(vTmp).length()) < 1000) {
+          throw Exception('فشل تحميل الفيديو (ملف تالف)');
+        }
+
         task.status = DownloadStatus.merging;
         task.statusText = 'جاري دمج الفيديو والصوت...';
         _notifyUpdates();
-        await _saveTasksState();
         _showProgressNotification(task);
-
         await _muxMp4(vTmp, aTmp, outPath);
-        await File(vTmp).delete().catchError((e) {});
-        await File(aTmp).delete().catchError((e) {});
+
+        await File(vTmp).delete().catchError((_) => File(vTmp));
+        await File(aTmp).delete().catchError((_) => File(aTmp));
       }
 
-      // اكتمل التحميل
       task.status = DownloadStatus.completed;
       task.statusText = 'اكتمل التحميل!';
       _notifyUpdates();
       await _saveTasksState();
       await _showCompletionNotification(task, true);
 
-      // إزالة المهمة بعد 5 ثوانٍ
       Future.delayed(const Duration(seconds: 5), () {
         if (_tasks[task.videoId]?.status == DownloadStatus.completed) {
           _tasks.remove(task.videoId);
@@ -604,59 +638,23 @@ class DownloadService {
         }
       });
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        // تم الإلغاء بواسطة المستخدم
-        return;
+      if (e.type == DioExceptionType.cancel) return;
+
+      if ((e.response?.statusCode == 403 || e.toString().contains('403')) &&
+          task.retryCount < 2) {
+        print('⚠️ 403 Forbidden. Attempting URL refresh...');
+        task.retryCount++;
+        try {
+          await _refreshUrls(task);
+          return _executeDownload(task, null);
+        } catch (resErr) {
+          await _handleDownloadError(task, resErr);
+        }
+      } else {
+        await _handleDownloadError(task, e);
       }
-      await _handleDownloadError(task, e);
     } catch (e) {
       await _handleDownloadError(task, e);
-    }
-  }
-
-  /// تحميل مع إعادة محاولة تلقائية
-  Future<void> _downloadWithRetry({
-    required String url,
-    required String path,
-    required DownloadTask task,
-    required Function(int, int) onProgress,
-  }) async {
-    int attempts = 0;
-    Duration delay = initialRetryDelay;
-
-    while (attempts < maxRetries) {
-      try {
-        final cancelToken = _cancelTokens[task.videoId];
-        if (cancelToken?.isCancelled ?? false) {
-          throw DioException(
-            requestOptions: RequestOptions(path: url),
-            type: DioExceptionType.cancel,
-          );
-        }
-
-        await _dio.download(
-          url,
-          path,
-          onReceiveProgress: onProgress,
-          cancelToken: cancelToken,
-        );
-        return; // نجح التحميل
-      } on DioException catch (e) {
-        if (e.type == DioExceptionType.cancel) rethrow;
-
-        attempts++;
-        if (attempts >= maxRetries) rethrow;
-
-        // انتظر قبل إعادة المحاولة (Exponential Backoff)
-        task.statusText =
-            'فشل... إعادة المحاولة ${attempts}/$maxRetries خلال ${delay.inSeconds}ث';
-        task.retryCount = attempts;
-        _notifyUpdates();
-        await _saveTasksState();
-
-        await Future.delayed(delay);
-        delay *= 2; // مضاعفة وقت الانتظار
-      }
     }
   }
 
@@ -741,6 +739,15 @@ class DownloadService {
     await _saveTasksState();
     await _showCompletionNotification(task, false);
 
+    // تنظيف الملف التالف إذا وجد
+    try {
+      final path = await _getLocalFilePath(task.videoId);
+      final file = File(path);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (_) {}
+
     // إزالة المهمة بعد 10 ثوانٍ
     Future.delayed(const Duration(seconds: 10), () {
       if (_tasks[task.videoId]?.status == DownloadStatus.failed) {
@@ -776,6 +783,75 @@ class DownloadService {
   void _notifyUpdates() {
     if (!_progressController.isClosed) {
       _progressController.add(Map.from(_tasks));
+    }
+  }
+
+  /// تحديث الروابط في حالة انتهاء الصلاحية أو الخطأ 403
+  Future<Map<String, ytd.StreamInfo>?> _refreshUrls(DownloadTask task) async {
+    final yt = ytd.YoutubeExplode();
+    try {
+      String cleanId = task.videoId;
+      try {
+        cleanId = ytd.VideoId(task.videoId).value;
+      } catch (_) {}
+
+      final manifest = await yt.videos.streamsClient.getManifest(
+        cleanId,
+        ytClients: [ytd.YoutubeApiClient.safari, ytd.YoutubeApiClient.androidVr],
+      );
+
+      Map<String, ytd.StreamInfo> result = {};
+
+      if (task.isMuxed) {
+        final muxed = manifest.muxed.where(
+          (s) => s.container == ytd.StreamContainer.mp4,
+        );
+        if (muxed.isNotEmpty) {
+          // محاولة المطابقة مع الدقة السابقة
+          ytd.MuxedStreamInfo? best;
+          if (task.qualityLabel != null) {
+            best = muxed.firstWhere(
+              (s) =>
+                  task.qualityLabel!.contains('${s.videoResolution.height}p'),
+              orElse: () => muxed.withHighestBitrate(),
+            );
+          } else {
+            best = muxed.withHighestBitrate();
+          }
+          task.videoUrl = best.url.toString();
+          task.totalBytes = best.size.totalBytes;
+          result['video'] = best;
+        }
+      } else {
+        final videos = manifest.videoOnly.where(
+          (s) => s.container == ytd.StreamContainer.mp4,
+        );
+        final a = manifest.audioOnly.withHighestBitrate();
+
+        ytd.VideoOnlyStreamInfo? v;
+        if (task.qualityLabel != null) {
+          v = videos.firstWhere(
+            (s) => task.qualityLabel!.contains('${s.videoResolution.height}p'),
+            orElse: () => videos.withHighestBitrate(),
+          );
+        } else {
+          v = videos.withHighestBitrate();
+        }
+
+        task.videoUrl = v.url.toString();
+        task.audioUrl = a.url.toString();
+        task.totalBytes = v.size.totalBytes + a.size.totalBytes;
+
+        result['video'] = v;
+        result['audio'] = a;
+      }
+      await _saveTasksState();
+      return result;
+    } catch (e) {
+      print('❌ Error refreshing URLs: $e');
+      return null;
+    } finally {
+      yt.close();
     }
   }
 

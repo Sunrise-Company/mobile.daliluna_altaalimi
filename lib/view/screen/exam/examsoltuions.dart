@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -186,7 +185,6 @@ class SoltionsScreen extends GetView<FetchSoltoinsExamControllerss> {
         final myOptions = json.decode(question['option']['myOptions']);
         final correctAnswers = json.decode(question['answer']);
         final mark = "${question['mark']}/${question['deserved_mark']}";
-
 
         return Container(
           decoration: BoxDecoration(

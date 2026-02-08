@@ -139,9 +139,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       final manifest = await yt.videos.streamsClient.getManifest(
         cleanId,
         ytClients: [
-          ytd.YoutubeApiClient.ios,
-          ytd.YoutubeApiClient.android,
           ytd.YoutubeApiClient.safari,
+          ytd.YoutubeApiClient.androidVr,
         ],
       );
       final List<DownloadOption> options = [];
