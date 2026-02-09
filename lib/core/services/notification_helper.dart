@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
@@ -84,15 +83,15 @@ class NotificationHelper {
       "NotificationHelper: _handleNavigation called with payload: $payload",
     );
     try {
-      Sockectcontroller sockectcontroller;
-      if (Get.isRegistered<Sockectcontroller>()) {
-        sockectcontroller = Get.find<Sockectcontroller>();
-        debugPrint("NotificationHelper: Found existing SockectController");
+      SocketController socketController;
+      if (Get.isRegistered<SocketController>()) {
+        socketController = Get.find<SocketController>();
+        debugPrint("NotificationHelper: Found existing SocketController");
       } else {
-        sockectcontroller = Get.put(Sockectcontroller(), permanent: true);
-        debugPrint("NotificationHelper: Created new SockectController");
+        socketController = Get.put(SocketController(), permanent: true);
+        debugPrint("NotificationHelper: Created new SocketController");
       }
-      sockectcontroller.navigateToChatScreen(payload);
+      socketController.navigateToChatScreen(payload);
     } catch (e, stack) {
       log("NotificationHelper: Error handling navigation: $e");
       debugPrint("NotificationHelper: Error: $e\n$stack");

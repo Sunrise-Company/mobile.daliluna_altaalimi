@@ -14,8 +14,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:path/path.dart' as path;
+import 'package:gal/gal.dart';
+import 'package:daliluna_altaalimi/view/widget/chat_video_thumbnail.dart';
 import '../../../../controller/teacherController/chat/groupChatController.dart';
 import '../../../../core/constant/color.dart';
 
@@ -737,25 +738,29 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
                 ),
               ],
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    imageFile,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+            content: Container(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      imageFile,
+                      height: 200,
+                      width: 250,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  fileName,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  SizedBox(height: 12),
+                  Text(
+                    fileName,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
@@ -915,15 +920,30 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.download, color: Colors.white),
+                            onPressed: () => saveToGallery(filePath),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -1007,29 +1027,7 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              FutureBuilder<String?>(
-                future: generateThumbnail(filePath),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Image.file(
-                      File(snapshot.data!),
-                      height: 200,
-                      width: 250,
-                      fit: BoxFit.cover,
-                    );
-                  } else {
-                    return Container(
-                      height: 200,
-                      width: 250,
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                },
-              ),
+              ChatVideoThumbnail(videoUrl: filePath),
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -1147,32 +1145,62 @@ class GroupChatPageTeacher extends GetView<ChatGroupMessageTeacherController> {
       await dio.download(fileUrl, savePath);
 
       // Hide loading
-      Get.back();
-
+      if (Get.isDialogOpen ?? false) Get.back();
       await OpenFilex.open(savePath);
     } catch (e) {
-      Get.back(); // Hide loading if error
+      if (Get.isDialogOpen ?? false) Get.back();
       Get.snackbar(
         "خطأ",
-        "فشل فتح الملف",
+        "فشل فتح الملف: $e",
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
     }
   }
 
-  Future<String?> generateThumbnail(String videoPath) async {
+  Future<void> saveToGallery(String url, {bool isVideo = false}) async {
     try {
-      final thumbnailPath = await VideoThumbnail.thumbnailFile(
-        video: videoPath,
-        thumbnailPath: (await getTemporaryDirectory()).path,
-        imageFormat: ImageFormat.JPEG,
-        maxHeight: 200,
-        quality: 75,
+      bool hasAccess = await Gal.hasAccess(toAlbum: true);
+      if (!hasAccess) {
+        hasAccess = await Gal.requestAccess(toAlbum: true);
+      }
+
+      if (!hasAccess) {
+        Get.snackbar("تنبيه", "يجب منح صلاحية الوصول للمعرض للحفظ",
+            backgroundColor: Colors.orange, colorText: Colors.white);
+        return;
+      }
+
+      Get.dialog(Center(child: Loading()), barrierDismissible: false);
+
+      final tempDir = await getTemporaryDirectory();
+      final cleanFileName = path.basename(Uri.parse(url).path);
+      final pathName = "${tempDir.path}/$cleanFileName";
+
+      await Dio().download(url, pathName);
+
+      if (isVideo) {
+        await Gal.putVideo(pathName);
+      } else {
+        await Gal.putImage(pathName);
+      }
+
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.snackbar(
+        "نجاح",
+        isVideo ? "تم حفظ الفيديو في المعرض" : "تم حفظ الصورة في المعرض",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
-      return thumbnailPath;
     } catch (e) {
-      return null;
+      if (Get.isDialogOpen ?? false) Get.back();
+      debugPrint("Save to gallery error: $e");
+      Get.snackbar(
+        "خطأ",
+        "فشل حفظ الملف: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 }

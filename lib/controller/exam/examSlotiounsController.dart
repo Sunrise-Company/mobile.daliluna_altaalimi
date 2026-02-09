@@ -39,7 +39,7 @@ class FetchSoltoinsExamControllerss extends GetxController {
       print(
         'Fetching URL:${AppLink.server}/dashboard/student/view_quize/$quizId/$studentId',
       );
-
+print("xxxxxxxxxxxxxxxxx${jsonDecode(response.body)}");
       if (response.statusCode == 200) {
         var body = jsonDecode(response.body);
         isloded.value = true;
@@ -48,13 +48,15 @@ class FetchSoltoinsExamControllerss extends GetxController {
         lesson_name.value = body['lesson_name'];
         examname.value = body['exam']['name'];
         class_name.value = body['class_name'];
-        exam_period.value = body['exam_period'];
+        // exam_period.value = body['exam_period'];
         dataListExam.value = body['questions']; // Parse JSON into model
+        print("vvvvvvvvvvvvvvv$body");
       }
-    } catch (e) {
-      // Get.snackbar(
-      //     "Connection Error", "Please check your internet connection.");
-    } finally {
+    } catch (e, s) {
+      print("ERROR: $e");
+      print("STACKTRACE: $s");
+    }
+    finally {
       isLoaded(false); // Reset loading state
     }
   }

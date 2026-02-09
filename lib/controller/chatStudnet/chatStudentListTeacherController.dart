@@ -11,14 +11,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChatStudentListTeacherController extends GetxController {
   RxList<dynamic> dataList = <dynamic>[].obs;
   RxList<dynamic> roomlist = <dynamic>[].obs;
-  late Sockectcontroller sockectcontroller;
+  late SocketController socketController;
   // ChatGroupMessageStudentController chatGroupMessageStudentController =
   // ChatGroupMessageStudentController();
   var isloded = false.obs;
   @override
   void onInit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    sockectcontroller = Get.find();
+    socketController = Get.find<SocketController>();
     // chatGroupMessageStudentController =
     // Get.lazyPut(() => ChatGroupMessageStudentController());
     if (prefs.getBool('isLogin') == false) {

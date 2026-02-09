@@ -17,7 +17,7 @@ import 'package:http/http.dart' as http;
 class ChatTeacherController extends GetxController {
   TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
-  final Sockectcontroller sockectcontroller = Get.find();
+  final SocketController socketController = Get.find<SocketController>();
   RxList<dynamic> dataList = <dynamic>[].obs;
   RxList<dynamic> roomlist = <dynamic>[].obs;
   var isloded = false.obs;
@@ -40,7 +40,7 @@ class ChatTeacherController extends GetxController {
       }
     });
     GetMessages();
-    sockectcontroller.socket.on('sendChatToClient', (data) {
+    socketController.socket.on('sendChatToClient', (data) {
       bool isDuplicate = dataList.any(
         (msg) => msg['message_id'] == data['message_id'],
       );
@@ -295,8 +295,8 @@ class ChatTeacherController extends GetxController {
       } catch (e) {}
 
       update();
-      if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
-        sockectcontroller.socket.emit('sendChatToServer', {
+      if (socketIds.isNotEmpty && socketController.isSocketConnected.value) {
+        socketController.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
           'created_at':

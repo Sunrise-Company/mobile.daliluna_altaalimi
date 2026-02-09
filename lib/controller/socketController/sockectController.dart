@@ -16,7 +16,7 @@ import 'package:daliluna_altaalimi/core/services/notification_helper.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 
-class Sockectcontroller extends GetxController {
+class SocketController extends GetxController {
   late IO.Socket socket;
 
   String? socketId;
@@ -29,28 +29,40 @@ class Sockectcontroller extends GetxController {
   }
 
   Future<void> connectToWebSocket() async {
+    log("Socket: Initializing connection to ${AppLink.baseUrl}");
+    
     socket = IO.io('${AppLink.baseUrl}', <String, dynamic>{
-      'transports': ['websocket'],
-      'reconnectionAttempts': 10,
-      'reconnectionDelay': 500,
-      'reconnectionDelayMax': 5000,
+      'transports': ['websocket', 'polling'], // Added polling as a fallback
+      'reconnectionAttempts': 20, // Increased attempts
+      'reconnectionDelay': 1000,
+      'reconnectionDelayMax': 10000,
       'autoConnect': true,
+      'forceNew': false,
     });
-    if (socket.connected) {
-      saveStudentSocketIdToDatabase(socketId!);
-      saveTeacherSocketIdToDatabase(socketId!);
-
-      return;
-    }
-
-    socket.connect();
 
     socket.onConnect((_) {
       socketId = socket.id;
       isSocketConnected.value = true;
       log("Socket Connected Successfully. ID: $socketId");
-      saveStudentSocketIdToDatabase(socketId!);
-      saveTeacherSocketIdToDatabase(socketId!);
+      
+      if (socketId != null) {
+        saveStudentSocketIdToDatabase(socketId!);
+        saveTeacherSocketIdToDatabase(socketId!);
+      }
+    });
+
+    socket.onReconnect((_) {
+      log("Socket Reconnected");
+      isSocketConnected.value = true;
+      socketId = socket.id;
+      if (socketId != null) {
+        saveStudentSocketIdToDatabase(socketId!);
+        saveTeacherSocketIdToDatabase(socketId!);
+      }
+    });
+
+    socket.onReconnectAttempt((attempt) {
+      log("Socket Reconnecting... Attempt: $attempt");
     });
 
     Set<int> activeNotifications = {};
@@ -416,6 +428,26 @@ class Sockectcontroller extends GetxController {
       });
     } else {
       log("Socket: No matching navigation path found for payload.");
+    }
+  }
+
+  Future<void> disconnectSocket() async {
+    try {
+      log("Socket: Disconnecting socket on logout...");
+      
+      // Attempt to clear socket ID on server before disconnecting
+      if (socket.connected && socket.id != null) {
+        // Send empty string to clear the socket id in the database
+        await saveStudentSocketIdToDatabase("");
+        await saveTeacherSocketIdToDatabase("");
+      }
+      
+      socket.disconnect();
+      isSocketConnected.value = false;
+      socketId = null;
+      log("Socket: Disconnected and cleared.");
+    } catch (e) {
+      log("Socket: Error during disconnect: $e");
     }
   }
 

@@ -31,7 +31,7 @@ class ChatStudentMessageController extends GetxController {
   String? studentId;
   Stream<dynamic>? messageStream;
   final ScrollController scrollController = ScrollController();
-  final Sockectcontroller sockectcontroller = Get.find();
+  final SocketController socketController = Get.find<SocketController>();
   RxInt currentPage = 1.obs;
   RxBool isLoadingMore = false.obs;
   RxBool hasMoreData = true.obs;
@@ -58,7 +58,7 @@ class ChatStudentMessageController extends GetxController {
     });
 
     GetMessages();
-    sockectcontroller.socket.on('sendChatToClient', (data) {
+    socketController.socket.on('sendChatToClient', (data) {
       bool isDuplicate = dataList.any(
         (msg) => msg['message_id'] == data['message_id'],
       );
@@ -295,9 +295,9 @@ class ChatStudentMessageController extends GetxController {
         log("socketId: ${socketIds[i]}");
       }
 
-      if (socketIds.isNotEmpty) {
-        log("Emitting sendChatToServer with ${socketIds.length} recipients");
-        sockectcontroller.socket.emit('sendChatToServer', {
+    if (socketIds.isNotEmpty) {
+      log("Emitting sendChatToServer with ${socketIds.length} recipients");
+      socketController.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
           'created_at':

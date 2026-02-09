@@ -8,7 +8,6 @@ import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:developer';
 
 class ApiService {
   static Future<List<dynamic>> fetchMainslider() async {
@@ -536,7 +535,7 @@ class ApiService {
           prefs.setString('student_id', data['student_id']?.toString() ?? '');
           prefs.setString('token', data['token']?.toString() ?? '');
 
-          Sockectcontroller socket = Get.find();
+          SocketController socket = Get.find<SocketController>();
           socket.connectToWebSocket();
 
           Get.offAndToNamed(AppRoute.homePage);
@@ -593,7 +592,7 @@ class ApiService {
           prefs.setString('student_id', data['student_id'].toString());
           prefs.setString('token', data['token']);
 
-          Sockectcontroller socket = Get.find();
+          SocketController socket = Get.find<SocketController>();
           socket.connectToWebSocket();
 
           Get.offAndToNamed(AppRoute.homePage);
