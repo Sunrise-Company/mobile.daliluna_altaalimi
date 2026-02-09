@@ -286,8 +286,8 @@ class StartExamControllerss extends GetxController {
 
       testmodel = TestModel.fromJson(body);
       questionlist(testmodel.questions);
-      duration = ((int.parse(testmodel.exam_period.toString()) * 60 - 10))
-          .toInt();
+      // duration = ((int.parse(testmodel.exam_period.toString()) * 60 - 10))
+      //     .toInt();
 
       for (int i = 0; i < questionlist.length; i++) {
         AnswerModel answerModel = new AnswerModel();
