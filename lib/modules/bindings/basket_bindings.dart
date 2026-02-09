@@ -11,7 +11,7 @@ class BasketBinding extends Bindings {
     Get.lazyPut<BasketController>(() => BasketController());
     Get.put(DownloadController());
     Get.put(() => OurCoursesController());
-    Get.put(Sockectcontroller(), permanent: true);
+    Get.put(SocketController(), permanent: true);
     // Get.put(() => ChatGroupMessageStudentController());
     // Get.lazyPut<ChatGroupMessageStudentController>(
     //     () => ChatGroupMessageStudentController());

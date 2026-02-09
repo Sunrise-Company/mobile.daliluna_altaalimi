@@ -694,8 +694,6 @@ class DownloadService {
             options: options,
             cancelToken: cancelToken,
             onReceiveProgress: (received, total) {
-              // total سيكون -1 إذا لم يرسل السيرفر Content-Length
-              // لذا نستخدم totalBytes المحفوظ في المهمة
               onProgress(received, task.totalBytes);
             },
           );
@@ -797,7 +795,10 @@ class DownloadService {
 
       final manifest = await yt.videos.streamsClient.getManifest(
         cleanId,
-        ytClients: [ytd.YoutubeApiClient.safari, ytd.YoutubeApiClient.androidVr],
+        ytClients: [
+          ytd.YoutubeApiClient.safari,
+          ytd.YoutubeApiClient.androidVr,
+        ],
       );
 
       Map<String, ytd.StreamInfo> result = {};

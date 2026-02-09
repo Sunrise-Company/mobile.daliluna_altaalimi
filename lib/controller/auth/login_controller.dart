@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
+import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginController extends GetxController {
@@ -96,6 +97,12 @@ class LoginController extends GetxController {
     prefs.remove('student_id');
 
     prefs.remove('arabic_name');
+
+    // Disconnect socket and stop notifications
+    if (Get.isRegistered<SocketController>()) {
+      Get.find<SocketController>().disconnectSocket();
+    }
+
     update();
 
     Get.offAllNamed(AppRoute.homePage);

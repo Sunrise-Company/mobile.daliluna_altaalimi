@@ -13,8 +13,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:path/path.dart' as path;
+import 'package:gal/gal.dart';
+import 'package:daliluna_altaalimi/view/widget/chat_video_thumbnail.dart';
 import '../../../controller/teacherController/chat/chatTeacherController.dart';
 import '../../../core/constant/color.dart';
 import '../../widget/GetValueForScreen.dart';
@@ -53,10 +54,7 @@ class ChatPage extends GetView<ChatTeacherController> {
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
-                    AppColor.DeepPurple,
-                    AppColor.PrimaryColor,
-                  ],
+                  colors: [AppColor.DeepPurple, AppColor.PrimaryColor],
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
                 ),
@@ -127,10 +125,7 @@ class ChatPage extends GetView<ChatTeacherController> {
           body: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFFF5F7FA),
-                  Color(0xFFE8EBF0),
-                ],
+                colors: [Color(0xFFF5F7FA), Color(0xFFE8EBF0)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -141,65 +136,66 @@ class ChatPage extends GetView<ChatTeacherController> {
                   child: Obx(() {
                     return controller.isloded.value
                         ? controller.dataList.isNotEmpty
-                            ? ListView.builder(
-                                controller: controller.scrollController,
-                                reverse: true,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                itemCount: controller.dataList.length +
-                                    (controller.hasMoreData.value ? 1 : 0),
-                                itemBuilder: (context, index) {
-                                  if (index == controller.dataList.length) {
-                                    return Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Loading(),
-                                      ),
-                                    );
-                                  }
-                                  final message = controller.dataList[index];
-                                  final bool isMe =
-                                      message['sender_id'].toString() ==
-                                          controller.senderId.toString();
+                              ? ListView.builder(
+                                  controller: controller.scrollController,
+                                  reverse: true,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  itemCount:
+                                      controller.dataList.length +
+                                      (controller.hasMoreData.value ? 1 : 0),
+                                  itemBuilder: (context, index) {
+                                    if (index == controller.dataList.length) {
+                                      return Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Loading(),
+                                        ),
+                                      );
+                                    }
+                                    final message = controller.dataList[index];
+                                    final bool isMe =
+                                        message['sender_id'].toString() ==
+                                        controller.senderId.toString();
 
-                                  return _buildMessageBubble(
-                                    context: context,
-                                    message: message,
-                                    isMe: isMe,
-                                  );
-                                },
-                              )
-                            : Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.chat_bubble_outline,
-                                      size: 80,
-                                      color: Colors.grey[300],
-                                    ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      "لا توجد رسائل بعد",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        color: Colors.grey[500],
-                                        fontWeight: FontWeight.w500,
+                                    return _buildMessageBubble(
+                                      context: context,
+                                      message: message,
+                                      isMe: isMe,
+                                    );
+                                  },
+                                )
+                              : Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.chat_bubble_outline,
+                                        size: 80,
+                                        color: Colors.grey[300],
                                       ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      "ابدأ المحادثة الآن!",
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.grey[400],
+                                      SizedBox(height: 16),
+                                      Text(
+                                        "لا توجد رسائل بعد",
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          color: Colors.grey[500],
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              )
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "ابدأ المحادثة الآن!",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[400],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
                         : Center(child: Loading());
                   }),
                 ),
@@ -231,46 +227,22 @@ class ChatPage extends GetView<ChatTeacherController> {
           right: isMe ? 8 : 60,
         ),
         child: Column(
-          crossAxisAlignment:
-              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
-            if (!isMe && message['sender_name'] != null)
-              Padding(
-                padding: EdgeInsets.only(
-                  right: 12,
-                  left: 12,
-                  bottom: 4,
-                ),
-                child: Text(
-                  message['sender_name'],
-                  style: TextStyle(
-                    fontSize: responsiveValue(
-                      context: context,
-                      mobile: 11,
-                      tablet: 16,
-                    ),
-                    color: AppColor.DeepPurple,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+            // Removed sender name for individual chat
             Align(
               alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
                 constraints: BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.75,
                 ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   gradient: isMe
                       ? LinearGradient(
-                          colors: [
-                            AppColor.DeepPurple,
-                            AppColor.PrimaryColor,
-                          ],
+                          colors: [AppColor.DeepPurple, AppColor.PrimaryColor],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         )
@@ -312,20 +284,22 @@ class ChatPage extends GetView<ChatTeacherController> {
                                 valueColor: AlwaysStoppedAnimation<Color>(
                                   isMe ? Colors.white : AppColor.DeepPurple,
                                 ),
-                                backgroundColor:
-                                    isMe ? Colors.white24 : Colors.grey[200],
+                                backgroundColor: isMe
+                                    ? Colors.white24
+                                    : Colors.grey[200],
                               ),
                             ),
                             if (message['uploadProgress'] is double)
                               Text(
                                 "${((message['uploadProgress'] as double) * 100).toInt()}%",
                                 style: TextStyle(
-                                  color:
-                                      isMe ? Colors.white : AppColor.DeepPurple,
+                                  color: isMe
+                                      ? Colors.white
+                                      : AppColor.DeepPurple,
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,
                                 ),
-                              )
+                              ),
                           ],
                         ),
                       ),
@@ -346,7 +320,8 @@ class ChatPage extends GetView<ChatTeacherController> {
                       if (message['m_file'] != null)
                         Padding(
                           padding: EdgeInsets.only(
-                            top: message['msg'] != null &&
+                            top:
+                                message['msg'] != null &&
                                     message['msg'].isNotEmpty
                                 ? 8
                                 : 0,
@@ -380,7 +355,8 @@ class ChatPage extends GetView<ChatTeacherController> {
                                 mobile: 14,
                                 tablet: 20,
                               ),
-                              color: message['is_read'] == 1 ||
+                              color:
+                                  message['is_read'] == 1 ||
                                       message['is_read'] == '1'
                                   ? Color(0xFF4FFFB0)
                                   : Colors.white70,
@@ -420,10 +396,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                 decoration: BoxDecoration(
                   color: Color(0xFFF5F7FA),
                   borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    color: Colors.grey[300]!,
-                    width: 1,
-                  ),
+                  border: Border.all(color: Colors.grey[300]!, width: 1),
                 ),
                 child: Row(
                   children: [
@@ -507,8 +480,10 @@ class ChatPage extends GetView<ChatTeacherController> {
             Obx(() {
               return recorderController.isRecording.value
                   ? Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(20),
@@ -564,11 +539,7 @@ class ChatPage extends GetView<ChatTeacherController> {
           child: Icon(
             icon,
             color: color,
-            size: responsiveValue(
-              context: context,
-              mobile: 22,
-              tablet: 35,
-            ),
+            size: responsiveValue(context: context, mobile: 22, tablet: 35),
           ),
         ),
       ),
@@ -579,10 +550,7 @@ class ChatPage extends GetView<ChatTeacherController> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColor.DeepPurple,
-            AppColor.PrimaryColor,
-          ],
+          colors: [AppColor.DeepPurple, AppColor.PrimaryColor],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -609,24 +577,12 @@ class ChatPage extends GetView<ChatTeacherController> {
           },
           borderRadius: BorderRadius.circular(25),
           child: Container(
-            width: responsiveValue(
-              context: context,
-              mobile: 48,
-              tablet: 65,
-            ),
-            height: responsiveValue(
-              context: context,
-              mobile: 48,
-              tablet: 65,
-            ),
+            width: responsiveValue(context: context, mobile: 48, tablet: 65),
+            height: responsiveValue(context: context, mobile: 48, tablet: 65),
             child: Icon(
               Icons.send,
               color: Colors.white,
-              size: responsiveValue(
-                context: context,
-                mobile: 22,
-                tablet: 32,
-              ),
+              size: responsiveValue(context: context, mobile: 22, tablet: 32),
             ),
           ),
         ),
@@ -734,39 +690,37 @@ class ChatPage extends GetView<ChatTeacherController> {
                 SizedBox(width: 10),
                 Text(
                   "تأكيد إرسال الصورة",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    imageFile,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+            content: Container(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      imageFile,
+                      height: 200,
+                      width: 250,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  fileName,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  SizedBox(height: 12),
+                  Text(
+                    fileName,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
             actions: [
               TextButton(
-                child: Text(
-                  "إلغاء",
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+                child: Text("إلغاء", style: TextStyle(color: Colors.grey[600])),
                 onPressed: () => Navigator.pop(ctx),
               ),
               ElevatedButton(
@@ -818,10 +772,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                 SizedBox(width: 10),
                 Text(
                   "تأكيد إرسال الملف",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -838,14 +789,14 @@ class ChatPage extends GetView<ChatTeacherController> {
                     fileExtension == "pdf"
                         ? Icons.picture_as_pdf
                         : ["jpg", "png", "jpeg"].contains(fileExtension)
-                            ? Icons.image
-                            : Icons.insert_drive_file,
+                        ? Icons.image
+                        : Icons.insert_drive_file,
                     size: 50,
                     color: fileExtension == "pdf"
                         ? Colors.red
                         : ["jpg", "png", "jpeg"].contains(fileExtension)
-                            ? Colors.purple
-                            : Colors.blue,
+                        ? Colors.purple
+                        : Colors.blue,
                   ),
                 ),
                 SizedBox(height: 16),
@@ -863,10 +814,7 @@ class ChatPage extends GetView<ChatTeacherController> {
             ),
             actions: [
               TextButton(
-                child: Text(
-                  "إلغاء",
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+                child: Text("إلغاء", style: TextStyle(color: Colors.grey[600])),
                 onPressed: () {
                   Navigator.pop(ctx);
                   _file = null;
@@ -928,15 +876,30 @@ class ChatPage extends GetView<ChatTeacherController> {
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.download, color: Colors.white),
+                            onPressed: () => saveToGallery(filePath),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -954,7 +917,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                   color: Colors.grey.withOpacity(0.2),
                   width: 1,
                 ),
-              borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Image.network(
                 filePath,
@@ -971,7 +934,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
                             ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
+                                  loadingProgress.expectedTotalBytes!
                             : null,
                         color: isMe ? Colors.white : AppColor.DeepPurple,
                       ),
@@ -979,12 +942,12 @@ class ChatPage extends GetView<ChatTeacherController> {
                   );
                 },
                 errorBuilder: (context, error, stackTrace) {
-                   return Container(
+                  return Container(
                     height: 200,
                     width: 250,
                     color: Colors.grey[200],
-                     child: Icon(Icons.broken_image, color: Colors.grey),
-                   );
+                    child: Icon(Icons.broken_image, color: Colors.grey),
+                  );
                 },
               ),
             ),
@@ -993,10 +956,10 @@ class ChatPage extends GetView<ChatTeacherController> {
       );
     } else if (fileType == 'm4a' || fileType == 'mp3') {
       return Container(
-        padding: EdgeInsets.all(4), 
+        padding: EdgeInsets.all(4),
         decoration: BoxDecoration(
-           color: isMe? Colors.white.withOpacity(0.1) : Colors.grey[50],
-           borderRadius: BorderRadius.circular(12),
+          color: isMe ? Colors.white.withOpacity(0.1) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(12),
         ),
         child: AudioPlayerWidget(audioUrl: filePath),
       );
@@ -1020,29 +983,7 @@ class ChatPage extends GetView<ChatTeacherController> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              FutureBuilder<String?>(
-                future: generateThumbnail(filePath),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Image.file(
-                      File(snapshot.data!),
-                      height: 200,
-                      width: 250,
-                      fit: BoxFit.cover,
-                    );
-                  } else {
-                    return Container(
-                      height: 200,
-                      width: 250,
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                },
-              ),
+              ChatVideoThumbnail(videoUrl: filePath),
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -1088,15 +1029,15 @@ class ChatPage extends GetView<ChatTeacherController> {
           decoration: BoxDecoration(
             color: isMe ? Colors.white.withOpacity(0.15) : Colors.white,
             borderRadius: BorderRadius.circular(16),
-             boxShadow: isMe 
-               ? [] 
-               : [
-                   BoxShadow(
-                     color: Colors.black.withOpacity(0.05),
-                     blurRadius: 5,
-                     offset: Offset(0, 2),
-                   ),
-                 ],
+            boxShadow: isMe
+                ? []
+                : [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 5,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
           ),
           child: Row(
             children: [
@@ -1106,11 +1047,7 @@ class ChatPage extends GetView<ChatTeacherController> {
                   color: iconBgColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  fileIcon,
-                  color: iconColor,
-                  size: 28,
-                ),
+                child: Icon(fileIcon, color: iconColor, size: 28),
               ),
               SizedBox(width: 12),
               Expanded(
@@ -1158,10 +1095,7 @@ class ChatPage extends GetView<ChatTeacherController> {
       String savePath = '${tempDir.path}/$fileName';
 
       // Show loading indicator
-      Get.dialog(
-        Center(child: Loading()),
-        barrierDismissible: false,
-      );
+      Get.dialog(Center(child: Loading()), barrierDismissible: false);
 
       Dio dio = Dio();
       await dio.download(fileUrl, savePath);
@@ -1181,18 +1115,55 @@ class ChatPage extends GetView<ChatTeacherController> {
     }
   }
 
-  Future<String?> generateThumbnail(String videoPath) async {
+  Future<void> saveToGallery(String url, {bool isVideo = false}) async {
     try {
-      final thumbnailPath = await VideoThumbnail.thumbnailFile(
-        video: videoPath,
-        thumbnailPath: (await getTemporaryDirectory()).path,
-        imageFormat: ImageFormat.JPEG,
-        maxHeight: 200,
-        quality: 75,
+      // Check for permission
+      bool hasAccess = await Gal.hasAccess(toAlbum: true);
+      if (!hasAccess) {
+        hasAccess = await Gal.requestAccess(toAlbum: true);
+      }
+
+      if (!hasAccess) {
+        Get.snackbar(
+          "تنبيه",
+          "يجب منح صلاحية الوصول للمعرض للحفظ",
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
+      Get.dialog(Center(child: Loading()), barrierDismissible: false);
+
+      final tempDir = await getTemporaryDirectory();
+      final cleanFileName = path.basename(Uri.parse(url).path);
+      final pathName = "${tempDir.path}/$cleanFileName";
+
+      await Dio().download(url, pathName);
+
+      if (isVideo) {
+        await Gal.putVideo(pathName);
+      } else {
+        await Gal.putImage(pathName);
+      }
+
+      if (Get.isDialogOpen ?? false) Get.back();
+
+      Get.snackbar(
+        "نجاح",
+        isVideo ? "تم حفظ الفيديو في المعرض" : "تم حفظ الصورة في المعرض",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
-      return thumbnailPath;
     } catch (e) {
-      return null;
+      if (Get.isDialogOpen ?? false) Get.back();
+      debugPrint("Save to gallery error: $e");
+      Get.snackbar(
+        "خطأ",
+        "فشل حفظ الملف: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 }

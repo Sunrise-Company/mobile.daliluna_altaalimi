@@ -21,7 +21,7 @@ class ChatGroupMessageStudentController extends GetxController {
   RxList<dynamic> messageList = <dynamic>[].obs;
   var name = ''.obs;
   final ScrollController scrollController = ScrollController();
-  late Sockectcontroller sockectcontroller;
+  late SocketController socketController;
   RxInt currentPage = 1.obs;
   RxBool isLoadingMore = false.obs;
   RxBool hasMoreData = true.obs;
@@ -36,7 +36,7 @@ class ChatGroupMessageStudentController extends GetxController {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     senderId = prefs.getString('student_id');
     token = prefs.getString('token');
-    sockectcontroller = Get.find();
+    socketController = Get.find<SocketController>();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
@@ -46,7 +46,7 @@ class ChatGroupMessageStudentController extends GetxController {
       }
     });
     GetMessages();
-    sockectcontroller.socket.on('sendChatToClient', (data) {
+    socketController.socket.on('sendChatToClient', (data) {
       bool isDuplicate = messageList.any(
         (msg) => msg['message_id'] == data['message_id'],
       );
@@ -223,11 +223,11 @@ class ChatGroupMessageStudentController extends GetxController {
         } catch (e) {}
       }
 
-      if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
+      if (socketIds.isNotEmpty && socketController.isSocketConnected.value) {
         log(
           "Group Chat: Emitting sendChatToServer to ${socketIds.length} sockets",
         );
-        sockectcontroller.socket.emit('sendChatToServer', {
+        socketController.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
           'created_at':
@@ -247,7 +247,7 @@ class ChatGroupMessageStudentController extends GetxController {
         });
       } else {
         log(
-          "Group Chat: assert failed - socketIds: ${socketIds.length}, connected: ${sockectcontroller.isSocketConnected.value}",
+          "Group Chat: assert failed - socketIds: ${socketIds.length}, connected: ${socketController.isSocketConnected.value}",
         );
       }
     } catch (e) {

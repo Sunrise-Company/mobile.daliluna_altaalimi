@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:daliluna_altaalimi/controller/socketController/sockectController.dart';
 import 'appteahcerlessonController.dart';
 
 class LoginControllerss extends GetxController {
@@ -142,8 +143,13 @@ class LoginControllerss extends GetxController {
           TeacherLessonContrlloer(),
         );
         lessonContrlloer.dataList.value = [];
-        lessonContrlloer.isloded.value = false;
         lessonContrlloer.getSudenteLesson();
+
+        // Re-enable socket connection
+        if (Get.isRegistered<SocketController>()) {
+          Get.find<SocketController>().connectToWebSocket();
+        }
+
         Get.offAllNamed('/homepageTeacher');
       } else {
         Get.snackbar(
@@ -172,7 +178,7 @@ class LoginControllerss extends GetxController {
 
   void checkLoginStatusTeacher() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    teacherId.value = prefs.getInt('teacher_id')??0;
+    teacherId.value = prefs.getInt('teacher_id') ?? 0;
     isLoggedInTeacher.value = teacherId != null;
   }
 
@@ -181,6 +187,11 @@ class LoginControllerss extends GetxController {
     prefs.remove('teacher_id');
     prefs.remove('tokenTeacher');
     isLoggedIn.value = false;
+
+    // Disconnect socket and stop notifications
+    if (Get.isRegistered<SocketController>()) {
+      Get.find<SocketController>().disconnectSocket();
+    }
 
     Get.toNamed("/homepage");
   }

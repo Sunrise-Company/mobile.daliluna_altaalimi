@@ -19,7 +19,7 @@ class ChatGroupMessageTeacherController extends GetxController {
   RxMap<String, dynamic> dataList = <String, dynamic>{}.obs;
 
   final ScrollController scrollController = ScrollController();
-  final Sockectcontroller sockectcontroller = Get.find();
+  final SocketController socketController = Get.find<SocketController>();
 
   RxList<dynamic> messageList = <dynamic>[].obs;
   RxInt currentPage = 1.obs;
@@ -49,7 +49,7 @@ class ChatGroupMessageTeacherController extends GetxController {
       }
     });
     GetMessages();
-    sockectcontroller.socket.on('sendChatToClient', (data) {
+    socketController.socket.on('sendChatToClient', (data) {
       log(
         'teacher ChatGroupMessageTeacherController استلام رسالة جديدة: ${data['msg']}',
       );
@@ -222,8 +222,8 @@ class ChatGroupMessageTeacherController extends GetxController {
         } catch (e) {}
       }
 
-      if (socketIds.isNotEmpty && sockectcontroller.isSocketConnected.value) {
-        sockectcontroller.socket.emit('sendChatToServer', {
+      if (socketIds.isNotEmpty && socketController.isSocketConnected.value) {
+        socketController.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
           'created_at':

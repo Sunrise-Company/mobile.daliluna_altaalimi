@@ -3,7 +3,8 @@ import 'package:daliluna_altaalimi/controller/teacherController/chat/InlineVideo
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/teacher/chatTeacher/groupChat/groupdetailes.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:daliluna_altaalimi/view/widget/chat_video_thumbnail.dart';
+import 'package:gal/gal.dart';
 import 'package:daliluna_altaalimi/controller/chatStudnet/RecoringController.dart';
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatgroupStudentController.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
@@ -765,15 +766,30 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.download, color: Colors.white),
+                            onPressed: () => saveToGallery(filePath),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -857,29 +873,7 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              FutureBuilder<String?>(
-                future: generateThumbnail(filePath),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Image.file(
-                      File(snapshot.data!),
-                      height: 200,
-                      width: 250,
-                      fit: BoxFit.cover,
-                    );
-                  } else {
-                    return Container(
-                      height: 200,
-                      width: 250,
-                      decoration: BoxDecoration(
-                        color: Colors.black12,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                },
-              ),
+              ChatVideoThumbnail(videoUrl: filePath),
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -994,27 +988,71 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
       Directory tempDir = await getTemporaryDirectory();
       String savePath = '${tempDir.path}/$fileName';
 
+      // Show loading indicator
+      Get.dialog(Center(child: Loading()), barrierDismissible: false);
+
       Dio dio = Dio();
       await dio.download(fileUrl, savePath);
 
-      OpenFilex.open(savePath);
-    } catch (e) {}
-  }
-
-  Future<String?> generateThumbnail(String videoPath) async {
-    try {
-      final thumbnailPath = await VideoThumbnail.thumbnailFile(
-        video: videoPath,
-        thumbnailPath: (await getTemporaryDirectory()).path,
-        imageFormat: ImageFormat.JPEG,
-        maxHeight: 200,
-        quality: 75,
-      );
-      return thumbnailPath;
+      if (Get.isDialogOpen ?? false) Get.back();
+      await OpenFilex.open(savePath);
     } catch (e) {
-      return null;
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.snackbar(
+        "خطأ",
+        "فشل فتح الملف: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
+
+  Future<void> saveToGallery(String url, {bool isVideo = false}) async {
+    try {
+      bool hasAccess = await Gal.hasAccess(toAlbum: true);
+      if (!hasAccess) {
+        hasAccess = await Gal.requestAccess(toAlbum: true);
+      }
+
+      if (!hasAccess) {
+        Get.snackbar("تنبيه", "يجب منح صلاحية الوصول للمعرض للحفظ",
+            backgroundColor: Colors.orange, colorText: Colors.white);
+        return;
+      }
+
+      Get.dialog(Center(child: Loading()), barrierDismissible: false);
+
+      final tempDir = await getTemporaryDirectory();
+      final cleanFileName = path.basename(Uri.parse(url).path);
+      final pathName = "${tempDir.path}/$cleanFileName";
+
+      await Dio().download(url, pathName);
+
+      if (isVideo) {
+        await Gal.putVideo(pathName);
+      } else {
+        await Gal.putImage(pathName);
+      }
+
+      if (Get.isDialogOpen ?? false) Get.back();
+      Get.snackbar(
+        "نجاح",
+        isVideo ? "تم حفظ الفيديو في المعرض" : "تم حفظ الصورة في المعرض",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      if (Get.isDialogOpen ?? false) Get.back();
+      debugPrint("Save to gallery error: $e");
+      Get.snackbar(
+        "خطأ",
+        "فشل حفظ الملف: $e",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
 
   Future<void> pickAndShowFileDialog(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -1149,26 +1187,30 @@ class GroupChatPageStudent extends GetView<ChatGroupMessageStudentController> {
                 ),
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    imageFile,
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
+            content: Container(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(
+                      imageFile,
+                      height: 200,
+                      width: 250,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  fileName,
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  SizedBox(height: 16),
+                  Text(
+                    fileName,
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
             actionsAlignment: MainAxisAlignment.spaceEvenly,
             actions: [
