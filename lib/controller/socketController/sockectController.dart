@@ -16,21 +16,96 @@ import 'package:daliluna_altaalimi/core/services/notification_helper.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 
-class SocketController extends GetxController {
+class SocketController extends GetxController with WidgetsBindingObserver {
   late IO.Socket socket;
 
   String? socketId;
   RxBool isSocketConnected = false.obs;
 
+  // Track if we're currently trying to reconnect to avoid duplicate attempts
+  bool _isReconnecting = false;
+
   @override
   void onInit() {
+    WidgetsBinding.instance.addObserver(this);
     connectToWebSocket();
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    log("Socket: App lifecycle state changed to: $state");
+
+    if (state == AppLifecycleState.resumed) {
+      // App came back to foreground - check and restore socket connection
+      _checkAndRestoreConnection();
+    } else if (state == AppLifecycleState.paused) {
+      log("Socket: App paused, connection may be interrupted");
+    }
+  }
+
+  Future<void> _checkAndRestoreConnection() async {
+    log("Socket: Checking connection after app resume...");
+
+    // Avoid duplicate reconnection attempts
+    if (_isReconnecting) {
+      log("Socket: Already attempting to reconnect, skipping...");
+      return;
+    }
+
+    try {
+      _isReconnecting = true;
+
+      // Check if socket is truly connected
+      if (!socket.connected) {
+        log("Socket: Connection lost, attempting to reconnect...");
+        isSocketConnected.value = false;
+
+        // Attempt to reconnect
+        socket.connect();
+
+        // Wait a bit for connection to establish
+        await Future.delayed(const Duration(seconds: 2));
+
+        // If still not connected after delay, the onConnect handler will handle it
+        if (socket.connected && socket.id != null) {
+          log(
+            "Socket: Reconnected successfully after app resume. New ID: ${socket.id}",
+          );
+          socketId = socket.id;
+          isSocketConnected.value = true;
+
+          // Save new socket ID to database
+          await saveStudentSocketIdToDatabase(socketId!);
+          await saveTeacherSocketIdToDatabase(socketId!);
+        } else {
+          log("Socket: Still not connected, waiting for auto-reconnect...");
+        }
+      } else {
+        log("Socket: Connection is still active, no action needed");
+        // Even if connected, verify socket ID is still saved in database
+        if (socketId != null) {
+          log("Socket: Refreshing socket ID in database as precaution");
+          await saveStudentSocketIdToDatabase(socketId!);
+          await saveTeacherSocketIdToDatabase(socketId!);
+        }
+      }
+    } catch (e) {
+      log("Socket: Error during connection restoration: $e");
+    } finally {
+      _isReconnecting = false;
+    }
+  }
+
   Future<void> connectToWebSocket() async {
     log("Socket: Initializing connection to ${AppLink.baseUrl}");
-    
+
     socket = IO.io('${AppLink.baseUrl}', <String, dynamic>{
       'transports': ['websocket', 'polling'], // Added polling as a fallback
       'reconnectionAttempts': 20, // Increased attempts
@@ -44,7 +119,7 @@ class SocketController extends GetxController {
       socketId = socket.id;
       isSocketConnected.value = true;
       log("Socket Connected Successfully. ID: $socketId");
-      
+
       if (socketId != null) {
         saveStudentSocketIdToDatabase(socketId!);
         saveTeacherSocketIdToDatabase(socketId!);
@@ -434,14 +509,14 @@ class SocketController extends GetxController {
   Future<void> disconnectSocket() async {
     try {
       log("Socket: Disconnecting socket on logout...");
-      
+
       // Attempt to clear socket ID on server before disconnecting
       if (socket.connected && socket.id != null) {
         // Send empty string to clear the socket id in the database
         await saveStudentSocketIdToDatabase("");
         await saveTeacherSocketIdToDatabase("");
       }
-      
+
       socket.disconnect();
       isSocketConnected.value = false;
       socketId = null;
