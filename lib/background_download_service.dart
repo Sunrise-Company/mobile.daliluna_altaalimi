@@ -17,6 +17,11 @@ class BackgroundDownloadService {
 
   /// تهيئة خدمة الخلفية
   static Future<void> initialize() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      debugPrint("Background service not supported on this platform");
+      return;
+    }
+
     final service = FlutterBackgroundService();
 
     // إعدادات الإشعارات
@@ -60,6 +65,10 @@ class BackgroundDownloadService {
     String? audioUrl,
     required bool isMuxed,
   }) async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      debugPrint("Background service not supported on this platform");
+      return;
+    }
     // حفظ معلومات التحميل
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(

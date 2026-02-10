@@ -154,7 +154,16 @@ class DownloadService {
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
-    const initSettings = InitializationSettings(android: androidSettings);
+    const darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    const initSettings = InitializationSettings(
+      android: androidSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
+    );
 
     await _notifications.initialize(initSettings);
     _notificationsInitialized = true;
@@ -233,7 +242,11 @@ class DownloadService {
       task.videoId.hashCode,
       title,
       task.statusText,
-      NotificationDetails(android: androidDetails),
+      NotificationDetails(
+        android: androidDetails,
+        iOS: const DarwinNotificationDetails(),
+        macOS: const DarwinNotificationDetails(),
+      ),
     );
   }
 
@@ -264,7 +277,11 @@ class DownloadService {
       task.videoId.hashCode,
       title,
       message,
-      NotificationDetails(android: androidDetails),
+      NotificationDetails(
+        android: androidDetails,
+        iOS: const DarwinNotificationDetails(),
+        macOS: const DarwinNotificationDetails(),
+      ),
     );
   }
 
