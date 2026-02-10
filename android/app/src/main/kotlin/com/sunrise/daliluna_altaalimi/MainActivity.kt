@@ -37,7 +37,7 @@ class MainActivity : FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // لا نزال نستخدم FLAG_SECURE كطبقة حماية أولى (لمنع لقطات الشاشة)
-   //    window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+       window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
         // تهيئة DisplayManager
         displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager

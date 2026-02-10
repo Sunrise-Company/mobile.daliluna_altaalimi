@@ -295,9 +295,9 @@ class ChatStudentMessageController extends GetxController {
         log("socketId: ${socketIds[i]}");
       }
 
-    if (socketIds.isNotEmpty) {
-      log("Emitting sendChatToServer with ${socketIds.length} recipients");
-      socketController.socket.emit('sendChatToServer', {
+      if (socketIds.isNotEmpty) {
+        log("Emitting sendChatToServer with ${socketIds.length} recipients");
+        socketController.socket.emit('sendChatToServer', {
           'msg': text ?? '',
           'message_id': messageId,
           'created_at':
