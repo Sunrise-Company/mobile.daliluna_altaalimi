@@ -148,6 +148,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       options.addAll(
         manifest.muxed
             .where((s) => s.container == ytd.StreamContainer.mp4)
+            .where((s) => s.videoResolution.height >= 480)
             .map((s) => DownloadOption.muxed(s)),
       );
       final bestAudio = manifest.audioOnly
@@ -157,6 +158,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         options.addAll(
           manifest.videoOnly
               .where((s) => s.container == ytd.StreamContainer.mp4)
+              .where((s) => s.videoResolution.height >= 480)
               .where(
                 (v) => !options.any(
                   (o) => o.label.startsWith('${v.videoResolution.height}p'),

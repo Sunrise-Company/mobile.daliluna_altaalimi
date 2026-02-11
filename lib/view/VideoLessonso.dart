@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:daliluna_altaalimi/controller/vidoeLesson.dart';
 import 'package:daliluna_altaalimi/view/screen/ytPlayer.dart';
 import 'package:daliluna_altaalimi/view/widget/GetValueForScreen.dart';
-import 'package:daliluna_altaalimi/view/widget/comments_widget.dart';
 import 'package:flutter/material.dart';
 // import 'package:gradients/gradients.dart';
 import 'package:responsive_builder/responsive_builder.dart';
