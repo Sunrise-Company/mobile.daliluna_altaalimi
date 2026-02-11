@@ -63,142 +63,146 @@ import os.log
     
     private func muxVideoWithRetry(videoUrl: URL, audioUrl: URL, outputUrl: URL, attempt: Int, maxAttempts: Int, completion: @escaping (Bool, Error?) -> Void) {
         os_log("🎬 محاولة دمج الفيديو والصوت (محاولة %d/%d)", log: muxerLog, type: .info, attempt, maxAttempts)
-        
-        // Validate input files
+
+        // Validate input files quickly
         let fileManager = FileManager.default
-        guard fileManager.fileExists(atPath: videoUrl.path) else {
-            let error = NSError(domain: "Muxer", code: 100, userInfo: [NSLocalizedDescriptionKey: "ملف الفيديو غير موجود"])
-            os_log("❌ ملف الفيديو غير موجود: %{public}@", log: muxerLog, type: .error, videoUrl.path)
+        guard fileManager.fileExists(atPath: videoUrl.path), fileManager.fileExists(atPath: audioUrl.path) else {
+            let error = NSError(domain: "Muxer", code: 100, userInfo: [NSLocalizedDescriptionKey: "ملفات الإدخال غير موجودة"])
+            os_log("❌ ملف/ملفات الإدخال غير موجودة", log: muxerLog, type: .error)
             completion(false, error)
             return
         }
-        
-        guard fileManager.fileExists(atPath: audioUrl.path) else {
-            let error = NSError(domain: "Muxer", code: 101, userInfo: [NSLocalizedDescriptionKey: "ملف الصوت غير موجود"])
-            os_log("❌ ملف الصوت غير موجود: %{public}@", log: muxerLog, type: .error, audioUrl.path)
-            completion(false, error)
-            return
-        }
-        
-        // Check file sizes
-        do {
-            let videoAttrs = try fileManager.attributesOfItem(atPath: videoUrl.path)
-            let audioAttrs = try fileManager.attributesOfItem(atPath: audioUrl.path)
-            let videoSize = (videoAttrs[.size] as? NSNumber)?.int64Value ?? 0
-            let audioSize = (audioAttrs[.size] as? NSNumber)?.int64Value ?? 0
-            
-            os_log("📹 ملف الفيديو: %.2fMB, 🔊 ملف الصوت: %.2fMB", log: muxerLog, type: .info, Double(videoSize) / 1024 / 1024, Double(audioSize) / 1024 / 1024)
-            
-            if videoSize < 1000 || audioSize < 1000 {
-                let error = NSError(domain: "Muxer", code: 102, userInfo: [NSLocalizedDescriptionKey: "ملف تالف أو صغير جداً"])
-                os_log("❌ ملف تالف أو صغير جداً", log: muxerLog, type: .error)
-                completion(false, error)
-                return
-            }
-        } catch {
-            os_log("❌ خطأ في الوصول إلى الملفات: %{public}@", log: muxerLog, type: .error, error.localizedDescription)
-            completion(false, error)
-            return
-        }
-        
+
+        // Build composition but load tracks asynchronously to avoid transient "no track" errors
         let mixComposition = AVMutableComposition()
-        
         let videoAsset = AVURLAsset(url: videoUrl)
         let audioAsset = AVURLAsset(url: audioUrl)
-        
-        guard let videoTrack = mixComposition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
-              let audioTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else {
-            let error = NSError(domain: "Muxer", code: 1, userInfo: [NSLocalizedDescriptionKey: "فشل في إنشاء المسارات"])
-            os_log("❌ فشل في إنشاء المسارات", log: muxerLog, type: .error)
-            completion(false, error)
-            return
-        }
-        
-        do {
-            os_log("📝 جاري إدراج مسار الفيديو", log: muxerLog, type: .info)
-            if let videoAssetTrack = videoAsset.tracks(withMediaType: .video).first {
-                 try videoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: videoAsset.duration), of: videoAssetTrack, at: .zero)
-                os_log("✅ تم إدراج مسار الفيديو بنجاح", log: muxerLog, type: .info)
-            } else {
-                throw NSError(domain: "Muxer", code: 3, userInfo: [NSLocalizedDescriptionKey: "لا يوجد مسار فيديو"])
-            }
-            
-            os_log("📝 جاري إدراج مسار الصوت", log: muxerLog, type: .info)
-            if let audioAssetTrack = audioAsset.tracks(withMediaType: .audio).first {
-                 try audioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: videoAsset.duration), of: audioAssetTrack, at: .zero)
-                os_log("✅ تم إدراج مسار الصوت بنجاح", log: muxerLog, type: .info)
-            } else {
-                throw NSError(domain: "Muxer", code: 4, userInfo: [NSLocalizedDescriptionKey: "لا يوجد مسار صوت"])
-            }
-        } catch {
-            os_log("❌ خطأ في إدراج المسارات: %{public}@", log: muxerLog, type: .error, error.localizedDescription)
-            
-            // Retry if failed
-            if attempt < maxAttempts {
-                os_log("🔄 إعادة محاولة بعد 500ms...", log: muxerLog, type: .info)
-                DispatchQueue.main.asyncAfter(deadline: .now() + Double(attempt) * 0.5) {
-                    self.muxVideoWithRetry(videoUrl: videoUrl, audioUrl: audioUrl, outputUrl: outputUrl, attempt: attempt + 1, maxAttempts: maxAttempts, completion: completion)
-                }
-                return
-            }
-            
-            completion(false, error)
-            return
-        }
-        
-        if fileManager.fileExists(atPath: outputUrl.path) {
-            try? fileManager.removeItem(at: outputUrl)
-            os_log("🗑️ تم حذف ملف الإخراج السابق", log: muxerLog, type: .info)
-        }
-        
-        guard let exporter = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetPassthrough) else {
-             let error = NSError(domain: "Muxer", code: 2, userInfo: [NSLocalizedDescriptionKey: "فشل في إنشاء المُصدّر"])
-             os_log("❌ فشل في إنشاء المُصدّر", log: muxerLog, type: .error)
-             completion(false, error)
-             return
-        }
-        
-        exporter.outputURL = outputUrl
-        exporter.outputFileType = .mp4
-        exporter.shouldOptimizeForNetworkUse = true
-        
-        os_log("⏳ جاري تصدير الفيديو...", log: muxerLog, type: .info)
-        
-        exporter.exportAsynchronously {
-            DispatchQueue.main.async {
-                if exporter.status == .completed {
-                    do {
-                        let fileAttrs = try fileManager.attributesOfItem(atPath: outputUrl.path)
-                        let fileSize = (fileAttrs[.size] as? NSNumber)?.int64Value ?? 0
-                        os_log("✅ تم دمج الفيديو والصوت بنجاح! حجم الملف: %.2fMB", log: self.muxerLog, type: .info, Double(fileSize) / 1024 / 1024)
-                    } catch {
-                        os_log("⚠️ تحذير: تم التصدير لكن فشل التحقق من الحجم", log: self.muxerLog, type: .info)
-                    }
-                    completion(true, nil)
-                } else if exporter.status == .failed {
-                    os_log("❌ فشل التصدير: %{public}@", log: self.muxerLog, type: .error, exporter.error?.localizedDescription ?? "خطأ غير معروف")
-                    
-                    // Retry if failed
-                    if attempt < maxAttempts {
-                        os_log("🔄 محاولة %d فشلت، إعادة محاولة...", log: self.muxerLog, type: .info, attempt)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(attempt) * 0.5) {
-                            self.muxVideoWithRetry(videoUrl: videoUrl, audioUrl: audioUrl, outputUrl: outputUrl, attempt: attempt + 1, maxAttempts: maxAttempts, completion: completion)
+        let requiredKeys = ["tracks"]
+
+        func attemptToPrepareAndMux(_ attemptLocal: Int) {
+            videoAsset.loadValuesAsynchronously(forKeys: requiredKeys) {
+                audioAsset.loadValuesAsynchronously(forKeys: requiredKeys) {
+                    var vError: NSError? = nil
+                    var aError: NSError? = nil
+                    let vStatus = videoAsset.statusOfValue(forKey: "tracks", error: &vError)
+                    let aStatus = audioAsset.statusOfValue(forKey: "tracks", error: &aError)
+
+                    let hasVideo = (vStatus == .loaded) && !videoAsset.tracks(withMediaType: .video).isEmpty
+                    let hasAudio = (aStatus == .loaded) && !audioAsset.tracks(withMediaType: .audio).isEmpty
+
+                    if !hasVideo || !hasAudio {
+                        os_log("❌ أحد المسارات غير متاح بعد تحميل القيم: video=%{public}@ audio=%{public}@", log: self.muxerLog, type: .error, String(hasVideo), String(hasAudio))
+                        if attemptLocal < maxAttempts {
+                            let delay = Double(attemptLocal) * 0.5
+                            os_log("🔄 انتظار ثم إعادة المحاولة بعد %{public}.2f ثانية (محاولة %d)", log: self.muxerLog, type: .info, delay, attemptLocal + 1)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                attemptToPrepareAndMux(attemptLocal + 1)
+                            }
+                            return
+                        } else {
+                            let missing = !hasVideo ? "لا يوجد مسار فيديو" : "لا يوجد مسار صوت"
+                            let error = NSError(domain: "Muxer", code: 3, userInfo: [NSLocalizedDescriptionKey: missing])
+                            completion(false, error)
+                            return
                         }
+                    }
+
+                    // Now safe to add tracks
+                    guard let videoTrack = mixComposition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
+                          let audioTrack = mixComposition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else {
+                        let error = NSError(domain: "Muxer", code: 1, userInfo: [NSLocalizedDescriptionKey: "فشل في إنشاء المسارات"])
+                        os_log("❌ فشل في إنشاء المسارات", log: self.muxerLog, type: .error)
+                        completion(false, error)
                         return
                     }
-                    
-                    completion(false, exporter.error)
-                } else if exporter.status == .cancelled {
-                    let error = NSError(domain: "Muxer", code: 5, userInfo: [NSLocalizedDescriptionKey: "تم إلغاء التصدير"])
-                    os_log("⚠️ تم إلغاء التصدير", log: self.muxerLog, type: .info)
-                    completion(false, error)
-                } else {
-                    let error = NSError(domain: "Muxer", code: 6, userInfo: [NSLocalizedDescriptionKey: "حالة غير معروفة: \(exporter.status.rawValue)"])
-                    os_log("⚠️ حالة غير معروفة: %ld", log: self.muxerLog, type: .info, exporter.status.rawValue)
-                    completion(false, error)
+
+                    do {
+                        os_log("📝 جاري إدراج مسار الفيديو", log: self.muxerLog, type: .info)
+                        if let videoAssetTrack = videoAsset.tracks(withMediaType: .video).first {
+                            try videoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: videoAsset.duration), of: videoAssetTrack, at: .zero)
+                            os_log("✅ تم إدراج مسار الفيديو بنجاح", log: self.muxerLog, type: .info)
+                        } else {
+                            throw NSError(domain: "Muxer", code: 3, userInfo: [NSLocalizedDescriptionKey: "لا يوجد مسار فيديو"])
+                        }
+
+                        os_log("📝 جاري إدراج مسار الصوت", log: self.muxerLog, type: .info)
+                        if let audioAssetTrack = audioAsset.tracks(withMediaType: .audio).first {
+                            try audioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: videoAsset.duration), of: audioAssetTrack, at: .zero)
+                            os_log("✅ تم إدراج مسار الصوت بنجاح", log: self.muxerLog, type: .info)
+                        } else {
+                            throw NSError(domain: "Muxer", code: 4, userInfo: [NSLocalizedDescriptionKey: "لا يوجد مسار صوت"])
+                        }
+                    } catch {
+                        os_log("❌ خطأ في إدراج المسارات بعد تحميل القيم: %{public}@", log: self.muxerLog, type: .error, String(describing: error.localizedDescription))
+                        if attemptLocal < maxAttempts {
+                            let delay = Double(attemptLocal) * 0.5
+                            os_log("🔄 إعادة محاولة بعد %{public}.2f ثانية...", log: self.muxerLog, type: .info, delay)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                                attemptToPrepareAndMux(attemptLocal + 1)
+                            }
+                            return
+                        }
+                        completion(false, error)
+                        return
+                    }
+
+                    // Proceed with export
+                    if FileManager.default.fileExists(atPath: outputUrl.path) {
+                        try? FileManager.default.removeItem(at: outputUrl)
+                        os_log("🗑️ تم حذف ملف الإخراج السابق", log: self.muxerLog, type: .info)
+                    }
+
+                    guard let exporter = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetPassthrough) else {
+                        let error = NSError(domain: "Muxer", code: 2, userInfo: [NSLocalizedDescriptionKey: "فشل في إنشاء المُصدّر"])
+                        os_log("❌ فشل في إنشاء المُصدّر", log: self.muxerLog, type: .error)
+                        completion(false, error)
+                        return
+                    }
+
+                    exporter.outputURL = outputUrl
+                    exporter.outputFileType = .mp4
+                    exporter.shouldOptimizeForNetworkUse = true
+
+                    os_log("⏳ جاري تصدير الفيديو...", log: self.muxerLog, type: .info)
+
+                    exporter.exportAsynchronously {
+                        DispatchQueue.main.async {
+                            if exporter.status == .completed {
+                                do {
+                                    let fileAttrs = try FileManager.default.attributesOfItem(atPath: outputUrl.path)
+                                    let fileSize = (fileAttrs[.size] as? NSNumber)?.int64Value ?? 0
+                                    os_log("✅ تم دمج الفيديو والصوت بنجاح! حجم الملف: %.2fMB", log: self.muxerLog, type: .info, Double(fileSize) / 1024 / 1024)
+                                } catch {
+                                    os_log("⚠️ تحذير: تم التصدير لكن فشل التحقق من الحجم", log: self.muxerLog, type: .info)
+                                }
+                                completion(true, nil)
+                            } else if exporter.status == .failed {
+                                os_log("❌ فشل التصدير: %{public}@ (attempt %d)", log: self.muxerLog, type: .error, exporter.error?.localizedDescription ?? "خطأ غير معروف", attemptLocal)
+                                if attemptLocal < maxAttempts {
+                                    os_log("🔄 محاولة %d فشلت، إعادة محاولة...", log: self.muxerLog, type: .info, attemptLocal)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(attemptLocal) * 0.5) {
+                                        attemptToPrepareAndMux(attemptLocal + 1)
+                                    }
+                                    return
+                                }
+                                completion(false, exporter.error)
+                            } else if exporter.status == .cancelled {
+                                let error = NSError(domain: "Muxer", code: 5, userInfo: [NSLocalizedDescriptionKey: "تم إلغاء التصدير"])
+                                os_log("⚠️ تم إلغاء التصدير", log: self.muxerLog, type: .info)
+                                completion(false, error)
+                            } else {
+                                let error = NSError(domain: "Muxer", code: 6, userInfo: [NSLocalizedDescriptionKey: "حالة غير معروفة: \(exporter.status.rawValue)"])
+                                os_log("⚠️ حالة غير معروفة: %ld", log: self.muxerLog, type: .info, exporter.status.rawValue)
+                                completion(false, error)
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        // Start attempts
+        attemptToPrepareAndMux(attempt)
     }
   
   override func applicationWillResignActive(_ application: UIApplication) {

@@ -581,8 +581,8 @@ class DownloadService {
           },
         );
       } else if (videoStreamInfo != null && audioStreamInfo != null) {
-        final vTmp = '$outPath.video.tmp';
-        final aTmp = '$outPath.audio.tmp';
+        final vTmp = '$outPath.video.mp4';
+        final aTmp = '$outPath.audio.m4a';
         final totalSize =
             videoStreamInfo.size.totalBytes + audioStreamInfo.size.totalBytes;
 
