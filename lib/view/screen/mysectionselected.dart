@@ -7,8 +7,6 @@ import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/sectionselected_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/customcard.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconbasket.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -127,6 +125,8 @@ class MySectionSelected extends GetView<SectionSelectedController> {
                                             Get.arguments['teacher_id'],
                                           ),
                                           int.parse(Get.arguments['classid']),
+                                          controller.mysection[index]['type']
+                                              .toString(),
                                         );
                                       },
                                       nameImage:

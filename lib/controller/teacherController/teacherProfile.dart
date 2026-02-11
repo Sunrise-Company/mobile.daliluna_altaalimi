@@ -18,7 +18,20 @@ class TeacherProfileController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadTeacherData();
+    
+    // Clear data to prevent flashing old/wrong data
+    arabicName.value = '';
+    image.value = '';
+    education.value = '';
+    description.value = '';
+    institutes.clear();
+    classes.clear();
+
+    // Only load from prefs if acts as "My Profile" (no specific teacher_id passed)
+    if (Get.arguments == null || Get.arguments['teacher_id'] == null) {
+       loadTeacherData();
+    }
+    
     getTeacherInfo();
   }
 
@@ -27,16 +40,24 @@ class TeacherProfileController extends GetxController {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('tokenTeacher');
-      int? teacherId = prefs.getInt('teacher_id');
+      int? teacherId;
 
-      if (token == null || teacherId == null) return;
+      if (Get.arguments != null && Get.arguments['teacher_id'] != null) {
+        teacherId = int.tryParse(Get.arguments['teacher_id'].toString());
+      } else {
+        teacherId = prefs.getInt('teacher_id');
+      }
+
+      if (teacherId == null) return;
+
+      Map<String, String> headers = {'Accept': 'application/json'};
+      if (token != null) {
+        headers['Authorization'] = 'Bearer $token';
+      }
 
       var response = await http.get(
         Uri.parse("${AppLink.teacherInfo}/$teacherId"),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
+        headers: headers,
       );
 
       log("Teacher Info: ${response.body}");

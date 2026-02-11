@@ -8,6 +8,7 @@ import '../../core/constant/color.dart';
 import '../widget/GetValueForScreen.dart';
 import '../widget/customreadmore.dart';
 import '../widget/customtitle.dart';
+import '../widget/loading.dart';
 
 class TeacherProfileWidget extends StatelessWidget {
   final TeacherProfileController teacherController = Get.put(
@@ -49,6 +50,8 @@ class TeacherProfileWidget extends StatelessWidget {
           ),
         ),
         body: Obx(() {
+          if (teacherController.isLoading.value) return const Center(child: Loading());
+
           final image = teacherController.image.value;
           final name = teacherController.arabicName.value;
           final description = "${teacherController.description.value}";

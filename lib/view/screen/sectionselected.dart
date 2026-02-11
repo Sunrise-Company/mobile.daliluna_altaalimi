@@ -12,9 +12,6 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/sectionselected_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/view/widget/customcard.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconbasket.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -675,7 +672,13 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             .PrimaryColor,
                                                       ),
                                                     ),
-                                                    subtitle: itemId != '5'
+                                                    subtitle:
+                                                        item['type']
+                                                                    .toString() !=
+                                                                '3' &&
+                                                            item['type']
+                                                                    .toString() !=
+                                                                '4'
                                                         ? Padding(
                                                             padding:
                                                                 const EdgeInsets.only(
@@ -709,7 +712,10 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                             ),
                                                           )
                                                         : const SizedBox.shrink(),
-                                                    trailing: itemId != '5'
+                                                    trailing:
+                                                        item['type']
+                                                                .toString() !=
+                                                            '3'
                                                         ? Obx(() {
                                                             final allSectionItem =
                                                                 item;

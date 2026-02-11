@@ -570,7 +570,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          'Download complete! Playing video offline.',
+                          'تم التحميل بنجاح! جاري تشغيل الفيديو بدون إنترنت.',
                         ),
                       ),
                     );
@@ -616,7 +616,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   ) async {
     if (options.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No downloadable formats found.')),
+        const SnackBar(content: Text('لم يتم العثور على صيغ قابلة للتحميل.')),
       );
       return null;
     }

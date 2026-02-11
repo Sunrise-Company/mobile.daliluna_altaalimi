@@ -23,6 +23,7 @@ import 'package:daliluna_altaalimi/view/teacher/sutedntTeacher/listStudentForTea
 import 'package:daliluna_altaalimi/view/teacher/unitTeacher.dart';
 import 'package:daliluna_altaalimi/view/teacher/videoLessonTeacher.dart';
 import 'package:daliluna_altaalimi/view/teacher/viewSection.dart';
+import 'package:daliluna_altaalimi/view/teacher/teacherprofile.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/modules/bindings/auth/login_bindings.dart';
@@ -163,10 +164,7 @@ List<GetPage<dynamic>>? routes = [
     binding: ChatTeacherGroupBinding(),
     page: () => GroupChatPageTeacher(),
   ),
-  GetPage(
-    name: '/GroupChatListPageTeacher',
-    page: () => GroupChatListPage(),
-  ),
+  GetPage(name: '/GroupChatListPageTeacher', page: () => GroupChatListPage()),
   GetPage(
     name: '/lectureTeacher',
     binding: LectureTeacherBinding(),
@@ -321,6 +319,7 @@ List<GetPage<dynamic>>? routes = [
     binding: SearchBinding(),
     page: () => SearchScreen(),
   ),
+  GetPage(name: AppRoute.teacherProfile, page: () => TeacherProfileWidget()),
   GetPage(
     name: AppRoute.viewPdf,
     binding: ViewPdfBinding(),
