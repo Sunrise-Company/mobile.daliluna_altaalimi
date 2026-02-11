@@ -379,28 +379,29 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
 
                                                 return CustomButtonBuy(
                                                   onTap: () async {
-                                                    return await baskerc.updateBasket(
-                                                      item['id'].toString(),
-                                                      'unit',
-                                                      item['name'],
-                                                      item['price'],
-                                                      baskerc.teacherName
-                                                          .toString(),
-                                                      baskerc.className
-                                                          .toString(),
-                                                      baskerc.subjectName
-                                                          .toString(),
-                                                      baskerc.teacherId
-                                                          .toString(),
-                                                      baskerc.classId
-                                                          .toString(),
-                                                      baskerc.subjectId
-                                                          .toString(),
-                                                      baskerc.maindepId
-                                                          .toString(),
-                                                      baskerc.instituteId
-                                                          .toString(),
-                                                    );
+                                                    return await baskerc
+                                                        .updateBasket(
+                                                          item['id'].toString(),
+                                                          'unit',
+                                                          item['name'],
+                                                          item['price'],
+                                                          baskerc.teacherName
+                                                              .toString(),
+                                                          baskerc.className
+                                                              .toString(),
+                                                          baskerc.subjectName
+                                                              .toString(),
+                                                          baskerc.teacherId
+                                                              .toString(),
+                                                          baskerc.classId
+                                                              .toString(),
+                                                          baskerc.subjectId
+                                                              .toString(),
+                                                          baskerc.maindepId
+                                                              .toString(),
+                                                          baskerc.instituteId
+                                                              .toString(),
+                                                        );
                                                   },
                                                   targetCartKey:
                                                       CartAnimationKeys

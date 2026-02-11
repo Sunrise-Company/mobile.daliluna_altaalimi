@@ -23,13 +23,20 @@ class SectionSelectedController extends GetxController {
     int subjetcsid,
     int teacher_id,
     int class_id,
+    String type,
   ) {
+    String routeName = AppRoute.mysectionsSubject;
+
+    if (type.toString() == '2') {
+      routeName = AppRoute.myunitsSubject;
+    } else if (type.toString() == '3') {
+      routeName = AppRoute.teacherProfile;
+    } else {
+      routeName = AppRoute.mysectionsSubject;
+    }
+
     Get.toNamed(
-      selectedItem == 5
-          ? AppRoute.lessonDetails
-          : selectedItem == 6
-          ? AppRoute.myunitsSubject
-          : AppRoute.mysectionsSubject,
+      routeName,
       arguments: {
         "sectionid": selectedItem,
         'subjetcsid': subjetcsid,
@@ -46,69 +53,37 @@ class SectionSelectedController extends GetxController {
     String type,
   ) {
     // Find the name of the selected section/course type
-    // Note: dataList contains the sections. We need to find the one matching selectedItem (which is an ID string)
     final selectedSection = dataList.firstWhere(
       (element) => element['id'].toString() == selectedItem,
       orElse: () => {},
     );
     final String sectionName = selectedSection['name'] ?? 'القسم';
 
+    String routeName = AppRoute.sectionsSubject;
+    Map<String, dynamic> args = {
+      "sectionid": selectedItem,
+      'subjetcsid': subjetcsid,
+      'teacher_id': teacher_id,
+    };
+
+    if (type.toString() == '4') {
+      routeName = AppRoute.sectionsSubject;
+    } else if (type.toString() == '3') {
+      routeName = AppRoute.teacherProfile;
+    } else if (type.toString() == '2') {
+      routeName = AppRoute.unitsSubject;
+    } else if (type.toString() == '1') {
+      routeName = AppRoute.sectionsSubject;
+    } else {
+      routeName = AppRoute.sectionsSubject;
+    }
+
     // Add Breadcrumb
     Get.find<BreadcrumbService>().add(
-      BreadcrumbItem(
-        title: sectionName,
-        route: selectedItem == '5'
-            ? AppRoute.lessonDetails
-            : selectedItem == '6'
-            ? AppRoute.unitsSubject
-            : AppRoute.sectionsSubject,
-        arguments: {
-          "sectionid": selectedItem,
-          'subjetcsid': subjetcsid,
-          'teacher_id': teacher_id,
-        },
-      ),
+      BreadcrumbItem(title: sectionName, route: routeName, arguments: args),
     );
 
-    if (type.toString() != '4') {
-      if (selectedItem == '5') {
-        Get.toNamed(
-          AppRoute.lessonDetails,
-          arguments: {
-            "sectionid": selectedItem.toString(),
-            'subjetcsid': subjetcsid,
-            'teacher_id': teacher_id,
-          },
-        );
-      } else if (selectedItem == '6') {
-        Get.toNamed(
-          AppRoute.unitsSubject,
-          arguments: {
-            "sectionid": selectedItem.toString(),
-            'subjetcsid': subjetcsid,
-            'teacher_id': teacher_id,
-          },
-        );
-      } else {
-        Get.toNamed(
-          AppRoute.sectionsSubject,
-          arguments: {
-            "sectionid": selectedItem,
-            'subjetcsid': subjetcsid,
-            'teacher_id': teacher_id,
-          },
-        );
-      }
-    } else {
-      Get.toNamed(
-        AppRoute.sectionsSubject,
-        arguments: {
-          "sectionid": selectedItem,
-          'subjetcsid': subjetcsid,
-          'teacher_id': teacher_id,
-        },
-      );
-    }
+    Get.toNamed(routeName, arguments: args);
   }
 
   List<dynamic> dataList = [];

@@ -51,6 +51,7 @@ class MainActivity : FlutterActivity() {
         // This is crucial for handling notification clicks when app is already running
         setIntent(intent)
     }
+    
 
     override fun onResume() {
         super.onResume()

@@ -38,4 +38,5 @@ class AppRoute {
   static const String mysubjects = "/mysubjects";
   static const String myteacher = "/myteacher";
   static const String search = "/search";
+  static const String teacherProfile = "/teacherProfile";
 }

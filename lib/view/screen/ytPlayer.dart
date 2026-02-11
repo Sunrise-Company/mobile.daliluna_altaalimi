@@ -148,6 +148,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       options.addAll(
         manifest.muxed
             .where((s) => s.container == ytd.StreamContainer.mp4)
+            .where((s) => s.videoResolution.height >= 480)
             .map((s) => DownloadOption.muxed(s)),
       );
       final bestAudio = manifest.audioOnly
@@ -157,6 +158,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         options.addAll(
           manifest.videoOnly
               .where((s) => s.container == ytd.StreamContainer.mp4)
+              .where((s) => s.videoResolution.height >= 480)
               .where(
                 (v) => !options.any(
                   (o) => o.label.startsWith('${v.videoResolution.height}p'),
@@ -568,7 +570,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text(
-                          'Download complete! Playing video offline.',
+                          'تم التحميل بنجاح! جاري تشغيل الفيديو بدون إنترنت.',
                         ),
                       ),
                     );
@@ -614,7 +616,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   ) async {
     if (options.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No downloadable formats found.')),
+        const SnackBar(content: Text('لم يتم العثور على صيغ قابلة للتحميل.')),
       );
       return null;
     }

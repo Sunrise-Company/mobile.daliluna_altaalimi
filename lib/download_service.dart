@@ -562,15 +562,17 @@ class DownloadService {
       }
 
       if (task.isMuxed && videoStreamInfo != null) {
-        await _dio.download(
-          videoStreamInfo.url.toString(),
-          outPath,
-          cancelToken: cancelToken,
-          onReceiveProgress: (received, total) {
-            final t = total > 0 ? total : task.totalBytes;
+        // Use retry/resume logic
+        await _downloadWithRetryAndResume(
+          url: videoStreamInfo.url.toString(),
+          path: outPath,
+          task: task,
+          startByte: 0,
+          onProgress: (received, total) {
+            final t = task.totalBytes > 0 ? task.totalBytes : total;
             if (t > 0) {
               task.progress = received / t;
-              task.downloadedBytes = received;
+              task.downloadedBytes = received; // This tracks total downloaded
               task.statusText =
                   'جاري التحميل... ${(task.progress * 100).toStringAsFixed(0)}%';
               _notifyUpdates();
@@ -589,14 +591,16 @@ class DownloadService {
         _notifyUpdates();
         _showProgressNotification(task);
 
-        await _dio.download(
-          videoStreamInfo.url.toString(),
-          vTmp,
-          cancelToken: cancelToken,
-          onReceiveProgress: (received, total) {
+        await _downloadWithRetryAndResume(
+          url: videoStreamInfo.url.toString(),
+          path: vTmp,
+          task: task,
+          startByte: 0,
+          onProgress: (received, _) {
+            // received is file size here
             if (totalSize > 0) {
               task.progress = received / totalSize;
-              task.downloadedBytes = received;
+              task.downloadedBytes = received; // Stores video size
               task.statusText =
                   'جاري تحميل الفيديو... ${(task.progress * 100).toStringAsFixed(0)}%';
               _notifyUpdates();
@@ -610,13 +614,15 @@ class DownloadService {
         _notifyUpdates();
         _showProgressNotification(task);
 
-        await _dio.download(
-          audioStreamInfo.url.toString(),
-          aTmp,
-          cancelToken: cancelToken,
-          onReceiveProgress: (received, total) {
+        await _downloadWithRetryAndResume(
+          url: audioStreamInfo.url.toString(),
+          path: aTmp,
+          task: task,
+          startByte: 0,
+          onProgress: (received, _) {
             if (totalSize > 0) {
-              final vSize = task.downloadedBytes; // حجم الفيديو المحمل فعلياً
+              final vSize =
+                  task.downloadedBytes; // Video size stored previously
               task.progress = (vSize + received) / totalSize;
               task.audioDownloadedBytes = received;
               task.statusText =
@@ -696,51 +702,79 @@ class DownloadService {
           );
         }
 
-        // استخدام HTTP Range header لاستئناف التحميل
-        final options = Options(headers: {'Range': 'bytes=$startByte-'});
-
-        print('🔄 استئناف التحميل من البايت: $startByte');
-
-        // استخدام RandomAccessFile للكتابة في نهاية الملف
+        // 1. Get current file size for resume
         final file = File(path);
-        final raf = file.openSync(mode: FileMode.append);
-
-        try {
-          final response = await _dio.get<List<int>>(
-            url,
-            options: options,
-            cancelToken: cancelToken,
-            onReceiveProgress: (received, total) {
-              onProgress(received, task.totalBytes);
-            },
-          );
-
-          if (response.data != null) {
-            raf.writeFromSync(response.data!);
-            raf.flushSync();
-          }
-
-          raf.closeSync();
-          return; // نجح التحميل
-        } catch (e) {
-          raf.closeSync();
-          rethrow;
+        int currentLength = 0;
+        if (await file.exists()) {
+          currentLength = await file.length();
         }
+
+        // If explicitly resuming a part (like initial startByte), respect it if file is smaller?
+        // Actually, startByte arg is usually 0 or specific.
+        // If we are retrying, we ALWAYS want 'current file length'.
+        // So we can ignore startByte argument in the loop logic and trust the file.
+        // Except if startByte > currentLength (which shouldn't happen for downloads).
+
+        // 2. Prepare request
+        final options = Options(
+          headers: {'Range': 'bytes=$currentLength-'},
+          responseType: ResponseType.stream,
+        );
+
+        print('🔄 استئناف التحميل من البايت: $currentLength');
+
+        final response = await _dio.get<ResponseBody>(
+          url,
+          options: options,
+          cancelToken: cancelToken,
+        );
+
+        // 3. Write stream to file
+        final raf = file.openSync(mode: FileMode.append);
+        try {
+          final stream = response.data!.stream;
+          await for (final chunk in stream) {
+            // Check cancel again inside loop for responsiveness
+            if (cancelToken?.isCancelled ?? false) {
+              throw DioException(
+                requestOptions: RequestOptions(path: url),
+                type: DioExceptionType.cancel,
+              );
+            }
+            raf.writeFromSync(chunk);
+            currentLength += chunk.length;
+            onProgress(currentLength - startByte, task.totalBytes);
+            // Note: onProgress expects (received, total).
+            // 'received' usually means bytes received in *this* session?
+            // No, task.progress = (fileSize + received) / total; in caller?
+            // Let's check caller.
+            // In _executeDownloadResume:
+            // onProgress: (received, total) { task.progress = (fileSize + received) / total; }
+            // So 'received' is bytes downloaded *since call started*.
+            // But here we are resuming interally.
+            // If we report 'currentLength - startByte', that is the delta since function start.
+            // Yes, that matches expectations if startByte was the file size at function call time.
+          }
+        } finally {
+          raf.closeSync();
+        }
+
+        return; // Success
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) rethrow;
 
         attempts++;
         if (attempts >= maxRetries) rethrow;
 
-        // انتظر قبل إعادة المحاولة
-        task.statusText =
-            'فشل الاستئناف... إعادة المحاولة ${attempts}/$maxRetries خلال ${delay.inSeconds}ث';
-        task.retryCount = attempts;
-        _notifyUpdates();
-        await _saveTasksState();
-
+        print(
+          '⚠️ فشل التحميل (محاولة $attempts/$maxRetries). إعادة المحاولة...',
+        );
         await Future.delayed(delay);
         delay *= 2;
+      } catch (e) {
+        attempts++;
+        if (attempts >= maxRetries) rethrow;
+        await Future.delayed(delay);
       }
     }
   }
