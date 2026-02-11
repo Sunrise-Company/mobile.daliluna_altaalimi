@@ -18,8 +18,14 @@ class LoginController extends GetxController {
   String? id;
   getDeviceDetails() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    id = androidInfo.id; // Corrected line
+    if (GetPlatform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      id = androidInfo.id;
+    } else if (GetPlatform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      id = iosInfo.identifierForVendor;
+    }
+    log(id.toString());
     update();
   }
 

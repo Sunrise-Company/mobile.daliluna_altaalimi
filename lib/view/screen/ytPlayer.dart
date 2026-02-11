@@ -33,7 +33,7 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   String? _fetchError;
 
   BetterPlayerController? _betterPlayerController;
-  late final WebViewController _webViewController;
+  WebViewController? _webViewController;
   bool _isPlayerReady = false;
   List<DownloadOption>? _prefetchedQualities;
   final DownloadService _downloadService = DownloadService.instance;
@@ -336,51 +336,56 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     late final PlatformWebViewControllerCreationParams params;
     params = const PlatformWebViewControllerCreationParams();
 
-    _webViewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFF000000))
-      ..enableZoom(false)
-      ..addJavaScriptChannel(
-        'PlayerStatusChannel',
-        onMessageReceived: (JavaScriptMessage message) {
-          final msg = message.message ?? '';
-          if (msg == 'ready' && mounted) {
-            setState(() => _isPlayerReady = true);
-            _prefetchDownloadOptions();
-          } else if (msg == 'embed_error' && mounted) {
-            setState(() {
-              _embedErrorDetected = true;
-            });
-          }
-        },
-      )
-      ..setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.122 Safari/537.36",
-      )
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageFinished: (String url) {
-            _webViewController.runJavaScript(finalJsCommands);
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            final url = request.url;
-            if (url.contains('youtube.com/watch') ||
-                url.contains('youtu.be/')) {
-              return NavigationDecision.prevent;
+    if (_webViewController == null) {
+      _webViewController = WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setBackgroundColor(const Color(0xFF000000))
+        ..enableZoom(false)
+        ..addJavaScriptChannel(
+          'PlayerStatusChannel',
+          onMessageReceived: (JavaScriptMessage message) {
+            final msg = message.message ?? '';
+            if (msg == 'ready' && mounted) {
+              setState(() => _isPlayerReady = true);
+              _prefetchDownloadOptions();
+            } else if (msg == 'embed_error' && mounted) {
+              setState(() {
+                _embedErrorDetected = true;
+              });
             }
-            if (_embedErrorDetected &&
-                (url.startsWith('http') || url.contains('youtube.com'))) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
           },
-        ),
-      );
+        )
+        ..setUserAgent(
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.122 Safari/537.36",
+        )
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageFinished: (String url) {
+              _webViewController?.runJavaScript(finalJsCommands);
+            },
+            onNavigationRequest: (NavigationRequest request) {
+              final url = request.url;
+              if (url.contains('youtube.com/watch') ||
+                  url.contains('youtu.be/')) {
+                return NavigationDecision.prevent;
+              }
+              if (_embedErrorDetected &&
+                  (url.startsWith('http') || url.contains('youtube.com'))) {
+                return NavigationDecision.prevent;
+              }
+              return NavigationDecision.navigate;
+            },
+          ),
+        );
+    }
 
     // NOTE: Removed aggressive cache clearing. Real browsers keep cookies/cache to build trust.
     // Clearing them on every load flags the session as a "Bot/New User" repeatedly.
 
-    await _webViewController.loadRequest(Uri.parse(embedUrl), headers: headers);
+    await _webViewController?.loadRequest(
+      Uri.parse(embedUrl),
+      headers: headers,
+    );
   }
 
   Future<void> _deleteVideo() async {
@@ -442,7 +447,9 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
             AnimatedOpacity(
               opacity: _isPlayerReady ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 500),
-              child: WebViewWidget(controller: _webViewController),
+              child: _webViewController != null
+                  ? WebViewWidget(controller: _webViewController!)
+                  : const SizedBox(),
             ),
           if (_localVideoPath == null && !_isPlayerReady)
             const CircularProgressIndicator(color: Colors.white),

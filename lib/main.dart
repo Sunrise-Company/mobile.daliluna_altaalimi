@@ -65,30 +65,30 @@ void main() async {
   // ═══════════════════════════════════════════════════════════════
 
   // 1. Check Emulator (Blocking) - The ONLY error screen we want
-  try {
-    String? emulatorReason = await checkIfEmulator().timeout(
-      const Duration(seconds: 5),
-      onTimeout: () => null,
-    );
+  // try {
+  //   String? emulatorReason = await checkIfEmulator().timeout(
+  //     const Duration(seconds: 5),
+  //     onTimeout: () => null,
+  //   );
 
-    if (emulatorReason != null) {
-      String deviceInfo = await _getDeviceInfoString();
+  //   if (emulatorReason != null) {
+  //     String deviceInfo = await _getDeviceInfoString();
 
-      // Translate the reason to Arabic for better user understanding
-      String arabicReason = _translateEmulatorReason(emulatorReason);
+  //     // Translate the reason to Arabic for better user understanding
+  //     String arabicReason = _translateEmulatorReason(emulatorReason);
 
-      _showErrorScreen(
-        "تم اكتشاف محاكي",
-        arabicReason,
-        details: deviceInfo,
-        isWarning: true,
-      );
-      return;
-    }
-  } catch (e) {
-    // Ignore emulator check internal errors
-    debugPrint("Emulator check error: $e");
-  }
+  //     _showErrorScreen(
+  //       "تم اكتشاف محاكي",
+  //       arabicReason,
+  //       details: deviceInfo,
+  //       isWarning: true,
+  //     );
+  //     return;
+  //   }
+  // } catch (e) {
+  //   // Ignore emulator check internal errors
+  //   debugPrint("Emulator check error: $e");
+  // }
 
   // 2. Initialize Notifications (Non-blocking)
   try {
@@ -503,8 +503,8 @@ void _showErrorScreen(
 
 Future<String?> checkIfEmulator() async {
   try {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
 
       final String host = androidInfo.host;
@@ -615,6 +615,11 @@ Future<String?> checkIfEmulator() async {
         if (isGenericEmulator) {
           return "Generic EmulatorChecker detected (non-physical, unknown brand)";
         }
+      }
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      if (!iosInfo.isPhysicalDevice) {
+        return "iOS Simulator detected (isPhysicalDevice: false = STRONG EVIDENCE)";
       }
     }
   } catch (e) {

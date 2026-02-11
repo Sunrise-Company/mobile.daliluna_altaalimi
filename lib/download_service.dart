@@ -783,7 +783,9 @@ class DownloadService {
   Future<void> _handleDownloadError(DownloadTask task, dynamic error) async {
     print('❌ Download failed for ${task.videoId}: $error');
     task.status = DownloadStatus.failed;
-    task.statusText = 'فشل التحميل بعد ${task.retryCount} محاولات';
+    // Show the actual error message if possible, or a generic one
+    final errorMsg = error.toString().replaceAll('Exception:', '').trim();
+    task.statusText = 'فشل: $errorMsg';
     _notifyUpdates();
     await _saveTasksState();
     await _showCompletionNotification(task, false);

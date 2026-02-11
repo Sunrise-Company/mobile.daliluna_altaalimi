@@ -119,15 +119,15 @@ import os.log
                     do {
                         os_log("📝 جاري إدراج مسار الفيديو", log: self.muxerLog, type: .info)
                         if let videoAssetTrack = videoAsset.tracks(withMediaType: .video).first {
-                            try videoTrack.insertTimeRange(CMTimeRange(start: .zero, duration: videoAsset.duration), of: videoAssetTrack, at: .zero)
-                            os_log("✅ تم إدراج مسار الفيديو بنجاح", log: self.muxerLog, type: .info)
+                            try videoTrack.insertTimeRange(videoAssetTrack.timeRange, of: videoAssetTrack, at: .zero)
+                            os_log("✅ تم إدراج مسار الفيديو بنجاح (Duration: %.2f)", log: self.muxerLog, type: .info, CMTimeGetSeconds(videoAssetTrack.timeRange.duration))
                         } else {
                             throw NSError(domain: "Muxer", code: 3, userInfo: [NSLocalizedDescriptionKey: "لا يوجد مسار فيديو"])
                         }
 
                         os_log("📝 جاري إدراج مسار الصوت", log: self.muxerLog, type: .info)
                         if let audioAssetTrack = audioAsset.tracks(withMediaType: .audio).first {
-                            try audioTrack.insertTimeRange(CMTimeRange(start: .zero, duration: videoAsset.duration), of: audioAssetTrack, at: .zero)
+                            try audioTrack.insertTimeRange(audioAssetTrack.timeRange, of: audioAssetTrack, at: .zero)
                             os_log("✅ تم إدراج مسار الصوت بنجاح", log: self.muxerLog, type: .info)
                         } else {
                             throw NSError(domain: "Muxer", code: 4, userInfo: [NSLocalizedDescriptionKey: "لا يوجد مسار صوت"])
@@ -152,51 +152,61 @@ import os.log
                         os_log("🗑️ تم حذف ملف الإخراج السابق", log: self.muxerLog, type: .info)
                     }
 
-                    guard let exporter = AVAssetExportSession(asset: mixComposition, presetName: AVAssetExportPresetPassthrough) else {
-                        let error = NSError(domain: "Muxer", code: 2, userInfo: [NSLocalizedDescriptionKey: "فشل في إنشاء المُصدّر"])
-                        os_log("❌ فشل في إنشاء المُصدّر", log: self.muxerLog, type: .error)
-                        completion(false, error)
-                        return
-                    }
+                    // Define presets to try: High -> Medium -> Low
+                    let presets = [AVAssetExportPresetHighestQuality, AVAssetExportPresetMediumQuality, AVAssetExportPresetLowQuality]
+                    
+                    // Recursive function to try presets
+                    func tryExport(with presets: [String]) {
+                        guard let currentPreset = presets.first else {
+                            // All presets failed
+                            let error = NSError(domain: "Muxer", code: 7, userInfo: [NSLocalizedDescriptionKey: "فشل التصدير بجميع الجودات المتاحة"])
+                            completion(false, error)
+                            return
+                        }
 
-                    exporter.outputURL = outputUrl
-                    exporter.outputFileType = .mp4
-                    exporter.shouldOptimizeForNetworkUse = true
+                        guard let exporter = AVAssetExportSession(asset: mixComposition, presetName: currentPreset) else {
+                            os_log("⚠️ فشل إنشاء المُصدّر للجودة: %{public}@", log: self.muxerLog, type: .error, currentPreset)
+                            tryExport(with: Array(presets.dropFirst()))
+                            return
+                        }
 
-                    os_log("⏳ جاري تصدير الفيديو...", log: self.muxerLog, type: .info)
+                        exporter.outputURL = outputUrl
+                        exporter.outputFileType = .mp4
+                        exporter.shouldOptimizeForNetworkUse = true
 
-                    exporter.exportAsynchronously {
-                        DispatchQueue.main.async {
-                            if exporter.status == .completed {
-                                do {
-                                    let fileAttrs = try FileManager.default.attributesOfItem(atPath: outputUrl.path)
-                                    let fileSize = (fileAttrs[.size] as? NSNumber)?.int64Value ?? 0
-                                    os_log("✅ تم دمج الفيديو والصوت بنجاح! حجم الملف: %.2fMB", log: self.muxerLog, type: .info, Double(fileSize) / 1024 / 1024)
-                                } catch {
-                                    os_log("⚠️ تحذير: تم التصدير لكن فشل التحقق من الحجم", log: self.muxerLog, type: .info)
-                                }
-                                completion(true, nil)
-                            } else if exporter.status == .failed {
-                                os_log("❌ فشل التصدير: %{public}@ (attempt %d)", log: self.muxerLog, type: .error, exporter.error?.localizedDescription ?? "خطأ غير معروف", attemptLocal)
-                                if attemptLocal < maxAttempts {
-                                    os_log("🔄 محاولة %d فشلت، إعادة محاولة...", log: self.muxerLog, type: .info, attemptLocal)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + Double(attemptLocal) * 0.5) {
-                                        attemptToPrepareAndMux(attemptLocal + 1)
+                        os_log("⏳ جاري تصدير الفيديو بجودة: %{public}@", log: self.muxerLog, type: .info, currentPreset)
+
+                        exporter.exportAsynchronously {
+                            DispatchQueue.main.async {
+                                if exporter.status == .completed {
+                                    do {
+                                        let fileAttrs = try FileManager.default.attributesOfItem(atPath: outputUrl.path)
+                                        let fileSize = (fileAttrs[.size] as? NSNumber)?.int64Value ?? 0
+                                        os_log("✅ تم دمج الفيديو والصوت بنجاح! حجم الملف: %.2fMB (Preset: %{public}@)", log: self.muxerLog, type: .info, Double(fileSize) / 1024 / 1024, currentPreset)
+                                    } catch {
+                                        os_log("⚠️ تحذير: تم التصدير لكن فشل التحقق من الحجم", log: self.muxerLog, type: .info)
                                     }
-                                    return
+                                    completion(true, nil)
+                                } else if exporter.status == .failed {
+                                    os_log("❌ فشل التصدير بجودة %{public}@: %{public}@", log: self.muxerLog, type: .error, currentPreset, exporter.error?.localizedDescription ?? "خطأ غير معروف")
+                                    // Try next preset
+                                    tryExport(with: Array(presets.dropFirst()))
+                                } else if exporter.status == .cancelled {
+                                    let error = NSError(domain: "Muxer", code: 5, userInfo: [NSLocalizedDescriptionKey: "تم إلغاء التصدير"])
+                                    os_log("⚠️ تم إلغاء التصدير", log: self.muxerLog, type: .info)
+                                    completion(false, error)
+                                } else {
+                                    // Unknown state, likely transient, try next preset to be safe? Or fail?
+                                    // Let's treat as fail for this preset
+                                     os_log("⚠️ حالة غير معروفة: %ld", log: self.muxerLog, type: .info, exporter.status.rawValue)
+                                     tryExport(with: Array(presets.dropFirst()))
                                 }
-                                completion(false, exporter.error)
-                            } else if exporter.status == .cancelled {
-                                let error = NSError(domain: "Muxer", code: 5, userInfo: [NSLocalizedDescriptionKey: "تم إلغاء التصدير"])
-                                os_log("⚠️ تم إلغاء التصدير", log: self.muxerLog, type: .info)
-                                completion(false, error)
-                            } else {
-                                let error = NSError(domain: "Muxer", code: 6, userInfo: [NSLocalizedDescriptionKey: "حالة غير معروفة: \(exporter.status.rawValue)"])
-                                os_log("⚠️ حالة غير معروفة: %ld", log: self.muxerLog, type: .info, exporter.status.rawValue)
-                                completion(false, error)
                             }
                         }
                     }
+
+                    // Start exporting with the list of presets
+                    tryExport(with: presets)
                 }
             }
         }
