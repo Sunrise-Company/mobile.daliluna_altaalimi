@@ -142,6 +142,8 @@ class DownloadService {
   Stream<Map<String, DownloadTask>> get progressStream =>
       _progressController.stream;
 
+  Map<String, DownloadTask> get tasks => _tasks;
+
   static const _muxChannel = MethodChannel('com.example.muxer');
   static const _prefsKey = 'download_tasks';
 
@@ -642,10 +644,26 @@ class DownloadService {
         task.statusText = 'جاري دمج الفيديو والصوت...';
         _notifyUpdates();
         _showProgressNotification(task);
-        await _muxMp4(vTmp, aTmp, outPath);
 
-        await File(vTmp).delete().catchError((_) => File(vTmp));
-        await File(aTmp).delete().catchError((_) => File(aTmp));
+        // Safe-Write Protocol: Mux to a temporary path, then rename
+        final mergePath = '$outPath.merging';
+        try {
+          await _muxMp4(vTmp, aTmp, mergePath);
+          final mergeFile = File(mergePath);
+          if (await mergeFile.exists()) {
+            await mergeFile.rename(outPath);
+          } else {
+            throw Exception('فشل الدمج: الملف الناتج غير موجود');
+          }
+        } catch (e) {
+          print('❌ [Muxer] Merge failed: $e');
+          rethrow;
+        } finally {
+          // Clean up temp tracks
+          if (await File(vTmp).exists()) await File(vTmp).delete();
+          if (await File(aTmp).exists()) await File(aTmp).delete();
+          if (await File(mergePath).exists()) await File(mergePath).delete();
+        }
       }
 
       task.status = DownloadStatus.completed;
@@ -723,11 +741,23 @@ class DownloadService {
 
         print('🔄 استئناف التحميل من البايت: $currentLength');
 
-        final response = await _dio.get<ResponseBody>(
-          url,
-          options: options,
-          cancelToken: cancelToken,
-        );
+        Response<ResponseBody> response;
+        try {
+          response = await _dio.get<ResponseBody>(
+            url,
+            options: options,
+            cancelToken: cancelToken,
+          );
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 416) {
+            if (currentLength > 0) return; // File is likely complete
+
+            // If empty file got 416, something is wrong
+            await file.delete();
+            throw Exception('Invalid range start, restarting...');
+          }
+          rethrow;
+        }
 
         // 3. Write stream to file
         final raf = file.openSync(mode: FileMode.append);
@@ -824,11 +854,18 @@ class DownloadService {
     String audioPath,
     String outPath,
   ) async {
-    await _muxChannel.invokeMethod('mux', {
-      'video': videoPath,
-      'audio': audioPath,
-      'out': outPath,
-    });
+    try {
+      print('⏳ [Muxer] Starting muxing: $videoPath + $audioPath -> $outPath');
+      await _muxChannel.invokeMethod('mux', {
+        'video': videoPath,
+        'audio': audioPath,
+        'out': outPath,
+      });
+      print('✅ [Muxer] Muxing channel call finished');
+    } catch (e) {
+      print('❌ [Muxer] Channel error during muxing: $e');
+      rethrow;
+    }
   }
 
   void _notifyUpdates() {
@@ -858,7 +895,9 @@ class DownloadService {
 
       if (task.isMuxed) {
         final muxed = manifest.muxed.where(
-          (s) => s.container == ytd.StreamContainer.mp4,
+          (s) =>
+              s.container == ytd.StreamContainer.mp4 &&
+              s.videoCodec.startsWith('avc1'),
         );
         if (muxed.isNotEmpty) {
           // محاولة المطابقة مع الدقة السابقة
@@ -878,7 +917,9 @@ class DownloadService {
         }
       } else {
         final videos = manifest.videoOnly.where(
-          (s) => s.container == ytd.StreamContainer.mp4,
+          (s) =>
+              s.container == ytd.StreamContainer.mp4 &&
+              s.videoCodec.startsWith('avc1'),
         );
         final a = manifest.audioOnly.withHighestBitrate();
 

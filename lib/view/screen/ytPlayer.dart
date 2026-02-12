@@ -1,14 +1,15 @@
 import 'dart:io';
-import 'package:better_player_plus/better_player_plus.dart';
 import 'package:daliluna_altaalimi/download_service.dart';
-
 import 'package:daliluna_altaalimi/view/widget/comments_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
+
+import 'package:better_player_plus/better_player_plus.dart';
 
 class YoutubePlayer extends StatefulWidget {
   final String videoId;
@@ -32,7 +33,13 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
   String? _videoTitle;
   String? _fetchError;
 
+  // iOS Specific
+  VideoPlayerController? _videoPlayerController;
+  ChewieController? _chewieController;
+
+  // Android Specific
   BetterPlayerController? _betterPlayerController;
+
   WebViewController? _webViewController;
   bool _isPlayerReady = false;
   List<DownloadOption>? _prefetchedQualities;
@@ -84,6 +91,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
   @override
   void dispose() {
+    _videoPlayerController?.dispose();
+    _chewieController?.dispose();
     _betterPlayerController?.dispose();
 
     _restoreSystemUI();
@@ -174,9 +183,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       // معالجة الأخطاء مع عرض معلومات مفيدة
       debugPrint('Error fetching download options for ${widget.videoId}: $e');
       if (mounted) setState(() => _fetchError = e.toString());
-
-      // Removed automatic SnackBar to prevent confusing the user if playback works but download fails.
-      // The download button handler already manages the error state if clicked.
     } finally {
       if (mounted) setState(() => _isFetchingQualities = false);
       yt.close();
@@ -229,43 +235,41 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
 
     if (await localFile.exists()) {
       _localVideoPath = localPath;
-      var dataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.file,
-        localPath,
-      );
-      _betterPlayerController = BetterPlayerController(
-        const BetterPlayerConfiguration(
+
+      _videoPlayerController?.dispose();
+      _chewieController?.dispose();
+      _betterPlayerController?.dispose();
+
+      if (Platform.isIOS) {
+        _videoPlayerController = VideoPlayerController.file(localFile);
+        await _videoPlayerController!.initialize();
+
+        _chewieController = ChewieController(
+          videoPlayerController: _videoPlayerController!,
           autoPlay: true,
           looping: true,
-          fullScreenByDefault: false,
-          autoDetectFullscreenDeviceOrientation: false,
-          allowedScreenSleep: false,
-          fit: BoxFit.contain,
-          controlsConfiguration: BetterPlayerControlsConfiguration(
-            enableFullscreen: true,
+          aspectRatio: _videoPlayerController!.value.aspectRatio,
+          allowFullScreen: true,
+          allowPlaybackSpeedChanging: true,
+        );
+      } else {
+        final dataSource = BetterPlayerDataSource(
+          BetterPlayerDataSourceType.file,
+          localPath,
+        );
+        _betterPlayerController = BetterPlayerController(
+          const BetterPlayerConfiguration(
+            autoPlay: true,
+            looping: true,
+            fit: BoxFit.contain,
           ),
-        ),
-      );
-      _betterPlayerController!.setupDataSource(dataSource);
-      _betterPlayerController!.addEventsListener((event) {
-        if (event.betterPlayerEventType == BetterPlayerEventType.finished) {
-          _initializePlayer();
-        }
-        // else if (event.betterPlayerEventType ==
-        //     BetterPlayerEventType.openFullscreen) {
-        //   WidgetsBinding.instance.addPostFrameCallback((_) {
-        //     _toggleFullScreen();
-        //   });
-        // } else if (event.betterPlayerEventType ==
-        //     BetterPlayerEventType.hideFullscreen) {
-        //   WidgetsBinding.instance.addPostFrameCallback((_) {
-        //     _toggleFullScreen();
-        //   });
-        // }
-      });
+          betterPlayerDataSource: dataSource,
+        );
+      }
+
       if (mounted) {
         setState(() {
-          _isPlayerReady = true; // Fix here
+          _isPlayerReady = true;
         });
       }
     } else {
@@ -379,9 +383,6 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
         );
     }
 
-    // NOTE: Removed aggressive cache clearing. Real browsers keep cookies/cache to build trust.
-    // Clearing them on every load flags the session as a "Bot/New User" repeatedly.
-
     await _webViewController?.loadRequest(
       Uri.parse(embedUrl),
       headers: headers,
@@ -436,13 +437,26 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
       );
     }
 
+    Widget? localPlayer;
+    if (_localVideoPath != null) {
+      if (Platform.isIOS) {
+        localPlayer = _chewieController != null
+            ? Chewie(controller: _chewieController!)
+            : null;
+      } else {
+        localPlayer = _betterPlayerController != null
+            ? BetterPlayer(controller: _betterPlayerController!)
+            : null;
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Stack(
         alignment: Alignment.center,
         children: [
-          if (_localVideoPath != null && _betterPlayerController != null)
-            BetterPlayer(controller: _betterPlayerController!)
+          if (localPlayer != null)
+            localPlayer
           else
             AnimatedOpacity(
               opacity: _isPlayerReady ? 1.0 : 0.0,
@@ -456,16 +470,37 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
           Positioned(
             top: 16,
             left: 16,
-            child: Material(
-              color: Colors.black.withOpacity(0.5),
-              shape: const CircleBorder(),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-                onPressed: () {
-                  _restoreSystemUI();
-                  Navigator.of(context).pop();
-                },
-              ),
+            child: Row(
+              children: [
+                Material(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      _restoreSystemUI();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                if (_localVideoPath != null) ...[
+                  const SizedBox(width: 8),
+                  Material(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: const CircleBorder(),
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.white,
+                      ),
+                      onPressed: _deleteVideo,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
           _isPlayerReady
@@ -474,39 +509,32 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                   right: 16,
                   child: Row(
                     children: [
-                      Material(
-                        color: Colors.black.withOpacity(0.5),
-                        shape: const CircleBorder(),
-                        child: _localVideoPath == null
-                            ? _isFetchingQualities
-                                  ? Container(
-                                      width: 48,
-                                      height: 48,
-                                      padding: const EdgeInsets.all(12.0),
-                                      child: const CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : IconButton(
-                                      icon: const Icon(
-                                        Icons.download,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: isDownloading
-                                          ? null
-                                          : _downloadVideo,
-                                    )
-                            : IconButton(
-                                icon: const Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.white,
-                                ),
-                                onPressed: _deleteVideo,
-                              ),
-                      ),
-                      const SizedBox(width: 8),
                       if (_localVideoPath == null)
+                        Material(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: const CircleBorder(),
+                          child: _isFetchingQualities
+                              ? Container(
+                                  width: 48,
+                                  height: 48,
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : IconButton(
+                                  icon: const Icon(
+                                    Icons.download,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: isDownloading
+                                      ? null
+                                      : _downloadVideo,
+                                ),
+                        ),
+                      if (_localVideoPath == null) ...[
+                        const SizedBox(width: 8),
                         Material(
                           color: Colors.black.withOpacity(0.5),
                           shape: const CircleBorder(),
@@ -520,10 +548,11 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                             onPressed: _toggleFullScreen,
                           ),
                         ),
+                      ],
                     ],
                   ),
                 )
-              : SizedBox(),
+              : const SizedBox(),
           if (isDownloading)
             Positioned(
               bottom: 20,

@@ -1,14 +1,15 @@
-import 'dart:developer';
 import 'package:daliluna_altaalimi/controller/vidoeLesson.dart';
 import 'package:daliluna_altaalimi/view/screen/ytPlayer.dart';
-import 'package:daliluna_altaalimi/view/widget/GetValueForScreen.dart';
 import 'package:flutter/material.dart';
-// import 'package:gradients/gradients.dart';
-import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import 'package:chewie/chewie.dart';
+import 'package:daliluna_altaalimi/linkapi.dart';
+import 'package:daliluna_altaalimi/view/widget/comments_widget.dart';
+import 'dart:io';
+import 'package:better_player_plus/better_player_plus.dart';
 
 class VideoLessons extends GetView<VideoLessonsController> {
   bool _isYoutubeLink(String url) {
@@ -18,7 +19,6 @@ class VideoLessons extends GetView<VideoLessonsController> {
   @override
   Widget build(BuildContext context) {
     final String url = Get.arguments['url'] as String;
-    final List<dynamic>? videoFiles = Get.arguments['videoFiles'];
     final int lessonId = Get.arguments['lesson_dep_file_id'];
 
     if (_isYoutubeLink(url)) {
@@ -41,78 +41,10 @@ class VideoLessons extends GetView<VideoLessonsController> {
       }
     }
 
-    if (videoFiles == null || videoFiles.isEmpty) {
-      // This part might be redundant now if _isYoutubeLink handles it,
-      // but logic for empty videoFiles might need to just return error if not youtube.
-      if (_isYoutubeLink(url)) {
-        // Already handled above
-        String? videoId;
-        try {
-          videoId = VideoId(url).value;
-        } catch (e) {}
-
-        if (videoId != null) {
-          return YoutubePlayer(
-            videoId: videoId,
-            lessonId: lessonId,
-            type: 'lesson_dep_file',
-          );
-        } else {
-          return Scaffold(
-            appBar: AppBar(title: const Text("Error")),
-            body: const Center(
-              child: Text("Invalid or unsupported video link."),
-            ),
-          );
-        }
-      }
-    }
-
     Get.put(VideoLessonsController());
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        // appBar: PreferredSize(
-        //   preferredSize: Size.fromHeight(
-        //     getValueForScreenType<double>(
-        //       context: context,
-        //       mobile: 55,
-        //       tablet: 100,
-        //     ),
-        //   ),
-        //   child: AppBar(
-        //     elevation: 0,
-        //     flexibleSpace: Container(
-        //       decoration: const BoxDecoration(
-        //         gradient: LinearGradientPainter(
-        //           begin: Alignment.topRight,
-        //           end: Alignment.topCenter,
-        //           colors: <Color>[
-        //             AppColor.SecondryColor2,
-        //             AppColor.DeepPurple,
-        //           ],
-        //         ),
-        //       ),
-        //     ),
-        //     title: Text(
-        //       "الفيديو",
-        //       style: TextStyle(
-        //         color: AppColor.White,
-        //         fontSize: getValueForScreenType<double>(
-        //           context: context,
-        //           mobile: 20,
-        //           tablet: 30,
-        //         ),
-        //       ),
-        //     ),
-        //     leading: IconButton(
-        //       onPressed: () {
-        //         Get.back();
-        //       },
-        //       icon: Icon(Icons.arrow_back, color: Colors.white),
-        //     ),
-        //   ),
-        // ),
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(
             getValueForScreenType<double>(
@@ -127,563 +59,203 @@ class VideoLessons extends GetView<VideoLessonsController> {
             title: Shimmer.fromColors(
               baseColor: Colors.white,
               highlightColor: AppColor.SecondryColor,
-              child: Text(
+              child: const Text(
                 "الفيديو",
-                style: TextStyle(
-                  fontSize: responsiveValue(
-                    context: context,
-                    mobile: 20,
-                    tablet: 35,
-                  ),
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
           ),
         ),
-        // body: Obx(() {
-        //   final video = controller.videoFiles.isNotEmpty
-        //       ? controller.videoFiles.firstWhere(
-        //           (file) =>
-        //               file['resolution'] == controller.selectedQuality.value,
-        //           orElse: () => null,
-        //         )
-        //       : null;
-        //   String videoId = video != null && video['id'] != null
-        //       ? video['id'].toString()
-        //       : Get.arguments['url'];
-        //   String resolution = controller.selectedQuality.value;
-        //   String progressKey = '${videoId}_$resolution';
-        //   developer.log(
-        //       "Video loading errorrrrr: ${controller.isError.value} && ${controller.isVideoDownloadedVar.value}");
-        //   return Column(
-        //     children: [
-        //       controller.isError.value &&
-        //               !controller.downloading.value &&
-        //               !controller.isVideoDownloadedVar.value
-        //           ? Column(
-        //               crossAxisAlignment: CrossAxisAlignment.center,
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               children: [
-        //                 SizedBox(height: 200),
-        //                 Center(
-        //                   child: Container(
-        //                     padding: EdgeInsets.all(24),
-        //                     decoration: BoxDecoration(
-        //                       color: Colors.red.shade50,
-        //                       borderRadius: BorderRadius.circular(12),
-        //                       boxShadow: [
-        //                         BoxShadow(
-        //                           color: Colors.black12,
-        //                           blurRadius: 8,
-        //                           offset: Offset(0, 4),
-        //                         ),
-        //                       ],
-        //                     ),
-        //                     child: Column(
-        //                       mainAxisSize: MainAxisSize.min,
-        //                       children: [
-        //                         Icon(
-        //                           Icons.wifi_off,
-        //                           size: 48,
-        //                           color: Colors.red.shade600,
-        //                         ),
-        //                         SizedBox(height: 16),
-        //                         Text(
-        //                           'شبكة الإنترنت لديك ضعيفة',
-        //                           style: TextStyle(
-        //                             fontSize: 18,
-        //                             fontWeight: FontWeight.bold,
-        //                             color: Colors.red.shade700,
-        //                           ),
-        //                           textAlign: TextAlign.center,
-        //                         ),
-        //                         SizedBox(height: 12),
-        //                         Text(
-        //                           'يرجى التحقق من الاتصال والمحاولة مجدداً',
-        //                           style: TextStyle(
-        //                             fontSize: 14,
-        //                             color: Colors.grey.shade700,
-        //                           ),
-        //                           textAlign: TextAlign.center,
-        //                         ),
-        //                         SizedBox(height: 20),
-        //                         ElevatedButton(
-        //                           onPressed: () {
-        //                             controller.loadVideoPath();
-        //                           },
-        //                           style: ElevatedButton.styleFrom(
-        //                             foregroundColor: Colors.black87,
-        //                             backgroundColor: Colors.yellow.shade700,
-        //                             padding: EdgeInsets.symmetric(
-        //                                 horizontal: 24, vertical: 12),
-        //                             shape: RoundedRectangleBorder(
-        //                               borderRadius: BorderRadius.circular(8),
-        //                             ),
-        //                             elevation: 4,
-        //                           ),
-        //                           child: Text(
-        //                             'حاول مجدداً',
-        //                             style: TextStyle(
-        //                               fontSize: 16,
-        //                               fontWeight: FontWeight.bold,
-        //                             ),
-        //                           ),
-        //                         ),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                 ),
-        //               ],
-        //             )
-        //           : Column(
-        //               children: [
-        //                 controller.isError.value &&
-        //                         controller.isVideoDownloadedVar.value
-        //                     ? Center(
-        //                         child: Padding(
-        //                           padding:
-        //                               const EdgeInsets.symmetric(vertical: 100),
-        //                           child: Text(
-        //                               'الرجاء الانتظار ريثما يتم اكمال تحميل الفيديو ${progressMapLess[progressKey] ?? "0%"} '),
-        //                         ),
-        //                       )
-        //                     : Container(
-        //                         height: 250,
-        //                         width: MediaQuery.of(context).size.width,
-        //                         child: controller.isLoading.value
-        //                             ? Shimmer.fromColors(
-        //                                 baseColor: Colors.grey[300]!,
-        //                                 highlightColor: Colors.grey[100]!,
-        //                                 child: Container(
-        //                                   width: double.infinity,
-        //                                   height: 200,
-        //                                   color: Colors.white,
-        //                                 ),
-        //                               )
-        //                             : BetterPlayer(
-        //                                 controller:
-        //                                     controller.videolessonsController,
-        //                               ),
-        //                       ),
-        //                 if (controller.downloading.value)
-        //                   Padding(
-        //                     padding: const EdgeInsets.symmetric(
-        //                         horizontal: 16.0, vertical: 10.0),
-        //                     child: Column(
-        //                       children: [
-        //                         LinearProgressIndicator(
-        //                           value: controller.progress.value,
-        //                           backgroundColor: Colors.grey,
-        //                           valueColor: AlwaysStoppedAnimation<Color>(
-        //                               AppColor.DeepPurple),
-        //                         ),
-        //                         SizedBox(height: 5),
-        //                         Text(
-        //                           'جاري التحميل الرجاء البقاء في الصفحة ريثما ينتهي التحميل : ${progressMapLess[progressKey] ?? "0%"}',
-        //                           style: TextStyle(
-        //                             color: Colors.black87,
-        //                             fontSize: 14,
-        //                           ),
-        //                         ),
-        //                       ],
-        //                     ),
-        //                   ),
-        //                 SizedBox(height: 30),
-        //                 Obx(() {
-        //                   if (controller.videoFiles.isEmpty) {
-        //                     return !controller.isVideoDownloadedVar.value &&
-        //                             !controller.downloading.value
-        //                         ? Padding(
-        //                             padding: const EdgeInsets.all(8.0),
-        //                             child: Column(
-        //                               children: [
-        //                                 ElevatedButton.icon(
-        //                                   style: ElevatedButton.styleFrom(
-        //                                     backgroundColor:
-        //                                         AppColor.DeepPurple,
-        //                                     padding: EdgeInsets.symmetric(
-        //                                         horizontal: 20, vertical: 10),
-        //                                     shape: RoundedRectangleBorder(
-        //                                       borderRadius:
-        //                                           BorderRadius.circular(15),
-        //                                     ),
-        //                                   ),
-        //                                   icon: Icon(Icons.download,
-        //                                       color: Colors.white),
-        //                                   label: Text(
-        //                                     "تحميل الفيديو",
-        //                                     style:
-        //                                         TextStyle(color: Colors.white),
-        //                                   ),
-        //                                   onPressed: () async {
-        //                                     try {
-        //                                       String url = Get.arguments['url'];
-        //                                       await controller.downloadFile(
-        //                                           url, "");
-        //                                       controller.loadVideoPlayer(true);
-        //                                     } catch (e) {
-        //                                       Get.snackbar(
-        //                                           "خطأ", "فشل تحميل الفيديو");
-        //                                     }
-        //                                   },
-        //                                 ),
-        //                                 SizedBox(height: 10),
-        //                               ],
-        //                             ),
-        //                           )
-        //                         : !controller.isError.value &&
-        //                                 controller.isVideoDownloadedVar.value
-        //                             ? Padding(
-        //                                 padding:
-        //                                     const EdgeInsets.only(right: 10.0),
-        //                                 child: ElevatedButton.icon(
-        //                                   style: ElevatedButton.styleFrom(
-        //                                     backgroundColor: Colors.red,
-        //                                     padding: EdgeInsets.symmetric(
-        //                                         horizontal: 20, vertical: 10),
-        //                                     shape: RoundedRectangleBorder(
-        //                                       borderRadius:
-        //                                           BorderRadius.circular(15),
-        //                                     ),
-        //                                   ),
-        //                                   icon: Icon(Icons.delete,
-        //                                       color: Colors.white),
-        //                                   label: Text(
-        //                                     "حذف الفيديو",
-        //                                     style:
-        //                                         TextStyle(color: Colors.white),
-        //                                   ),
-        //                                   onPressed: () {
-        //                                     Get.defaultDialog(
-        //                                       title: "تأكيد الحذف",
-        //                                       titleStyle: TextStyle(
-        //                                         color: Colors.red[800],
-        //                                         fontWeight: FontWeight.bold,
-        //                                         fontSize: 20,
-        //                                       ),
-        //                                       middleText:
-        //                                           "هل أنت متأكد أنك تريد حذف الفيديو؟",
-        //                                       middleTextStyle:
-        //                                           TextStyle(fontSize: 16),
-        //                                       confirm: ElevatedButton.icon(
-        //                                         onPressed: () async {
-        //                                           Get.back();
-        //                                           try {
-        //                                             final success = await controller
-        //                                                 .deleteVideoFromStorage(
-        //                                                     controller
-        //                                                         .selectedQuality
-        //                                                         .value);
+        body: Obx(() {
+          final video = controller.videoFiles.isNotEmpty
+              ? controller.videoFiles.firstWhere(
+                  (file) =>
+                      file['resolution'] == controller.selectedQuality.value,
+                  orElse: () => null,
+                )
+              : null;
+          String videoId = video != null && video['id'] != null
+              ? video['id'].toString()
+              : Get.arguments['url'];
+          String resolution = controller.selectedQuality.value;
+          String progressKey = '${videoId}_$resolution';
 
-        //                                             if (success) {
-        //                                               Get.snackbar("نجاح",
-        //                                                   "تم الحذف بنجاح");
-        //                                             } else {
-        //                                               Get.snackbar("فشل",
-        //                                                   "فشل في حذف الفيديو أو أنه غير موجود",
-        //                                                   backgroundColor:
-        //                                                       Colors.red);
-        //                                             }
+          if (controller.isError.value &&
+              !controller.downloading.value &&
+              !controller.isVideoDownloadedVar.value) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text("فشل تحميل الفيديو"),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => controller.loadVideoPath(),
+                    child: const Text("حاول مجدداً"),
+                  ),
+                ],
+              ),
+            );
+          }
 
-        //                                             controller
-        //                                                 .loadVideoPlayer(true);
-        //                                           } catch (e) {}
-        //                                         },
-        //                                         icon: Icon(Icons.check,
-        //                                             color: Colors.white),
-        //                                         label: Text("نعم",
-        //                                             style: TextStyle(
-        //                                                 color: Colors.white)),
-        //                                         style: ElevatedButton.styleFrom(
-        //                                           backgroundColor:
-        //                                               Colors.red[700],
-        //                                           shape: RoundedRectangleBorder(
-        //                                             borderRadius:
-        //                                                 BorderRadius.circular(
-        //                                                     10),
-        //                                           ),
-        //                                         ),
-        //                                       ),
-        //                                       cancel: ElevatedButton.icon(
-        //                                         onPressed: () => Get.back(),
-        //                                         icon: Icon(Icons.close,
-        //                                             color: Colors.white),
-        //                                         label: Text("إلغاء",
-        //                                             style: TextStyle(
-        //                                                 color: Colors.white)),
-        //                                         style: ElevatedButton.styleFrom(
-        //                                           backgroundColor:
-        //                                               Colors.grey[600],
-        //                                           shape: RoundedRectangleBorder(
-        //                                             borderRadius:
-        //                                                 BorderRadius.circular(
-        //                                                     10),
-        //                                           ),
-        //                                         ),
-        //                                       ),
-        //                                       radius: 15,
-        //                                     );
-        //                                   },
-        //                                 ),
-        //                               )
-        //                             : SizedBox();
-        //                   } else {
-        //                     return controller.videoFiles.isNotEmpty &&
-        //                             !controller.downloading.value
-        //                         ? Padding(
-        //                             padding: const EdgeInsets.all(5.0),
-        //                             child: Column(
-        //                               children: [
-        //                                 Container(
-        //                                   decoration: BoxDecoration(
-        //                                     borderRadius:
-        //                                         BorderRadius.circular(20),
-        //                                     color: AppColor.DeepPurple2,
-        //                                   ),
-        //                                   child: Padding(
-        //                                     padding: const EdgeInsets.all(8.0),
-        //                                     child: DropdownButton<String>(
-        //                                       dropdownColor:
-        //                                           AppColor.DeepPurple2,
-        //                                       focusColor: AppColor.DeepPurple,
-        //                                       iconEnabledColor:
-        //                                           AppColor.DeepPurple,
-        //                                       hint: Text(
-        //                                         'اختر دقة الفيديو',
-        //                                         style: TextStyle(
-        //                                             color: Colors.white),
-        //                                       ),
-        //                                       value: controller.selectedQuality
-        //                                                   .value.isNotEmpty &&
-        //                                               controller.selectedQuality
-        //                                                       .value !=
-        //                                                   ''
-        //                                           ? controller
-        //                                               .selectedQuality.value
-        //                                           : null,
-        //                                       items: controller.videoFiles
-        //                                           .map((video) {
-        //                                         return DropdownMenuItem<String>(
-        //                                           value: video['resolution'],
-        //                                           child: Text(
-        //                                             video['resolution'],
-        //                                             style: TextStyle(
-        //                                                 color: Colors.white),
-        //                                           ),
-        //                                         );
-        //                                       }).toList(),
-        //                                       onChanged: (String? newValue) {
-        //                                         controller.selectedQuality
-        //                                             .value = newValue!;
-        //                                         developer.log(
-        //                                             "selectedQuality: ${controller.selectedQuality.value}");
-        //                                         controller.loadVideoPath();
-        //                                       },
-        //                                     ),
-        //                                   ),
-        //                                 ),
-        //                                 SizedBox(height: 10),
-        //                                 Row(
-        //                                   mainAxisAlignment:
-        //                                       MainAxisAlignment.center,
-        //                                   children: [
-        //                                     if (!controller
-        //                                         .isVideoDownloadedVar.value)
-        //                                       ElevatedButton.icon(
-        //                                         style: ElevatedButton.styleFrom(
-        //                                           backgroundColor:
-        //                                               AppColor.DeepPurple,
-        //                                           padding: EdgeInsets.symmetric(
-        //                                               horizontal: 20,
-        //                                               vertical: 10),
-        //                                           shape: RoundedRectangleBorder(
-        //                                             borderRadius:
-        //                                                 BorderRadius.circular(
-        //                                                     15),
-        //                                           ),
-        //                                         ),
-        //                                         icon: Icon(Icons.download,
-        //                                             color: Colors.white),
-        //                                         label: Text(
-        //                                           "تحميل الفيديو",
-        //                                           style: TextStyle(
-        //                                               color: Colors.white),
-        //                                         ),
-        //                                         onPressed: () async {
-        //                                           String resolution = controller
-        //                                               .selectedQuality.value;
-        //                                           if (resolution.isEmpty) {
-        //                                             Get.snackbar("تنبيه",
-        //                                                 "يرجى اختيار دقة أولاً",
-        //                                                 backgroundColor:
-        //                                                     Colors.orange);
-        //                                             return;
-        //                                           }
+          Widget playerWidget;
+          if (Platform.isIOS) {
+            playerWidget = controller.chewieController != null
+                ? Chewie(controller: controller.chewieController!)
+                : const Center(
+                    child: Text(
+                      "جاري التهيئة...",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+          } else {
+            playerWidget = controller.betterPlayerController != null
+                ? BetterPlayer(controller: controller.betterPlayerController!)
+                : const Center(
+                    child: Text(
+                      "جاري التهيئة...",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+          }
 
-        //                                           final video = controller
-        //                                               .videoFiles
-        //                                               .firstWhere(
-        //                                             (video) =>
-        //                                                 video['resolution'] ==
-        //                                                 resolution,
-        //                                             orElse: () => null,
-        //                                           );
-        //                                           if (video == null) {
-        //                                             Get.snackbar("خطأ",
-        //                                                 "الرابط غير موجود");
-        //                                             return;
-        //                                           }
-
-        //                                           String url =
-        //                                               '${AppLink.baseUrl}/' +
-        //                                                   video['videoPath'];
-
-        //                                           try {
-        //                                             await controller
-        //                                                 .downloadFile(
-        //                                                     url, resolution);
-        //                                             controller
-        //                                                 .loadVideoPlayer(true);
-        //                                           } catch (e) {
-        //                                             Get.snackbar("خطأ",
-        //                                                 "فشل تحميل الفيديو");
-        //                                           }
-        //                                         },
-        //                                       ),
-        //                                     if (controller.isVideoDownloadedVar
-        //                                             .value &&
-        //                                         !controller.isError.value)
-        //                                       Padding(
-        //                                         padding: const EdgeInsets.only(
-        //                                             right: 10.0),
-        //                                         child: ElevatedButton.icon(
-        //                                           style:
-        //                                               ElevatedButton.styleFrom(
-        //                                             backgroundColor: Colors.red,
-        //                                             padding:
-        //                                                 EdgeInsets.symmetric(
-        //                                                     horizontal: 20,
-        //                                                     vertical: 10),
-        //                                             shape:
-        //                                                 RoundedRectangleBorder(
-        //                                               borderRadius:
-        //                                                   BorderRadius.circular(
-        //                                                       15),
-        //                                             ),
-        //                                           ),
-        //                                           icon: Icon(Icons.delete,
-        //                                               color: Colors.white),
-        //                                           label: Text(
-        //                                             "حذف الفيديو",
-        //                                             style: TextStyle(
-        //                                                 color: Colors.white),
-        //                                           ),
-        //                                           onPressed: () {
-        //                                             Get.defaultDialog(
-        //                                               title: "تأكيد الحذف",
-        //                                               titleStyle: TextStyle(
-        //                                                 color: Colors.red[800],
-        //                                                 fontWeight:
-        //                                                     FontWeight.bold,
-        //                                                 fontSize: 20,
-        //                                               ),
-        //                                               middleText:
-        //                                                   "هل أنت متأكد أنك تريد حذف الفيديو؟",
-        //                                               middleTextStyle:
-        //                                                   TextStyle(
-        //                                                       fontSize: 16),
-        //                                               confirm:
-        //                                                   ElevatedButton.icon(
-        //                                                 onPressed: () async {
-        //                                                   Get.back();
-        //                                                   try {
-        //                                                     final success = await controller
-        //                                                         .deleteVideoFromStorage(
-        //                                                             controller
-        //                                                                 .selectedQuality
-        //                                                                 .value);
-
-        //                                                     if (success) {
-        //                                                       Get.snackbar(
-        //                                                           "نجاح",
-        //                                                           "تم الحذف بنجاح");
-        //                                                     } else {
-        //                                                       Get.snackbar(
-        //                                                           "فشل",
-        //                                                           "فشل في حذف الفيديو أو أنه غير موجود",
-        //                                                           backgroundColor:
-        //                                                               Colors
-        //                                                                   .red);
-        //                                                     }
-        //                                                   } catch (e) {}
-        //                                                 },
-        //                                                 icon: Icon(Icons.check,
-        //                                                     color:
-        //                                                         Colors.white),
-        //                                                 label: Text("نعم",
-        //                                                     style: TextStyle(
-        //                                                         color: Colors
-        //                                                             .white)),
-        //                                                 style: ElevatedButton
-        //                                                     .styleFrom(
-        //                                                   backgroundColor:
-        //                                                       Colors.red[700],
-        //                                                   shape:
-        //                                                       RoundedRectangleBorder(
-        //                                                     borderRadius:
-        //                                                         BorderRadius
-        //                                                             .circular(
-        //                                                                 10),
-        //                                                   ),
-        //                                                 ),
-        //                                               ),
-        //                                               cancel:
-        //                                                   ElevatedButton.icon(
-        //                                                 onPressed: () =>
-        //                                                     Get.back(),
-        //                                                 icon: Icon(Icons.close,
-        //                                                     color:
-        //                                                         Colors.white),
-        //                                                 label: Text("إلغاء",
-        //                                                     style: TextStyle(
-        //                                                         color: Colors
-        //                                                             .white)),
-        //                                                 style: ElevatedButton
-        //                                                     .styleFrom(
-        //                                                   backgroundColor:
-        //                                                       Colors.grey[600],
-        //                                                   shape:
-        //                                                       RoundedRectangleBorder(
-        //                                                     borderRadius:
-        //                                                         BorderRadius
-        //                                                             .circular(
-        //                                                                 10),
-        //                                                   ),
-        //                                                 ),
-        //                                               ),
-        //                                               radius: 15,
-        //                                             );
-        //                                           },
-        //                                         ),
-        //                                       ),
-        //                                   ],
-        //                                 ),
-        //                               ],
-        //                             ),
-        //                           )
-        //                         : SizedBox();
-        //                   }
-        //                 }),
-        //               ],
-        //             ),
-        //       Expanded(
-        //         child: CommentsWidget(lessonId: lessonId.toString(),type: 'lesson_dep_file',),
-        //       ),
-        //     ],
-        //   );
-        // }),
+          return Column(
+            children: [
+              Container(
+                height: 250,
+                width: MediaQuery.of(context).size.width,
+                color: Colors.black,
+                child: controller.isLoading.value
+                    ? const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      )
+                    : playerWidget,
+              ),
+              if (controller.downloading.value)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      LinearProgressIndicator(
+                        value: controller.progress.value,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          AppColor.DeepPurple,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "جاري التحميل: ${progressMapLess[progressKey] ?? '0%'}",
+                      ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: 16),
+              // Quality Selector
+              if (controller.videoFiles.length > 1)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: controller.selectedQuality.value.isNotEmpty
+                        ? controller.selectedQuality.value
+                        : null,
+                    hint: const Text("اختر الجودة"),
+                    items: controller.videoFiles.map((v) {
+                      return DropdownMenuItem<String>(
+                        value: v['resolution'],
+                        child: Text(v['resolution']),
+                      );
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        controller.selectedQuality.value = val;
+                        controller.loadVideoPath();
+                      }
+                    },
+                  ),
+                ),
+              const SizedBox(height: 16),
+              // Download/Delete Buttons
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (!controller.isVideoDownloadedVar.value &&
+                        !controller.downloading.value)
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final res = controller.selectedQuality.value;
+                          final v = controller.videoFiles.firstWhere(
+                            (e) => e['resolution'] == res,
+                            orElse: () => null,
+                          );
+                          if (v != null) {
+                            await controller.downloadFile(
+                              '${AppLink.baseUrl}/${v['videoPath']}',
+                              res,
+                            );
+                          } else {
+                            await controller.downloadFile(
+                              Get.arguments['url'],
+                              "",
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.download),
+                        label: const Text("تحميل"),
+                      ),
+                    if (controller.isVideoDownloadedVar.value)
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () {
+                          Get.defaultDialog(
+                            title: "حذف الفيديو",
+                            middleText: "هل أنت متأكد؟",
+                            onConfirm: () async {
+                              Get.back();
+                              await controller.deleteVideoFromStorage(
+                                controller.selectedQuality.value,
+                              );
+                              controller.loadVideoPlayer(true);
+                            },
+                            textConfirm: "نعم",
+                            textCancel: "إلغاء",
+                          );
+                        },
+                        icon: const Icon(Icons.delete),
+                        label: const Text("حذف"),
+                      ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: CommentsWidget(
+                  lessonId: lessonId.toString(),
+                  type: 'lesson_dep_file',
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
+  }
+
+  T getValueForScreenType<T>({
+    required BuildContext context,
+    required T mobile,
+    T? tablet,
+  }) {
+    return MediaQuery.of(context).size.width < 600
+        ? mobile
+        : (tablet ?? mobile);
   }
 }

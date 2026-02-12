@@ -65,30 +65,30 @@ void main() async {
   // ═══════════════════════════════════════════════════════════════
 
   // 1. Check Emulator (Blocking) - The ONLY error screen we want
-  // try {
-  //   String? emulatorReason = await checkIfEmulator().timeout(
-  //     const Duration(seconds: 5),
-  //     onTimeout: () => null,
-  //   );
+  try {
+    String? emulatorReason = await checkIfEmulator().timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => null,
+    );
 
-  //   if (emulatorReason != null) {
-  //     String deviceInfo = await _getDeviceInfoString();
+    if (emulatorReason != null) {
+      String deviceInfo = await _getDeviceInfoString();
 
-  //     // Translate the reason to Arabic for better user understanding
-  //     String arabicReason = _translateEmulatorReason(emulatorReason);
+      // Translate the reason to Arabic for better user understanding
+      String arabicReason = _translateEmulatorReason(emulatorReason);
 
-  //     _showErrorScreen(
-  //       "تم اكتشاف محاكي",
-  //       arabicReason,
-  //       details: deviceInfo,
-  //       isWarning: true,
-  //     );
-  //     return;
-  //   }
-  // } catch (e) {
-  //   // Ignore emulator check internal errors
-  //   debugPrint("Emulator check error: $e");
-  // }
+      _showErrorScreen(
+        "تم اكتشاف محاكي",
+        arabicReason,
+        details: deviceInfo,
+        isWarning: true,
+      );
+      return;
+    }
+  } catch (e) {
+    // Ignore emulator check internal errors
+    debugPrint("Emulator check error: $e");
+  }
 
   // 2. Initialize Notifications (Non-blocking)
   try {
@@ -226,8 +226,10 @@ $reason
 }
 
 Future<String> _getDeviceInfoString() async {
+  final deviceInfoPlugin = DeviceInfoPlugin();
+
   if (Platform.isAndroid) {
-    var androidInfo = await DeviceInfoPlugin().androidInfo;
+    var androidInfo = await deviceInfoPlugin.androidInfo;
     return '''
 ╔════════════════════════════════════════╗
 ║        معلومات الجهاز - Device Info   ║
@@ -258,8 +260,30 @@ Future<String> _getDeviceInfoString() async {
    • جهاز فيزيائي: ${androidInfo.isPhysicalDevice ? 'نعم ✓' : 'لا ✗'}
    • معرّف الجهاز: ${androidInfo.id}
 ''';
+  } else if (Platform.isIOS) {
+    var iosInfo = await deviceInfoPlugin.iosInfo;
+    return '''
+╔════════════════════════════════════════╗
+║        معلومات الجهاز - Device Info   ║
+╚════════════════════════════════════════╝
+
+📱 الجهاز الأساسي:
+   • الاسم: ${iosInfo.name}
+   • الموديل: ${iosInfo.model}
+   • اسم النظام: ${iosInfo.systemName}
+   • الإصدار: ${iosInfo.systemVersion}
+
+🔧 المواصفات التقنية:
+   • الموديل المحدد: ${iosInfo.utsname.machine}
+   • النواة: ${iosInfo.utsname.sysname}
+   • إصدار النواة: ${iosInfo.utsname.release}
+
+✅ الحالة:
+   • جهاز فيزيائي: ${iosInfo.isPhysicalDevice ? 'نعم ✓' : 'لا ✗'}
+   • معرّف الجهاز: ${iosInfo.identifierForVendor}
+''';
   }
-  return "❌ النظام ليس أندرويد";
+  return "❌ نظام غير مدعوم";
 }
 
 void _showErrorScreen(

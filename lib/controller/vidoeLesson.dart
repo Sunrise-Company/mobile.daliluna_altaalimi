@@ -1,6 +1,5 @@
-import 'dart:developer';
-
-import 'package:better_player_plus/better_player_plus.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'dart:io';
 
@@ -12,12 +11,12 @@ import 'package:dio/dio.dart';
 import 'dart:developer' as developer;
 
 // var progressString = ''.obs;
+import 'package:better_player_plus/better_player_plus.dart';
+
 var progressMapLess = <String, String>{}.obs;
 
 class VideoLessonsController extends GetxController {
-  BetterPlayerController? videolessonsController;
-
-  // Rx variables for Obx
+  // Common
   var downloading = false.obs;
   var progress = 0.0.obs;
   late List<dynamic> videoFiles;
@@ -26,8 +25,14 @@ class VideoLessonsController extends GetxController {
   var isError = false.obs;
   var videoPath = ''.obs;
   Duration? lastPosition;
-
   var isVideoDownloadedVar = false.obs;
+
+  // iOS Specific
+  VideoPlayerController? videoPlayerController;
+  ChewieController? chewieController;
+
+  // Android Specific
+  BetterPlayerController? betterPlayerController;
 
   @override
   void onInit() {
@@ -46,25 +51,35 @@ class VideoLessonsController extends GetxController {
   }
 
   void loadVideoPath() async {
-    // إيقاف وتحرير المشغل القديم إذا كان موجودًا
-    if (videolessonsController?.isVideoInitialized() == true) {
-      lastPosition =
-          await videolessonsController?.videoPlayerController?.position;
-      await videolessonsController?.pause();
-      videolessonsController?.dispose();
-      developer.log(
-        'Old BetterPlayerController disposed for resolution: ${selectedQuality.value}',
-      );
+    Duration? currentPos;
+    if (Platform.isIOS) {
+      if (videoPlayerController?.value.isInitialized == true) {
+        currentPos = videoPlayerController?.value.position;
+      }
+    } else {
+      if (betterPlayerController?.videoPlayerController?.value.initialized ==
+          true) {
+        currentPos =
+            betterPlayerController?.videoPlayerController?.value.position;
+      }
     }
+    lastPosition = currentPos;
 
     // تحديد ملف الفيديو بناءً على الدقة المختارة
     final videoFile = videoFiles.firstWhere(
       (file) => file['resolution'] == selectedQuality.value,
-      orElse: () => videoFiles.first,
+      orElse: () => videoFiles.isEmpty ? null : videoFiles.first,
     );
 
+    if (videoFile == null &&
+        !(Get.arguments['url'] as String).contains('http')) {
+      return;
+    }
+
     String resolution = selectedQuality.value;
-    String url = '${AppLink.baseUrl}/' + videoFile['videoPath'];
+    String url = videoFile != null
+        ? '${AppLink.baseUrl}/' + videoFile['videoPath']
+        : Get.arguments['url'];
 
     String localPath = await getLocalFilePath(resolution);
     bool exists = await isVideoDownloaded(resolution);
@@ -86,7 +101,12 @@ class VideoLessonsController extends GetxController {
     Get.arguments['url'] = finalPath;
 
     // تحميل المشغل مع المسار الجديد
-    await loadVideoPlayer(!exists);
+    if (Platform.isIOS) {
+      videoPlayerController?.pause();
+    } else {
+      betterPlayerController?.pause();
+    }
+    loadVideoPlayer(!exists);
   }
 
   // Future<String> downloadFile(String url, String resolution) async {
@@ -218,10 +238,9 @@ class VideoLessonsController extends GetxController {
 
   Future<void> loadVideoPlayer(bool isUrl) async {
     developer.log(
-      'Loading video player with URL: ${Get.arguments['url']}, isUrl: $isUrl',
+      'Loading video player, platform: ${Platform.operatingSystem}',
     );
     isLoading.value = true;
-
     String resolution = selectedQuality.value;
     bool isDownloaded = await isVideoDownloaded(resolution);
     String videoUrl = Get.arguments['url'];
@@ -229,96 +248,113 @@ class VideoLessonsController extends GetxController {
     try {
       isError.value = false;
 
-      // إعداد مصدر البيانات
-      BetterPlayerDataSource dataSource;
-      if (isDownloaded) {
-        dataSource = BetterPlayerDataSource(
-          BetterPlayerDataSourceType.file,
-          await getLocalFilePath(resolution),
-        );
-        developer.log(
-          'Data source set to local file: ${await getLocalFilePath(resolution)}',
-        );
-      } else {
-        dataSource = BetterPlayerDataSource(
-          BetterPlayerDataSourceType.network,
-          videoUrl,
-          cacheConfiguration: BetterPlayerCacheConfiguration(
-            useCache: true,
-            maxCacheSize: 10 * 1024 * 1024, // 10 ميجابايت
-            maxCacheFileSize: 10 * 1024 * 1024,
-          ),
-        );
-        developer.log('Data source set to network URL: $videoUrl');
-      }
+      // Dispose existing
+      videoPlayerController?.dispose();
+      chewieController?.dispose();
+      betterPlayerController?.dispose();
 
-      // إنشاء مثيل جديد للمشغل
-      videolessonsController = BetterPlayerController(
-        BetterPlayerConfiguration(
-          autoPlay: false,
-          looping: true,
-          controlsConfiguration: BetterPlayerControlsConfiguration(
-            progressBarPlayedColor: Colors.blue,
-            progressBarHandleColor: Colors.grey,
-            progressBarBackgroundColor: Colors.grey.withOpacity(0.2),
-            enableSkips: true,
-            enableFullscreen: true,
-            enablePip: true,
-            enablePlayPause: true,
-            enableMute: true,
-            enableAudioTracks: false,
-            enableSubtitles: false,
-            enableQualities: false,
-            enableProgressText: true,
-          ),
-        ),
-        betterPlayerDataSource: dataSource,
-      );
-
-      // إضافة مستمع للأحداث
-      videolessonsController!.addEventsListener((event) async {
-        if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-          isLoading.value = false;
-          if (lastPosition != null) {
-            videolessonsController!.seekTo(lastPosition!);
-            developer.log('Seeked to last position: $lastPosition');
-          }
-          developer.log('Video player initialized successfully');
-        } else if (event.betterPlayerEventType ==
-            BetterPlayerEventType.exception) {
-          isError.value = true;
-          isLoading.value = false;
-          developer.log('Video player error: ${event.parameters} ${videoUrl}');
-          final video = videoFiles.firstWhere(
-            (file) => file['resolution'] == resolution,
-            orElse: () => null,
+      if (Platform.isIOS) {
+        // iOS: VideoPlayer + Chewie
+        if (isDownloaded) {
+          videoPlayerController = VideoPlayerController.file(
+            File(await getLocalFilePath(resolution)),
           );
-          String videoId = video != null && video['id'] != null
-              ? video['id'].toString()
-              : videoUrl;
+        } else {
+          videoPlayerController = VideoPlayerController.networkUrl(
+            Uri.parse(videoUrl),
+          );
+        }
+        await videoPlayerController!.initialize();
 
-          String progressKey = '${videoId}_$resolution';
-          if (isError.value == true &&
-              isVideoDownloadedVar.value == true &&
-              progressMapLess[progressKey] == null) {
-            final success = await deleteVideoFromStorage(resolution);
+        chewieController = ChewieController(
+          videoPlayerController: videoPlayerController!,
+          autoPlay: true,
+          looping: true,
+          materialProgressColors: ChewieProgressColors(
+            playedColor: Colors.blue,
+            handleColor: Colors.grey,
+          ),
+          placeholder: const Center(child: CircularProgressIndicator()),
+          autoInitialize: true,
+        );
 
-            if (success) {
-              Get.snackbar("فشل", "فشل في تنزيل الفيديو الرجاء لمحاولة مجدداً");
-            } else {
-              Get.snackbar(
-                "فشل",
-                "فشل في حذف الفيديو أو أنه غير موجود",
-                backgroundColor: Colors.red,
-              );
+        if (lastPosition != null) {
+          await videoPlayerController!.seekTo(lastPosition!);
+        }
+
+        videoPlayerController!.addListener(() async {
+          if (videoPlayerController!.value.isInitialized) {
+            isLoading.value = false;
+          }
+
+          if (videoPlayerController!.value.hasError) {
+            isError.value = true;
+            isLoading.value = false;
+            developer.log(
+              'Video player error: ${videoPlayerController!.value.errorDescription} ${videoUrl}',
+            );
+
+            final video = videoFiles.firstWhere(
+              (file) => file['resolution'] == resolution,
+              orElse: () => null,
+            );
+            String videoId = video != null && video['id'] != null
+                ? video['id'].toString()
+                : videoUrl;
+
+            String progressKey = '${videoId}_$resolution';
+            if (isError.value == true &&
+                isVideoDownloadedVar.value == true &&
+                progressMapLess[progressKey] == null) {
+              final success = await deleteVideoFromStorage(resolution);
+
+              if (success) {
+                Get.snackbar(
+                  "فشل",
+                  "فشل في تنزيل الفيديو الرجاء لمحاولة مجدداً",
+                );
+              } else {
+                Get.snackbar(
+                  "فشل",
+                  "فشل في حذف الفيديو أو أنه غير موجود",
+                  backgroundColor: Colors.red,
+                );
+              }
             }
           }
+        });
+      } else {
+        // Android: BetterPlayer
+        BetterPlayerDataSource dataSource;
+        if (isDownloaded) {
+          dataSource = BetterPlayerDataSource(
+            BetterPlayerDataSourceType.file,
+            await getLocalFilePath(resolution),
+          );
+        } else {
+          dataSource = BetterPlayerDataSource(
+            BetterPlayerDataSourceType.network,
+            videoUrl,
+          );
         }
-      });
 
-      // تهيئة مصدر البيانات
-      await videolessonsController!.setupDataSource(dataSource);
-      developer.log('Data source set up successfully');
+        betterPlayerController = BetterPlayerController(
+          const BetterPlayerConfiguration(
+            autoPlay: true,
+            looping: true,
+            fullScreenByDefault: false,
+            allowedScreenSleep: false,
+            fit: BoxFit.contain,
+          ),
+          betterPlayerDataSource: dataSource,
+        );
+
+        if (lastPosition != null) {
+          await betterPlayerController!.seekTo(lastPosition!);
+        }
+      }
+
+      isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
       isError.value = true;
@@ -390,214 +426,8 @@ class VideoLessonsController extends GetxController {
   @override
   void onClose() {
     developer.log('Closing VideoLessonsController');
-    videolessonsController!.dispose();
+    videoPlayerController?.dispose();
+    chewieController?.dispose();
     super.onClose();
   }
 }
-
-//Chewieeee
-// class VideoLessonsController extends GetxController {
-//   late VideoPlayerController videolessonsController;
-//   late ChewieController chewieController;
-
-//   // متغيرات Rx لدعم Obx
-//   var downloading = false.obs;
-//   var progress = 0.0.obs;
-//   var progressString = ''.obs;
-//   late List<dynamic> videoFiles;
-//   var selectedQuality = ''.obs;
-//   var isLoading = true.obs;
-//   var isError = false.obs;
-//   var videoPath = ''.obs;
-//   Duration? lastPosition;
-
-//   var isVideoDownloadedVar = false.obs;
-
-//   @override
-//   void onInit() {
-//     super.onInit();
-//     videoFiles = Get.arguments['videoFiles'];
-//     if (videoFiles.length > 0)
-//       selectedQuality.value = videoFiles.last['resolution'].toString();
-//     loadVideoPlayer(true);
-//   }
-
-//   void loadVideoPath() async {
-//     if (videolessonsController.value.isInitialized) {
-//       lastPosition = videolessonsController.value.position;
-//     }
-
-//     final videoFile = videoFiles.firstWhere(
-//       (file) => file['resolution'] == selectedQuality.value,
-//       orElse: () => videoFiles.first,
-//     );
-
-//     String resolution = selectedQuality.value;
-//     String url = '${AppLink.baseUrl}/' + videoFile['videoPath'];
-//     String localPath = await getLocalFilePath(resolution);
-//     bool exists = await isVideoDownloaded(resolution);
-//     String finalPath = exists ? localPath : url;
-
-//     videoPath.value = finalPath;
-//     Get.arguments['url'] = finalPath;
-
-//     if (chewieController.videoPlayerController.value.isInitialized) {
-//       chewieController.pause();
-//       videolessonsController.pause();
-//     }
-
-//     loadVideoPlayer(!exists);
-//   }
-
-//   Future<String> downloadFile(String url, String resolution) async {
-//     Dio dio = Dio();
-//     downloading.value = true;
-//     progress.value = 0.0;
-//     progressString.value = '0%';
-
-//     try {
-//       final dir = await getApplicationDocumentsDirectory();
-//       final video = videoFiles.firstWhere(
-//         (file) => file['resolution'] == resolution,
-//         orElse: () => null,
-//       );
-//       String videoId =
-//           video != null && video['id'] != null ? video['id'].toString() : url;
-//       final filePath = '${dir.path}/video_${videoId}_$resolution.mp4';
-
-//       if (await File(filePath).exists()) {
-//         downloading.value = false;
-//         progressString.value = '100%';
-//         isVideoDownloadedVar.value = true;
-//         Get.snackbar("تنبيه", "الفيديو موجود بالفعل",
-//             backgroundColor: Colors.blue);
-//         return filePath;
-//       }
-
-//       await dio.download(
-//         url,
-//         filePath,
-//         onReceiveProgress: (rec, total) {
-//           progress.value = rec / total;
-//           progressString.value = ((rec / total) * 100).toStringAsFixed(0) + "%";
-//           developer.log('Progress: ${progressString.value}');
-//         },
-//       );
-
-//       downloading.value = false;
-//       progressString.value = '100%';
-//       isVideoDownloadedVar.value = true;
-//       return filePath;
-//     } catch (e) {
-//       downloading.value = false;
-//       progress.value = 0.0;
-//       progressString.value = 'فشل';
-//       developer.log('Download error: $e');
-//       throw e;
-//     }
-//   }
-
-//   Future<String> getLocalFilePath(String resolution) async {
-//     final video = videoFiles.firstWhere(
-//       (file) => file['resolution'] == resolution,
-//       orElse: () => null,
-//     );
-//     String videoId = video != null && video['id'] != null
-//         ? video['id'].toString()
-//         : Get.arguments['url'];
-//     final dir = await getApplicationDocumentsDirectory();
-//     return '${dir.path}/video_${videoId}_$resolution.mp4';
-//   }
-
-//   Future<void> loadVideoPlayer(bool isUrl) async {
-//     developer.log('url: ${Get.arguments['url']}');
-//     isLoading.value = true;
-
-//     String resolution = selectedQuality.value;
-//     bool isDownloaded = await isVideoDownloaded(resolution);
-//     String videoUrl = Get.arguments['url'];
-
-//     try {
-//       isError.value = false;
-//       if (isDownloaded) {
-//         videolessonsController = VideoPlayerController.file(
-//             File(await getLocalFilePath(resolution)));
-//       } else {
-//         videolessonsController = VideoPlayerController.network(videoUrl);
-//       }
-
-//       chewieController = ChewieController(
-//         videoPlayerController: videolessonsController,
-//         autoPlay: false,
-//         looping: true,
-//         cupertinoProgressColors: ChewieProgressColors(
-//           handleColor: Colors.grey,
-//         ),
-//         materialProgressColors: ChewieProgressColors(),
-//       );
-
-//       videolessonsController.addListener(() {
-//         if (videolessonsController.value.isInitialized) {
-//           isLoading.value = false;
-//         }
-//       });
-
-//       await videolessonsController.initialize();
-//       if (lastPosition != null) {
-//         await videolessonsController.seekTo(lastPosition!);
-//       }
-//     } catch (e) {
-//       isLoading.value = false;
-//       isError.value = true;
-//       developer.log('Video loading error: $e');
-//     }
-//   }
-
-//   Future<void> deleteVideoFromStorage(String resolution) async {
-//     try {
-//       final filePath = await getLocalFilePath(resolution);
-//       final file = File(filePath);
-
-//       if (await file.exists()) {
-//         await file.delete();
-//         isVideoDownloadedVar.value = false;
-//         Get.snackbar(
-//           "نجاح",
-//           "تم حذف الفيديو بنجاح",
-//         );
-//         developer.log('Video deleted: $filePath');
-//       } else {
-//         Get.snackbar("تنبيه", "الفيديو غير موجود في التخزين",
-//             backgroundColor: Colors.orange);
-//         developer.log('Video not found: $filePath');
-//       }
-
-//       loadVideoPath();
-//     } catch (e) {
-//       Get.snackbar("خطأ", "فشل في حذف الفيديو", backgroundColor: Colors.red);
-//       developer.log('Delete error: $e');
-//     }
-//   }
-
-//   Future<bool> isVideoDownloaded(String resolution) async {
-//     final filePath = await getLocalFilePath(resolution);
-//     final exists = await File(filePath).exists();
-//     developer.log('isVideoDownloaded: $exists for $filePath');
-//     isVideoDownloadedVar.value = exists;
-//     return exists;
-//   }
-
-//   @override
-//   void dispose() {
-//     onClose();
-//     super.dispose();
-//   }
-
-//   @override
-//   void onClose() {
-//     developer.log('Closing VideoLessonsController');
-//     videolessonsController.dispose();
-//     chewieController.dispose();
-//     super.onClose();
-//   }
-// }

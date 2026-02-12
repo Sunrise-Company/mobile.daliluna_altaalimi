@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:better_player_plus/better_player_plus.dart';
+import 'package:chewie/chewie.dart';
+import 'package:video_player/video_player.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/core/services/download_service.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 
 import 'package:dio/dio.dart';
@@ -14,11 +15,9 @@ import 'dart:developer' as developer;
 var progressMapLec = <String, String>{}.obs;
 
 class VideoLecturesController extends GetxController {
-  BetterPlayerController? betterPlayerController;
-
+  // Common
   var downloading = false.obs;
   var progress = 0.0.obs;
-
   late List<dynamic> videoFiles;
   var selectedQuality = ''.obs;
   var isLoading = true.obs;
@@ -26,6 +25,13 @@ class VideoLecturesController extends GetxController {
   var videoPath = ''.obs;
   Duration? lastPosition;
   var isVideoDownloadedVar = false.obs;
+
+  // iOS Specific
+  VideoPlayerController? videoPlayerController;
+  ChewieController? chewieController;
+
+  // Android Specific
+  BetterPlayerController? betterPlayerController;
 
   @override
   void onInit() {
@@ -44,10 +50,19 @@ class VideoLecturesController extends GetxController {
   }
 
   void loadVideoPath() async {
-    if (betterPlayerController?.isVideoInitialized() == true) {
-      lastPosition =
-          await betterPlayerController?.videoPlayerController?.position;
+    Duration? currentPos;
+    if (Platform.isIOS) {
+      if (videoPlayerController?.value.isInitialized == true) {
+        currentPos = videoPlayerController?.value.position;
+      }
+    } else {
+      if (betterPlayerController?.videoPlayerController?.value.initialized ==
+          true) {
+        currentPos =
+            betterPlayerController?.videoPlayerController?.value.position;
+      }
     }
+    lastPosition = currentPos;
 
     final videoFile = videoFiles.firstWhere(
       (file) => file['resolution'] == selectedQuality.value,
@@ -64,7 +79,11 @@ class VideoLecturesController extends GetxController {
     videoPath.value = finalPath;
     Get.arguments['url'] = finalPath;
 
-    betterPlayerController?.pause();
+    if (Platform.isIOS) {
+      videoPlayerController?.pause();
+    } else {
+      betterPlayerController?.pause();
+    }
     loadVideoPlayer(!exists);
   }
 
@@ -78,85 +97,72 @@ class VideoLecturesController extends GetxController {
     try {
       isError.value = false;
 
-      BetterPlayerDataSource dataSource;
-      if (isDownloaded) {
-        developer.log(
-          "Playing downloaded video: ${await getLocalFilePath(resolution)}",
-        );
-        dataSource = BetterPlayerDataSource(
-          BetterPlayerDataSourceType.file,
-          await getLocalFilePath(resolution),
-        );
-      } else {
-        developer.log("Playing network video: $videoUrl");
-        dataSource = BetterPlayerDataSource(
-          BetterPlayerDataSourceType.network,
-          videoUrl,
-        );
-      }
+      // Dispose existing
+      videoPlayerController?.dispose();
+      chewieController?.dispose();
+      betterPlayerController?.dispose();
 
-      betterPlayerController = BetterPlayerController(
-        BetterPlayerConfiguration(
-          autoPlay: false,
-          looping: true,
-          controlsConfiguration: BetterPlayerControlsConfiguration(
-            enableSkips: true,
-            enableFullscreen: true,
-            enablePip: true,
-            enableProgressBar: true,
-            enablePlayPause: true,
-            progressBarPlayedColor: Colors.deepPurple,
-            progressBarHandleColor: Colors.grey,
-            progressBarBufferedColor: Colors.grey.shade300,
-          ),
-        ),
-        betterPlayerDataSource: dataSource,
-      );
-
-      betterPlayerController!.addEventsListener((event) async {
-        if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-          isLoading.value = false;
-          if (lastPosition != null) {
-            betterPlayerController!.seekTo(lastPosition!);
-            developer.log('Seeked to last position: $lastPosition');
-          }
-          developer.log('Video player initialized successfully');
-        } else if (event.betterPlayerEventType ==
-            BetterPlayerEventType.exception) {
-          isError.value = true;
-          isLoading.value = false;
-          developer.log('Video player error: ${event.parameters} ${videoUrl}');
-          final video = videoFiles.firstWhere(
-            (file) => file['resolution'] == resolution,
-            orElse: () => null,
+      if (Platform.isIOS) {
+        // iOS: VideoPlayer + Chewie
+        if (isDownloaded) {
+          videoPlayerController = VideoPlayerController.file(
+            File(await getLocalFilePath(resolution)),
           );
-          String videoId = video != null && video['id'] != null
-              ? video['id'].toString()
-              : videoUrl;
-
-          String progressKey = '${videoId}_$resolution';
-          if (isError.value == true &&
-              isVideoDownloadedVar.value == true &&
-              progressMapLec[progressKey] == null) {
-            final success = await deleteVideoFromStorage(resolution);
-
-            if (success) {
-              Get.snackbar("فشل", "فشل في تنزيل الفيديو الرجاء لمحاولة مجدداً");
-            } else {
-              Get.snackbar(
-                "فشل",
-                "فشل في حذف الفيديو أو أنه غير موجود",
-                backgroundColor: Colors.red,
-              );
-            }
-          }
+        } else {
+          videoPlayerController = VideoPlayerController.networkUrl(
+            Uri.parse(videoUrl),
+          );
         }
-      });
-      await betterPlayerController!.setupDataSource(dataSource);
+        await videoPlayerController!.initialize();
 
-      if (lastPosition != null) {
-        betterPlayerController!.seekTo(lastPosition!);
+        chewieController = ChewieController(
+          videoPlayerController: videoPlayerController!,
+          autoPlay: true,
+          looping: true,
+          materialProgressColors: ChewieProgressColors(
+            playedColor: Colors.deepPurple,
+            handleColor: Colors.grey,
+            bufferedColor: Colors.grey.shade300,
+          ),
+          placeholder: const Center(child: CircularProgressIndicator()),
+          autoInitialize: true,
+        );
+
+        if (lastPosition != null) {
+          await videoPlayerController!.seekTo(lastPosition!);
+        }
+      } else {
+        // Android: BetterPlayer
+        BetterPlayerDataSource dataSource;
+        if (isDownloaded) {
+          dataSource = BetterPlayerDataSource(
+            BetterPlayerDataSourceType.file,
+            await getLocalFilePath(resolution),
+          );
+        } else {
+          dataSource = BetterPlayerDataSource(
+            BetterPlayerDataSourceType.network,
+            videoUrl,
+          );
+        }
+
+        betterPlayerController = BetterPlayerController(
+          const BetterPlayerConfiguration(
+            autoPlay: true,
+            looping: true,
+            fullScreenByDefault: false,
+            allowedScreenSleep: false,
+            fit: BoxFit.contain,
+          ),
+          betterPlayerDataSource: dataSource,
+        );
+
+        if (lastPosition != null) {
+          await betterPlayerController!.seekTo(lastPosition!);
+        }
       }
+
+      isLoading.value = false;
     } catch (e) {
       isError.value = true;
       isLoading.value = false;
@@ -282,6 +288,8 @@ class VideoLecturesController extends GetxController {
   @override
   void onClose() {
     developer.log('Closing VideoLecturesController');
+    videoPlayerController?.dispose();
+    chewieController?.dispose();
     betterPlayerController?.dispose();
     super.onClose();
   }
