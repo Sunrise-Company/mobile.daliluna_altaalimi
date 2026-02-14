@@ -569,12 +569,14 @@ Future<String?> checkIfEmulator() async {
       // ============================================
 
       // 1. Check for specific emulator paths (STRONGEST evidence)
-      List<String> ldPlayerPaths = [
+      List<String> emulatorPaths = [
         '/storage/emulated/0/storage/secure',
         '/storage/emulated/0/Android/data/com.android.ld.appstore',
+        '/dev/socket/genyd',
+        '/dev/socket/baseband_genyd',
       ];
-      for (String path in ldPlayerPaths) {
-        if (await Directory(path).exists()) {
+      for (String path in emulatorPaths) {
+        if (await Directory(path).exists() || await File(path).exists()) {
           return "Found emulator path: $path (STRONG EVIDENCE)";
         }
       }
@@ -587,10 +589,23 @@ Future<String?> checkIfEmulator() async {
       // 3. Check for explicit emulator/SDK strings (STRONG evidence)
       if (product.contains('sdk') ||
           product.contains('emulator') ||
+          product.contains('google_sdk') ||
+          product.contains('sdk_gphone') ||
+          product.contains('vbox86p') ||
+          product.contains('genymotion') ||
+          product.contains('nox') ||
           model.contains('Emulator') ||
           model.contains('Android SDK') ||
+          model.contains('Bluestacks') ||
+          model.contains('BS2') ||
+          model.contains('LDPlayer') ||
+          model.contains('MuMu') ||
+          model.contains('NOX') ||
+          androidInfo.hardware.contains('goldfish') ||
+          androidInfo.hardware.contains('ranchu') ||
+          androidInfo.hardware.contains('vbox86') ||
           fingerprint.contains('generic/')) {
-        return "Explicit emulator signature in product/model (STRONG EVIDENCE)";
+        return "Explicit emulator signature in product/model/hardware (STRONG EVIDENCE)";
       }
 
       // ============================================

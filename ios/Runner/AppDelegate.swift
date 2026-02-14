@@ -11,6 +11,15 @@ import Photos
     ) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
         
+        // --- SCREENSHOT PREVENTION ---
+        if let window = self.window {
+            self.makeWindowSecure(window)
+        }
+        
+        // Listen for screen recording changes
+        NotificationCenter.default.addObserver(self, selector: #selector(screenCaptureChanged), name: UIScreen.capturedDidChangeNotification, object: nil)
+        // ----------------------------
+
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
         let muxChannel = FlutterMethodChannel(name: "com.example.muxer", binaryMessenger: controller.binaryMessenger)
         
@@ -35,6 +44,33 @@ import Photos
         
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
+
+    // --- SCREENSHOT PREVENTION HELPERS ---
+    private func makeWindowSecure(_ window: UIWindow) {
+        let field = UITextField()
+        field.isSecureTextEntry = true
+        
+        guard let container = field.subviews.first(where: { String(describing: type(of: $0)).contains("Canvas") || String(describing: type(of: $0)).contains("Text") }) else {
+            // Fallback to simpler method if internal structure is different
+            window.addSubview(field)
+            window.layer.superlayer?.addSublayer(field.layer)
+            field.layer.sublayers?.first?.addSublayer(window.layer)
+            return
+        }
+        
+        window.addSubview(container)
+        container.addSubview(window.rootViewController!.view)
+    }
+
+    @objc private func screenCaptureChanged() {
+        let isCaptured = UIScreen.main.isCaptured
+        print("🎬 Screen recording status: \(isCaptured)")
+        if isCaptured {
+            // Show a black screen or alert if needed
+            // The secure text field hack usually handles this by making the video content black
+        }
+    }
+    // ------------------------------------
 
     private func muxVideo(videoUrl: URL, audioUrl: URL, outputUrl: URL, result: @escaping FlutterResult) {
         let vAsset = AVURLAsset(url: videoUrl, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
