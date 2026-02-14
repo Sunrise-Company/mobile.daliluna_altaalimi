@@ -411,19 +411,57 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
     if (confirmed != true) return;
 
     try {
+      // CRITICAL: Pause and dispose ALL controllers BEFORE deleting the file
+      // This prevents audio from continuing and fixes the "recreating_view" error
+
+      // Pause the video first
+      await _videoPlayerController?.pause();
+      await _betterPlayerController?.pause();
+
+      // Dispose iOS video controller
+      if (_videoPlayerController != null) {
+        await _videoPlayerController!.dispose();
+        _videoPlayerController = null;
+      }
+
+      // Dispose iOS Chewie controller
+      if (_chewieController != null) {
+        _chewieController!.dispose();
+        _chewieController = null;
+      }
+
+      // Dispose Android BetterPlayer controller
+      if (_betterPlayerController != null) {
+        _betterPlayerController!.dispose();
+        _betterPlayerController = null;
+      }
+
+      // Now delete the file
       final localPath = await _getLocalFilePath();
       await File(localPath).delete();
+
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('تم حذف الفيديو بنجاح.')));
+
+        // Reset state
         setState(() {
           _isLoading = true;
           _localVideoPath = null;
+          _isPlayerReady = false;
         });
-        _initializePlayer();
+
+        // Reinitialize the player (will switch to YouTube embed)
+        await _initializePlayer();
       }
-    } catch (e) {}
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('خطأ في حذف الفيديو: $e')));
+      }
+    }
   }
 
   Widget _buildPlayerUI({
@@ -603,13 +641,8 @@ class _YoutubePlayerState extends State<YoutubePlayer> {
                   _localVideoPath == null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'تم التحميل بنجاح! جاري تشغيل الفيديو بدون إنترنت.',
-                        ),
-                      ),
-                    );
+                    // Silently reload the player with downloaded video
+                    // No notification needed - user can see it's downloaded
                     setState(() => _isLoading = true);
                     _initializePlayer();
                   }

@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 import AVFoundation
 import Photos
+import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -10,6 +11,13 @@ import Photos
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         GeneratedPluginRegistrant.register(with: self)
+        
+        // --- NOTIFICATION CENTER DELEGATE ---
+        // This is CRITICAL for showing notifications when app is in foreground
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().delegate = self
+        }
+        // ----------------------------
         
         // --- SCREENSHOT PREVENTION ---
         if let window = self.window {
@@ -71,6 +79,24 @@ import Photos
         }
     }
     // ------------------------------------
+    
+    // --- FOREGROUND NOTIFICATION PRESENTATION ---
+    // This method is called when a notification arrives while app is in FOREGROUND
+    @available(iOS 10.0, *)
+    override func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        // Show notification even when app is in foreground
+        // This includes: banner, sound, and badge
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .sound, .badge])
+        } else {
+            completionHandler([.alert, .sound, .badge])
+        }
+    }
+    // ----------------------------
 
     private func muxVideo(videoUrl: URL, audioUrl: URL, outputUrl: URL, result: @escaping FlutterResult) {
         let vAsset = AVURLAsset(url: videoUrl, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])

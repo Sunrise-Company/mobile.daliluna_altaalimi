@@ -23,8 +23,9 @@ class BackgroundDownloadService {
     }
 
     final service = FlutterBackgroundService();
+    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    // إعدادات الإشعارات
+    // إعدادات الإشعارات للأندرويد
     const androidNotificationChannel = AndroidNotificationChannel(
       _notificationChannelId,
       _notificationChannelName,
@@ -32,12 +33,22 @@ class BackgroundDownloadService {
       importance: Importance.low,
     );
 
-    final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    // إنشاء قناة الإشعارات للأندرويد
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >()
         ?.createNotificationChannel(androidNotificationChannel);
+
+    // طلب أذونات الإشعارات لـ iOS
+    if (Platform.isIOS) {
+      final bool? result = await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+      debugPrint("iOS notification permissions granted: $result");
+    }
 
     await service.configure(
       androidConfiguration: AndroidConfiguration(
@@ -128,7 +139,20 @@ void onStart(ServiceInstance service) async {
 
   // تهيئة الإشعارات
   const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-  const initSettings = InitializationSettings(android: androidSettings);
+  const darwinSettings = DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+    // Enable notifications to show even when app is in foreground
+    defaultPresentAlert: true,
+    defaultPresentSound: true,
+    defaultPresentBadge: true,
+  );
+  const initSettings = InitializationSettings(
+    android: androidSettings,
+    iOS: darwinSettings,
+    macOS: darwinSettings,
+  );
   await notifications.initialize(initSettings);
 
   // الاستماع لأوامر الإيقاف
@@ -296,11 +320,21 @@ Future<void> _updateNotification(
     icon: '@mipmap/ic_launcher',
   );
 
+  const darwinDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: false,
+  );
+
   await notifications.show(
     videoId.hashCode,
     title,
     body,
-    NotificationDetails(android: androidDetails),
+    NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    ),
   );
 }
 
@@ -319,11 +353,21 @@ Future<void> _showCompletionNotification(
     icon: '@mipmap/ic_launcher',
   );
 
+  const darwinDetails = DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: true,
+  );
+
   await notifications.show(
     videoId.hashCode,
     success ? 'اكتمل التحميل ✓' : 'فشل التحميل ✗',
     success ? 'تم تحميل الفيديو بنجاح' : 'حدث خطأ أثناء التحميل',
-    NotificationDetails(android: androidDetails),
+    NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    ),
   );
 }
 
