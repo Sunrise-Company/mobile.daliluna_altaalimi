@@ -36,7 +36,7 @@ class ViewLesson extends StatelessWidget {
               baseColor: Colors.white,
               highlightColor: AppColor.SecondryColor,
               child: Text(
-                "تجريب",
+                controller.lessonsectionsName ?? "",
                 style: TextStyle(
                   fontSize: responsiveValue(
                     context: context,

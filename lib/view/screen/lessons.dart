@@ -319,59 +319,88 @@ class Lessons extends GetView<LessonsController> {
                                                   subtitle: Padding(
                                                     padding:
                                                         const EdgeInsets.only(
-                                                          top: 6.0,
+                                                          top: 10.0,
                                                         ),
-                                                    child: Row(
+                                                    child: Wrap(
+                                                      spacing: 8,
+                                                      runSpacing: 8,
+                                                      crossAxisAlignment: WrapCrossAlignment.center,
                                                       children: [
-                                                        Icon(
-                                                          Icons.folder_open,
-                                                          size: 18,
-                                                          color: AppColor
-                                                              .SecondryColor,
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 4,
-                                                        ),
-                                                        Flexible(
-                                                          child: Text(
-                                                            "عدد الملفات: ${controller.dataList[index]['app_lesson_lecture_files_count']}",
-                                                            style: TextStyle(
-                                                              fontSize:
-                                                                  getValueForScreenType<
-                                                                    double
-                                                                  >(
-                                                                    context:
-                                                                        context,
-                                                                    mobile: 12,
-                                                                    tablet: 16,
+                                                        // Files Count Badge
+                                                        Container(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey[100],
+                                                            borderRadius: BorderRadius.circular(8),
+                                                            border: Border.all(color: Colors.grey[300]!, width: 0.5),
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.file_copy_outlined,
+                                                                size: 14,
+                                                                color: Colors.grey[600],
+                                                              ),
+                                                              const SizedBox(width: 5),
+                                                              Text(
+                                                                "${controller.dataList[index]['app_lesson_lecture_files_count']} ملفات",
+                                                                style: TextStyle(
+                                                                  fontSize: getValueForScreenType<double>(
+                                                                    context: context,
+                                                                    mobile: 11,
+                                                                    tablet: 14,
                                                                   ),
-                                                              color: Colors
-                                                                  .grey[700],
-                                                            ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
+                                                                  fontWeight: FontWeight.w500,
+                                                                  color: Colors.grey[800],
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
-                                                        const SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Text(
-                                                          "${controller.dataList[index]['price'] ?? '-'}",
-                                                          style: TextStyle(
-                                                            fontSize:
-                                                                getValueForScreenType<
-                                                                  double
-                                                                >(
-                                                                  context:
-                                                                      context,
-                                                                  mobile: 13,
-                                                                  tablet: 18,
+                                                        // Price Badge
+                                                        Container(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                          decoration: BoxDecoration(
+                                                            color: AppColor.SecondryColor.withOpacity(0.12),
+                                                            borderRadius: BorderRadius.circular(8),
+                                                            border: Border.all(color: AppColor.SecondryColor.withOpacity(0.3), width: 0.5),
+                                                          ),
+                                                          child: Row(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              Icon(
+                                                                Icons.payments_outlined,
+                                                                size: 14,
+                                                                color: AppColor.PrimaryColor,
+                                                              ),
+                                                              const SizedBox(width: 5),
+                                                              Text(
+                                                                "${controller.dataList[index]['price'] ?? '0'}",
+                                                                style: TextStyle(
+                                                                  fontSize: getValueForScreenType<double>(
+                                                                    context: context,
+                                                                    mobile: 12,
+                                                                    tablet: 15,
+                                                                  ),
+                                                                  color: AppColor.PrimaryColor,
+                                                                  fontWeight: FontWeight.bold,
                                                                 ),
-                                                            color: AppColor
-                                                                .PrimaryColor,
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                              ),
+                                                              const SizedBox(width: 3),
+                                                              Text(
+                                                                "ل.س",
+                                                                style: TextStyle(
+                                                                  fontSize: getValueForScreenType<double>(
+                                                                    context: context,
+                                                                    mobile: 10,
+                                                                    tablet: 12,
+                                                                  ),
+                                                                  fontWeight: FontWeight.w500,
+                                                                  color: AppColor.PrimaryColor,
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ),
                                                       ],
