@@ -8,6 +8,7 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/screen/pdfs.dart';
 import 'package:daliluna_altaalimi/view/screen/vedioswithoutappbar.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../controller/home_controller.dart';
 import '../widget/GetValueForScreen.dart';
 
 class ViewLesson extends StatelessWidget {
@@ -16,6 +17,7 @@ class ViewLesson extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ViewLessonController controller = Get.put(ViewLessonController());
+    final homeController = Get.put(HomeController());
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -106,7 +108,7 @@ class ViewLesson extends StatelessWidget {
                           color: AppColor.PrimaryColor.withOpacity(0.2),
                         ),
                       ),
-                      child: Column(
+                      child:(homeController.isDeployed!=0)? Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
@@ -128,7 +130,7 @@ class ViewLesson extends StatelessWidget {
                             ),
                           ),
                         ],
-                      ),
+                      ):SizedBox(),
                     ),
                   ),
                   Expanded(

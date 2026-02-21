@@ -8,6 +8,8 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
+import '../../controller/home_controller.dart';
+
 class VediosWithoutAppBar extends StatelessWidget {
   final List videos;
   final bool isLoading;
@@ -20,9 +22,10 @@ class VediosWithoutAppBar extends StatelessWidget {
     this.isFreePreview = false,
     this.isPurchased = false,
   });
-
+  final homeController = Get.put(HomeController());
   @override
   Widget build(BuildContext context) {
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -74,7 +77,7 @@ class VediosWithoutAppBar extends StatelessWidget {
       itemCount: videos.length,
       itemBuilder: (BuildContext context, index) {
         final video = Map<String, dynamic>.from(videos[index]);
-        final bool isLocked = !isPurchased && video['free_status'] != '1';
+        final bool isLocked = !isPurchased && video['free_status'] != '1'&& homeController.isDeployed!=0;
 
         final bool isYoutubeVideo =
             video['link'] != null &&
@@ -293,7 +296,7 @@ class VediosWithoutAppBar extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (isLocked)
+                        if (isLocked&& homeController.isDeployed!=0)
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.4),
@@ -349,7 +352,7 @@ class VediosWithoutAppBar extends StatelessWidget {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(6.0),
-                                      child: Text(
+                                      child:(homeController.isDeployed!=0) ?Text(
                                         video['free_status'].toString() == '1'
                                             ? "مجاني"
                                             : "مدفوع",
@@ -366,7 +369,7 @@ class VediosWithoutAppBar extends StatelessWidget {
                                         ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                      ),
+                                      ):SizedBox(),
                                     ),
                                   )
                                 : SizedBox(),

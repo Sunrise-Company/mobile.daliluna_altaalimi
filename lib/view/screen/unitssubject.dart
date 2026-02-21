@@ -9,6 +9,7 @@ import 'package:daliluna_altaalimi/controller/unitssubject_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
+import '../../controller/home_controller.dart';
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
@@ -17,6 +18,7 @@ import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
 class UnitsSubject extends GetView<UnitsSubjectController> {
   UnitsSubject({super.key});
   late BasketController baskerc;
+  final homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +309,7 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   color: AppColor.PrimaryColor,
                                                 ),
                                               ),
-                                              subtitle: Padding(
+                                              subtitle:(homeController.isDeployed!=0)? Padding(
                                                 padding: const EdgeInsets.only(
                                                   top: 5.0,
                                                 ),
@@ -325,7 +327,7 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                         ),
                                                   ),
                                                 ),
-                                              ),
+                                              ):SizedBox(),
                                               trailing: Obx(() {
                                                 final currentUnitId = item['id']
                                                     ?.toString();
@@ -377,7 +379,7 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   );
                                                 }
 
-                                                return CustomButtonBuy(
+                                                return (homeController.isDeployed!=0)? CustomButtonBuy(
                                                   onTap: () async {
                                                     return await baskerc
                                                         .updateBasket(
@@ -406,7 +408,7 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   targetCartKey:
                                                       CartAnimationKeys
                                                           .unitsSubject,
-                                                );
+                                                ):SizedBox();
                                               }),
                                             ),
                                           ),

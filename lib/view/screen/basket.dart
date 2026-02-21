@@ -12,6 +12,7 @@ import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:daliluna_altaalimi/view/widget/loadingimage.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../controller/home_controller.dart';
 import '../../core/constant/imageasset.dart';
 import '../widget/GetValueForScreen.dart';
 
@@ -23,6 +24,7 @@ class Basket extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     baskerc = Get.put(BasketController());
+    final homeController = Get.put(HomeController());
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -336,7 +338,7 @@ class Basket extends StatelessWidget {
                 //         ],
                 //
                 // )
-                Row(
+                (homeController.isDeployed!=0)? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
@@ -427,7 +429,7 @@ class Basket extends StatelessWidget {
                       }),
                     ),
                   ],
-                ),
+                ):SizedBox(),
               ],
             ),
           ],

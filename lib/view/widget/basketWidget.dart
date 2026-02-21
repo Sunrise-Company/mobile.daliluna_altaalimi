@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../controller/basket_controller.dart';
+import '../../controller/home_controller.dart';
 import '../../core/constant/color.dart';
 import '../../core/constant/routes.dart';
 
@@ -21,6 +22,7 @@ class _BasketWidgetState extends State<BasketWidget>
   late BasketController baskerc;
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  final homeController = Get.put(HomeController());
 
   @override
   void initState() {
@@ -51,7 +53,7 @@ class _BasketWidgetState extends State<BasketWidget>
         builder: (context, child) {
           return Transform.scale(scale: _scaleAnimation.value, child: child);
         },
-        child: FloatingActionButton(
+        child:(homeController.isDeployed!=0)? FloatingActionButton(
           heroTag: widget.heroTag,
           backgroundColor: AppColor.SecondryColor,
           elevation: 6,
@@ -89,7 +91,7 @@ class _BasketWidgetState extends State<BasketWidget>
               ),
             ],
           ),
-        ),
+        ):SizedBox(),
       ),
     );
   }

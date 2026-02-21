@@ -12,11 +12,13 @@ import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 
+import '../../controller/home_controller.dart';
 import '../widget/GetValueForScreen.dart';
 
 class Vedios extends StatelessWidget {
   // final List videos;
   bool _hasShownFreePreviewDialog = false;
+  final homeController = Get.put(HomeController());
   final bool isLoading;
   final bool isFreePreview;
   // final bool isPurchased;
@@ -218,7 +220,7 @@ class Vedios extends StatelessWidget {
             //     );
             //   });
             // }
-            if (controller.isFreePreviewMode && !_hasShownFreePreviewDialog) {
+            if (controller.isFreePreviewMode && !_hasShownFreePreviewDialog && homeController.isDeployed!=0) {
               _hasShownFreePreviewDialog = true; // <-- تم العرض
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Get.dialog(
@@ -598,7 +600,7 @@ class Vedios extends StatelessWidget {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(6.0),
-                                      child: Text(
+                                      child:(homeController.isDeployed!=0)? Text(
                                         video['free_status'].toString() == '1'
                                             ? "مجاني"
                                             : "مدفوع",
@@ -615,7 +617,7 @@ class Vedios extends StatelessWidget {
                                         ),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
-                                      ),
+                                      ):SizedBox(),
                                     ),
                                   )
                                 : SizedBox(),
