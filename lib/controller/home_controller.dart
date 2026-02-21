@@ -11,6 +11,7 @@ class HomeController extends GetxController {
   List<dynamic> cities = [];
   bool isLoadingCities = false;
   String? citiesError;
+  bool? isDeployed;
 
   @override
   void onInit() {
@@ -28,6 +29,8 @@ class HomeController extends GetxController {
       isLoadingCities = true;
       update();
       cities = await ApiService.fetchCities();
+      print("isssssss${ApiService.fetchCities()}");
+      // isDeployed = await ApiService.isDeployed();
       citiesError = null;
     } catch (error) {
       citiesError = 'تعذر تحميل المحافظات، حاول مجدداً';
