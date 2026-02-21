@@ -8,6 +8,8 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/view/widget/animated_cart_icon.dart';
 
+import '../../controller/home_controller.dart';
+
 class CustomCardSections extends StatelessWidget {
   final String section;
   final String price;
@@ -210,6 +212,7 @@ class CustomCardSections extends StatelessWidget {
 }
 
 class CustomListTileSectionWidget extends StatelessWidget {
+  final homeController = Get.put(HomeController());
   final Map<String, dynamic> item;
   final bool isChecking;
   final Future<bool> Function()? onTapShop;
@@ -219,7 +222,7 @@ class CustomListTileSectionWidget extends StatelessWidget {
 
   final GlobalKey? targetCartKey;
 
-  const CustomListTileSectionWidget({
+   CustomListTileSectionWidget({
     super.key,
     required this.item,
     required this.isChecking,
@@ -271,6 +274,7 @@ class CustomListTileSectionWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  (homeController.isDeployed!=0)?
                   Text(
                     "السعر: $price",
                     style: TextStyle(
@@ -281,7 +285,7 @@ class CustomListTileSectionWidget extends StatelessWidget {
                         tablet: 14,
                       ),
                     ),
-                  ),
+                  ):SizedBox(),
                   Text(
                     "عدد الفيديوهات: $countVideos",
                     style: TextStyle(

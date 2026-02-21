@@ -15,6 +15,7 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../controller/home_controller.dart';
 import '../../linkapi.dart';
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
@@ -25,6 +26,7 @@ import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
 class SectionSelected extends GetView<SectionSelectedController> {
   SectionSelected({super.key});
   late BasketController baskerc;
+  final homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -678,7 +680,7 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                                 '3' &&
                                                             item['type']
                                                                     .toString() !=
-                                                                '4'
+                                                                '4' &&homeController.isDeployed!=0
                                                         ? Padding(
                                                             padding:
                                                                 const EdgeInsets.only(

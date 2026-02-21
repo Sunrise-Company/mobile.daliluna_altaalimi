@@ -15,12 +15,15 @@ import 'package:shimmer/shimmer.dart';
 import 'package:daliluna_altaalimi/core/constant/cart_keys.dart';
 import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
 
+import '../../controller/home_controller.dart';
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 
 class Lessons extends GetView<LessonsController> {
+
   Lessons({super.key});
   late BasketController baskerc;
+  final homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -366,7 +369,7 @@ class Lessons extends GetView<LessonsController> {
                                                             borderRadius: BorderRadius.circular(8),
                                                             border: Border.all(color: AppColor.SecondryColor.withOpacity(0.3), width: 0.5),
                                                           ),
-                                                          child: Row(
+                                                          child:(homeController.isDeployed!=0)? Row(
                                                             mainAxisSize: MainAxisSize.min,
                                                             children: [
                                                               Icon(
@@ -401,7 +404,7 @@ class Lessons extends GetView<LessonsController> {
                                                                 ),
                                                               ),
                                                             ],
-                                                          ),
+                                                          ):SizedBox(),
                                                         ),
                                                       ],
                                                     ),
@@ -502,7 +505,7 @@ class Lessons extends GetView<LessonsController> {
                                                       );
                                                     }
 
-                                                    return CustomButtonBuy(
+                                                    return(homeController.isDeployed!=0)? CustomButtonBuy(
                                                       onTap: () async {
                                                         var res = await baskerc.updateBasket(
                                                           controller
@@ -541,7 +544,7 @@ class Lessons extends GetView<LessonsController> {
                                                       targetCartKey:
                                                           CartAnimationKeys
                                                               .lessons,
-                                                    );
+                                                    ):SizedBox();
                                                   }),
 
                                                   onTap: () {

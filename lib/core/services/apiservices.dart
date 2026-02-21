@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
+
   static Future<List<dynamic>> fetchMainslider() async {
     final response = await http.get(Uri.parse(AppLink.app_main_slider));
     if (response.statusCode == 200) {
@@ -25,11 +26,21 @@ class ApiService {
       throw Exception('Failed to fetch classes');
     }
   }
-
+  static Future<int> fetchIsDeployed() async {
+    final response = await http.get(Uri.parse(AppLink.cities));
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+      final int isDeployeed = data['is_deployed'] ;
+      return isDeployeed;
+    } else {
+      throw Exception('Failed to fetch cities');
+    }
+  }
   static Future<List<dynamic>> fetchCities() async {
     final response = await http.get(Uri.parse(AppLink.cities));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = json.decode(response.body);
+      log("sssssssssssssss${response.body}");
       final List<dynamic> cities = data['cities'] ?? [];
       return cities;
     } else {
@@ -50,7 +61,9 @@ class ApiService {
       final response = await http.post(Uri.parse(url));
 
       if (response.statusCode == 200) {
+        // print("sssssssssssssss${response.body}");
         return json.decode(response.body);
+
       } else {
         throw Exception('Failed to search: ${response.statusCode}');
       }

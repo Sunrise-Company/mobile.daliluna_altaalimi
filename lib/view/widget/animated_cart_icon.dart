@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/function/cart_animation_helper.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
+import '../../controller/home_controller.dart';
 
 class AnimatedCartIcon extends StatefulWidget {
   final Future<bool> Function()? onPressed;
@@ -22,6 +26,7 @@ class AnimatedCartIcon extends StatefulWidget {
 
 class _AnimatedCartIconState extends State<AnimatedCartIcon>
     with SingleTickerProviderStateMixin {
+  final homeController = Get.put(HomeController());
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late final GlobalKey _iconKey;
@@ -89,11 +94,11 @@ class _AnimatedCartIconState extends State<AnimatedCartIcon>
         },
         child: Container(
           padding: const EdgeInsets.all(8.0),
-          child: Icon(
+          child:(homeController.isDeployed!=0) ?Icon(
             Icons.shopping_cart_outlined,
             color: widget.color ?? AppColor.SecondryColor,
             size: widget.size ?? 24,
-          ),
+          ):SizedBox(),
         ),
       ),
     );
