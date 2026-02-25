@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/function/cart_animation_helper.dart';
+import 'package:get/get.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class CustomButtonBuy extends StatefulWidget {
   final Future<bool> Function()? onTap;
@@ -71,6 +73,10 @@ class _CustomButtonBuyState extends State<CustomButtonBuy>
 
   @override
   Widget build(BuildContext context) {
+    bool isDeployed = Get.find<HomeController>().isDeployed == 1;
+
+    if (!isDeployed) return const SizedBox();
+
     return AnimatedBuilder(
       animation: _scaleAnimation,
       builder: (context, child) {

@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+﻿// ignore_for_file: must_be_immutable
 
 import 'dart:developer';
 
@@ -13,12 +13,14 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/pdfLessons.dart';
 import 'package:daliluna_altaalimi/view/widget/customcardsubject.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class Pdfs extends StatelessWidget {
   final List pdfs;
   final bool isLoading;
   final bool isPurchased;
 
+  final homeController = Get.put(HomeController());
   Pdfs(this.pdfs, this.isLoading, {this.isPurchased = false});
 
   @override
@@ -61,8 +63,12 @@ class Pdfs extends StatelessWidget {
                                 onTap: () async {
                                   if (isLocked) {
                                     Get.snackbar(
-                                      "محتوى حصري للمشتركين",
-                                      "اشترك في القسم للوصول إلى هذا الملف وكل المحتوى.",
+                                      homeController.isDeployed == 1
+                                          ? "محتوى حصري للمشتركين"
+                                          : "المحتوى سيكون متاحاً قريباً",
+                                      homeController.isDeployed == 1
+                                          ? "اشترك في القسم للوصول إلى هذا الملف وكل المحتوى."
+                                          : "شكراً لاهتمامك، انتظرونا قريباً.",
                                       icon: Icon(
                                         Icons.lock,
                                         color: Colors.white,
@@ -188,8 +194,12 @@ class Pdfs extends StatelessWidget {
                                   child: InkWell(
                                     onTap: () {
                                       Get.snackbar(
-                                        "محتوى حصري للمشتركين",
-                                        "اشترك في القسم للوصول إلى هذا الملف وكل المحتوى.",
+                                        homeController.isDeployed == 1
+                                            ? "محتوى حصري للمشتركين"
+                                            : "المحتوى سيكون متاحاً قريباً",
+                                        homeController.isDeployed == 1
+                                            ? "اشترك في القسم للوصول إلى هذا الملف وكل المحتوى."
+                                            : "شكراً لاهتمامك، انتظرونا قريباً.",
                                         icon: Icon(
                                           Icons.lock,
                                           color: Colors.white,

@@ -1,4 +1,4 @@
-import 'dart:developer';
+﻿import 'dart:developer';
 
 import 'package:daliluna_altaalimi/controller/unitssubject_controller.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class CustomCardSectionSelected extends StatelessWidget {
   final Function() onTap;
@@ -97,17 +98,19 @@ class CustomCardSectionSelected extends StatelessWidget {
                 ),
               ),
               Container(
-                child: Text(
-                  price,
-                  style: TextStyle(
-                    color: AppColor.grey,
-                    fontSize: getValueForScreenType<double>(
-                      context: context,
-                      mobile: 12,
-                      tablet: 17,
-                    ),
-                  ),
-                ),
+                child: (Get.find<HomeController>().isDeployed == 1)
+                    ? Text(
+                        price,
+                        style: TextStyle(
+                          color: AppColor.grey,
+                          fontSize: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 12,
+                            tablet: 17,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
               ),
               Obx(() {
                 final isInMySections = controller.myunits.any((section) {

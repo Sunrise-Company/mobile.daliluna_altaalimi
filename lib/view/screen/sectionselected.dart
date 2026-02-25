@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_iacademyv3utable
+﻿// ignore_for_file: must_be_iacademyv3utable
 
 import 'dart:developer';
 
@@ -680,7 +680,10 @@ class SectionSelected extends GetView<SectionSelectedController> {
                                                                 '3' &&
                                                             item['type']
                                                                     .toString() !=
-                                                                '4' &&homeController.isDeployed!=0
+                                                                '4' &&
+                                                            homeController
+                                                                    .isDeployed ==
+                                                                1
                                                         ? Padding(
                                                             padding:
                                                                 const EdgeInsets.only(

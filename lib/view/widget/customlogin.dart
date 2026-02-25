@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../core/constant/imageasset.dart';
 
@@ -8,6 +7,6 @@ class CustomLogIn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Lottie.asset(AppImageAsset.logo));
+    return Center(child: Image.asset(AppImageAsset.logo));
   }
 }

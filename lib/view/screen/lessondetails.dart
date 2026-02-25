@@ -1,3 +1,4 @@
+import 'package:daliluna_altaalimi/core/constant/imageasset.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:gradients/gradients.dart';
@@ -157,18 +158,20 @@ class LessonDetailsPage extends GetView<LessonDetailsController> {
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: NetworkImage(
-                                        controller.dataList['teacher_info']?['image'] !=
-                                                    null &&
-                                                controller
-                                                        .dataList['teacher_info']?['image'] !=
-                                                    ''
-                                            ? AppLink.image +
+                                      image:
+                                          controller.dataList['teacher_info']?['image'] !=
+                                                  null &&
+                                              controller
+                                                      .dataList['teacher_info']?['image'] !=
+                                                  ''
+                                          ? NetworkImage(
+                                              AppLink.image +
                                                   "/" +
                                                   controller
-                                                      .dataList['teacher_info']!['image']
-                                            : 'https://placehold.co/600x400',
-                                      ),
+                                                      .dataList['teacher_info']!['image'],
+                                            )
+                                          : AssetImage(AppImageAsset.logo)
+                                                as ImageProvider,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -233,6 +236,7 @@ class LessonDetailsPage extends GetView<LessonDetailsController> {
                                           tablet: 30,
                                         ),
                                       ),
+
                                       // if (controller
                                       //             .dataList['teacher_info']?['education'] !=
                                       //         '' &&
@@ -272,7 +276,6 @@ class LessonDetailsPage extends GetView<LessonDetailsController> {
                                       //   ),
                                       //   const SizedBox(height: 25),
                                       // ],
-
                                       Align(
                                         alignment: Alignment.centerRight,
                                         child: CustomTitle(text: "الوصف"),

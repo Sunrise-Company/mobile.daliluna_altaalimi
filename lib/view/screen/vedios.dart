@@ -1,4 +1,4 @@
-import 'package:daliluna_altaalimi/constant.dart';
+﻿import 'package:daliluna_altaalimi/constant.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:flutter/material.dart';
@@ -220,7 +220,9 @@ class Vedios extends StatelessWidget {
             //     );
             //   });
             // }
-            if (controller.isFreePreviewMode && !_hasShownFreePreviewDialog && homeController.isDeployed!=0) {
+            if (controller.isFreePreviewMode &&
+                !_hasShownFreePreviewDialog &&
+                homeController.isDeployed == 1) {
               _hasShownFreePreviewDialog = true; // <-- تم العرض
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Get.dialog(
@@ -437,8 +439,12 @@ class Vedios extends StatelessWidget {
             onTap: () {
               if (isLocked) {
                 Get.snackbar(
-                  "محتوى حصري للمشتركين",
-                  "اشترك في القسم للوصول إلى هذا الفيديو وكل المحتوى.",
+                  homeController.isDeployed == 1
+                      ? "محتوى حصري للمشتركين"
+                      : "المحتوى سيكون متاحاً قريباً",
+                  homeController.isDeployed == 1
+                      ? "اشترك في القسم للوصول إلى هذا الفيديو وكل المحتوى."
+                      : "شكراً لاهتمامك، انتظرونا قريباً.",
                   icon: Icon(Icons.lock, color: Colors.white),
                   snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: AppColor.PrimaryColor,
@@ -600,24 +606,29 @@ class Vedios extends StatelessWidget {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(6.0),
-                                      child:(homeController.isDeployed!=0)? Text(
-                                        video['free_status'].toString() == '1'
-                                            ? "مجاني"
-                                            : "مدفوع",
-                                        style: TextStyle(
-                                          fontSize:
-                                              getValueForScreenType<double>(
-                                                context: context,
-                                                mobile: 10,
-                                                tablet: 12,
+                                      child: (homeController.isDeployed == 1)
+                                          ? Text(
+                                              video['free_status'].toString() ==
+                                                      '1'
+                                                  ? "مجاني"
+                                                  : "مدفوع",
+                                              style: TextStyle(
+                                                fontSize:
+                                                    getValueForScreenType<
+                                                      double
+                                                    >(
+                                                      context: context,
+                                                      mobile: 10,
+                                                      tablet: 12,
+                                                    ),
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                height: 1.3,
                                               ),
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          height: 1.3,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ):SizedBox(),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            )
+                                          : SizedBox(),
                                     ),
                                   )
                                 : SizedBox(),

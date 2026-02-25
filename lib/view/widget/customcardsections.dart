@@ -1,4 +1,4 @@
-import 'package:daliluna_altaalimi/controller/sectionssubject_controller.dart';
+﻿import 'package:daliluna_altaalimi/controller/sectionssubject_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/view/widget/animated_cart_icon.dart';
 
-import '../../controller/home_controller.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class CustomCardSections extends StatelessWidget {
   final String section;
@@ -93,18 +93,20 @@ class CustomCardSections extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          "السعر: $price",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 13,
-                              tablet: 16,
-                            ),
-                            color: Colors.black87,
-                          ),
-                        ),
+                        (Get.find<HomeController>().isDeployed == 1)
+                            ? Text(
+                                "السعر: $price",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 13,
+                                    tablet: 16,
+                                  ),
+                                  color: Colors.black87,
+                                ),
+                              )
+                            : const SizedBox(),
                         const SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -182,7 +184,9 @@ class CustomCardSections extends StatelessWidget {
                               ),
                             );
                           }
-                          return CustomButtonBuy(onTap: onTapShop);
+                          return (Get.find<HomeController>().isDeployed == 1)
+                              ? CustomButtonBuy(onTap: onTapShop)
+                              : const SizedBox();
                         }),
                       ],
                     ),
@@ -222,7 +226,7 @@ class CustomListTileSectionWidget extends StatelessWidget {
 
   final GlobalKey? targetCartKey;
 
-   CustomListTileSectionWidget({
+  CustomListTileSectionWidget({
     super.key,
     required this.item,
     required this.isChecking,
@@ -274,18 +278,19 @@ class CustomListTileSectionWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  (homeController.isDeployed!=0)?
-                  Text(
-                    "السعر: $price",
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: getValueForScreenType<double>(
-                        context: context,
-                        mobile: 12,
-                        tablet: 14,
-                      ),
-                    ),
-                  ):SizedBox(),
+                  (homeController.isDeployed == 1)
+                      ? Text(
+                          "السعر: $price",
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: getValueForScreenType<double>(
+                              context: context,
+                              mobile: 12,
+                              tablet: 14,
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                   Text(
                     "عدد الفيديوهات: $countVideos",
                     style: TextStyle(
@@ -338,11 +343,13 @@ class CustomListTileSectionWidget extends StatelessWidget {
                   if (isInMySections) {
                     return const Icon(Icons.check_circle, color: Colors.green);
                   } else {
-                    return AnimatedCartIcon(
-                      color: AppColor.SecondryColor,
-                      onPressed: onTapShop,
-                      targetCartKey: targetCartKey,
-                    );
+                    return (homeController.isDeployed == 1)
+                        ? AnimatedCartIcon(
+                            color: AppColor.SecondryColor,
+                            onPressed: onTapShop,
+                            targetCartKey: targetCartKey,
+                          )
+                        : const SizedBox();
                   }
                 }),
           ),

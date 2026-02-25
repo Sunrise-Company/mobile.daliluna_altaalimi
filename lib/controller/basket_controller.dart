@@ -17,7 +17,6 @@ class BasketController extends GetxController {
   RxString classId = ''.obs;
   RxString subjectId = ''.obs;
   RxString maindepId = ''.obs;
-  //////////
   RxString instituteId = ''.obs;
 
   RxList mycart = [].obs;

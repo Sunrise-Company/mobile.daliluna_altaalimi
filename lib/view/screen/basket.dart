@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_iacademyv3utable
+﻿// ignore_for_file: must_be_iacademyv3utable
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -257,18 +257,22 @@ class Basket extends StatelessWidget {
                                           ),
                                         ),
                                         SizedBox(height: 4),
-                                        Text(
-                                          "${item['itemPrice']} ",
-                                          style: TextStyle(
-                                            color: AppColor.grey,
-                                            fontSize:
-                                                getValueForScreenType<double>(
-                                                  context: context,
-                                                  mobile: 14,
-                                                  tablet: 20,
+                                        (homeController.isDeployed == 1)
+                                            ? Text(
+                                                "${item['itemPrice']} ",
+                                                style: TextStyle(
+                                                  color: AppColor.grey,
+                                                  fontSize:
+                                                      getValueForScreenType<
+                                                        double
+                                                      >(
+                                                        context: context,
+                                                        mobile: 14,
+                                                        tablet: 20,
+                                                      ),
                                                 ),
-                                          ),
-                                        ),
+                                              )
+                                            : const SizedBox(),
                                       ],
                                     ),
                                     trailing: IconButton(
@@ -338,98 +342,104 @@ class Basket extends StatelessWidget {
                 //         ],
                 //
                 // )
-                (homeController.isDeployed!=0)? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(
-                        getValueForScreenType<double>(
-                          context: context,
-                          mobile: 10,
-                          tablet: 20,
-                        ),
-                      ),
-                      child: Obx(() {
-                        return Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 20,
-                              tablet: 40,
+                (homeController.isDeployed == 1)
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(
+                              getValueForScreenType<double>(
+                                context: context,
+                                mobile: 10,
+                                tablet: 20,
+                              ),
                             ),
-                            vertical: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 12,
-                              tablet: 18,
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColor.SecondryColor.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: AppColor.PrimaryColor,
-                              width: 2,
-                            ),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              if (baskerc.mycart.isEmpty) {
-                                Get.snackbar("تنبيه", "السلة فارغة");
-                                return;
-                              }
-                              // print(
-                              //   'fffffffffffff${baskerc.dataList['message']}',
-                              // );
-
-                              alertPaidMethod(
-                                baskerc.dataList['message'] ?? "",
-                              );
-                            },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.receipt_long,
-                                  color: AppColor.PrimaryColor,
-                                  size: getValueForScreenType<double>(
+                            child: Obx(() {
+                              return Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: getValueForScreenType<double>(
                                     context: context,
-                                    mobile: 22,
-                                    tablet: 35,
+                                    mobile: 20,
+                                    tablet: 40,
+                                  ),
+                                  vertical: getValueForScreenType<double>(
+                                    context: context,
+                                    mobile: 12,
+                                    tablet: 18,
                                   ),
                                 ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "المجموع: ",
-                                  style: TextStyle(
+                                decoration: BoxDecoration(
+                                  color: AppColor.SecondryColor.withOpacity(
+                                    0.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
                                     color: AppColor.PrimaryColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: getValueForScreenType<double>(
-                                      context: context,
-                                      mobile: 15,
-                                      tablet: 22,
-                                    ),
+                                    width: 2,
                                   ),
                                 ),
-                                Text(
-                                  "${baskerc.count.toString()} ",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: getValueForScreenType<double>(
-                                      context: context,
-                                      mobile: 16,
-                                      tablet: 24,
-                                    ),
+                                child: InkWell(
+                                  onTap: () {
+                                    if (baskerc.mycart.isEmpty) {
+                                      Get.snackbar("تنبيه", "السلة فارغة");
+                                      return;
+                                    }
+                                    // print(
+                                    //   'fffffffffffff${baskerc.dataList['message']}',
+                                    // );
+
+                                    alertPaidMethod(
+                                      baskerc.dataList['message'] ?? "",
+                                    );
+                                  },
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.receipt_long,
+                                        color: AppColor.PrimaryColor,
+                                        size: getValueForScreenType<double>(
+                                          context: context,
+                                          mobile: 22,
+                                          tablet: 35,
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        "المجموع: ",
+                                        style: TextStyle(
+                                          color: AppColor.PrimaryColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize:
+                                              getValueForScreenType<double>(
+                                                context: context,
+                                                mobile: 15,
+                                                tablet: 22,
+                                              ),
+                                        ),
+                                      ),
+                                      Text(
+                                        "${baskerc.count.toString()} ",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize:
+                                              getValueForScreenType<double>(
+                                                context: context,
+                                                mobile: 16,
+                                                tablet: 24,
+                                              ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              );
+                            }),
                           ),
-                        );
-                      }),
-                    ),
-                  ],
-                ):SizedBox(),
+                        ],
+                      )
+                    : SizedBox(),
               ],
             ),
           ],

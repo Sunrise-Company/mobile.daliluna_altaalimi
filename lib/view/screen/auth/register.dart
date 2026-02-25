@@ -1,17 +1,14 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:get/get.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/auth/register_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/function/choosedate.dart';
 import 'package:daliluna_altaalimi/view/widget/custombuttomauth.dart';
-import 'package:daliluna_altaalimi/view/widget/customdropdownbutton.dart';
 import 'package:daliluna_altaalimi/view/widget/customtextfromfield.dart';
 import 'package:daliluna_altaalimi/view/widget/customtextontap.dart';
 import 'package:daliluna_altaalimi/view/widget/loadingimage.dart';
-
 import '../../../core/constant/imageasset.dart';
 import '../../widget/citySelector.dart';
 import '../../widget/selectGender.dart';
@@ -150,72 +147,76 @@ class Register extends GetView<RegisterController> {
                               tablet: 60,
                             ),
                           ),
-                          CustomTextFromFields(
-                            validator: (val) {
-                              if (val!.isEmpty) {
-                                return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
-                              }
+                          if (controller.isDeployed == 1) ...[
+                            CustomTextFromFields(
+                              validator: (val) {
+                                if (val!.isEmpty) {
+                                  return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
+                                }
 
-                              if (val.length < 3) {
-                                return "لا يمكن أن يكون أقل من 3";
-                              }
+                                if (val.length < 3) {
+                                  return "لا يمكن أن يكون أقل من 3";
+                                }
 
-                              if (val.length > 50) {
-                                return "لا يمكن أن يكون أكبر من 50";
-                              }
-                              return null;
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r"^[\u0621-\u064A_ -]+"),
-                              ),
-                            ],
-                            readOnly: false,
-                            keyboardType: TextInputType.text,
-                            label: "اسم الأم",
-                            preIcon: Icons.person_2_rounded,
-                            controller: controller.mothersName,
-                          ),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
+                                if (val.length > 50) {
+                                  return "لا يمكن أن يكون أكبر من 50";
+                                }
+                                return null;
+                              },
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r"^[\u0621-\u064A_ -]+"),
+                                ),
+                              ],
+                              readOnly: false,
+                              keyboardType: TextInputType.text,
+                              label: "اسم الأم",
+                              preIcon: Icons.person_2_rounded,
+                              controller: controller.mothersName,
                             ),
-                          ),
-                          CustomTextFromFields(
-                            validator: (val) {
-                              if (val!.isEmpty) {
-                                return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
-                              }
-
-                              if (val.length < 3) {
-                                return "لا يمكن أن يكون أقل من 3";
-                              }
-
-                              if (val.length > 50) {
-                                return "لا يمكن أن يكون أكبر من 50";
-                              }
-                              return null;
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r"^[\u0621-\u064A_ -]+"),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
                               ),
-                            ],
-                            readOnly: false,
-                            keyboardType: TextInputType.text,
-                            label: "اسم الأب",
-                            preIcon: Icons.person,
-                            controller: controller.fathersName,
-                          ),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
                             ),
-                          ),
+                          ],
+                          if (controller.isDeployed == 1) ...[
+                            CustomTextFromFields(
+                              validator: (val) {
+                                if (val!.isEmpty) {
+                                  return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
+                                }
+
+                                if (val.length < 3) {
+                                  return "لا يمكن أن يكون أقل من 3";
+                                }
+
+                                if (val.length > 50) {
+                                  return "لا يمكن أن يكون أكبر من 50";
+                                }
+                                return null;
+                              },
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r"^[\u0621-\u064A_ -]+"),
+                                ),
+                              ],
+                              readOnly: false,
+                              keyboardType: TextInputType.text,
+                              label: "اسم الأب",
+                              preIcon: Icons.person,
+                              controller: controller.fathersName,
+                            ),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
+                              ),
+                            ),
+                          ],
                           // Container(
                           //   padding: EdgeInsets.only(
                           //     right: getValueForScreenType<double>(
@@ -304,14 +305,16 @@ class Register extends GetView<RegisterController> {
                           //     ],
                           //   ),
                           // ),
-                          GenderSelector(),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
+                          if (controller.isDeployed == 1) ...[
+                            GenderSelector(),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
+                              ),
                             ),
-                          ),
+                          ],
                           // Obx(
                           //       () => CustomDropDown(
                           //       value: controller
@@ -346,69 +349,73 @@ class Register extends GetView<RegisterController> {
                               tablet: 60,
                             ),
                           ),
-                          GetBuilder<RegisterController>(
-                            builder: (controller) => CustomTextFromFields(
-                              readOnly: true,
-                              showCursor: false,
-                              onTapFun: () async {
-                                await selectDate(
-                                  context,
-                                  controller.selectedDate,
-                                  controller.birthday,
-                                );
-                              },
-                              keyboardType: TextInputType.text,
-                              label: "تاريخ الميلاد",
-                              preIcon: Icons.date_range_rounded,
-                              controller: controller.birthday,
+                          if (controller.isDeployed == 1) ...[
+                            GetBuilder<RegisterController>(
+                              builder: (controller) => CustomTextFromFields(
+                                readOnly: true,
+                                showCursor: false,
+                                onTapFun: () async {
+                                  await selectDate(
+                                    context,
+                                    controller.selectedDate,
+                                    controller.birthday,
+                                  );
+                                },
+                                keyboardType: TextInputType.text,
+                                label: "تاريخ الميلاد",
+                                preIcon: Icons.date_range_rounded,
+                                controller: controller.birthday,
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
+                              ),
+                            ),
+                          ],
+                          if (controller.isDeployed == 1) ...[
+                            CustomTextFromFields(
                               validator: (val) {
-                                if (val == null || val.isEmpty) {
+                                if (val!.isEmpty) {
                                   return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
+                                }
+
+                                if (val.length < 5) {
+                                  return "لا يمكن أن يكون أقل من 5";
+                                }
+
+                                if (val.length > 50) {
+                                  return "لا يمكن أن يكون أكبر من 50";
                                 }
                                 return null;
                               },
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r"^[\u0621-\u064A_ -]+"),
+                                ),
+                              ],
+                              readOnly: false,
+                              keyboardType: TextInputType.text,
+                              label: "العنوان",
+                              preIcon: Icons.location_city_rounded,
+                              controller: controller.address,
                             ),
-                          ),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
-                            ),
-                          ),
-                          CustomTextFromFields(
-                            validator: (val) {
-                              if (val!.isEmpty) {
-                                return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
-                              }
-
-                              if (val.length < 5) {
-                                return "لا يمكن أن يكون أقل من 5";
-                              }
-
-                              if (val.length > 50) {
-                                return "لا يمكن أن يكون أكبر من 50";
-                              }
-                              return null;
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r"^[\u0621-\u064A_ -]+"),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
                               ),
-                            ],
-                            readOnly: false,
-                            keyboardType: TextInputType.text,
-                            label: "العنوان",
-                            preIcon: Icons.location_city_rounded,
-                            controller: controller.address,
-                          ),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
                             ),
-                          ),
+                          ],
                           GetBuilder<RegisterController>(
                             builder: (controller) => CustomTextFromFields(
                               inputFormatters: [
@@ -485,39 +492,41 @@ class Register extends GetView<RegisterController> {
                               tablet: 60,
                             ),
                           ),
-                          CustomTextFromFields(
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\+?\d{0,12}'),
-                              ),
-                            ],
-                            readOnly: false,
-                            keyboardType: TextInputType.phone,
-                            label: "رقم الهاتف",
-                            validator: (val) {
-                              if (val!.isEmpty) {
-                                return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ ";
-                              }
+                          if (controller.isDeployed == 1) ...[
+                            CustomTextFromFields(
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\+?\d{0,12}'),
+                                ),
+                              ],
+                              readOnly: false,
+                              keyboardType: TextInputType.phone,
+                              label: "رقم الهاتف",
+                              validator: (val) {
+                                if (val!.isEmpty) {
+                                  return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ ";
+                                }
 
-                              if (val.length < 10) {
-                                return "لا يمكن أن يكون أقل من 10";
-                              }
+                                if (val.length < 10) {
+                                  return "لا يمكن أن يكون أقل من 10";
+                                }
 
-                              if (val.length > 30) {
-                                return "لا يمكن أن يكون أكبر من 30";
-                              }
-                              return null;
-                            },
-                            preIcon: Icons.phone_android_rounded,
-                            controller: controller.phone,
-                          ),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
+                                if (val.length > 30) {
+                                  return "لا يمكن أن يكون أكبر من 30";
+                                }
+                                return null;
+                              },
+                              preIcon: Icons.phone_android_rounded,
+                              controller: controller.phone,
                             ),
-                          ),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
+                              ),
+                            ),
+                          ],
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -597,7 +606,8 @@ class Register extends GetView<RegisterController> {
                                             ),
                                           ),
                                         );
-                                      } else if (controller.gender == null) {
+                                      } else if (controller.isDeployed == 1 &&
+                                          controller.gender == null) {
                                         Get.defaultDialog(
                                           backgroundColor: AppColor.BackGround2,
                                           title: 'تنبيه',

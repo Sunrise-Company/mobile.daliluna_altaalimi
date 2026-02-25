@@ -53,7 +53,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               title: Image.asset(
-                AppImageAsset.logo,
+                AppImageAsset.newLogo,
                 width: getValueForScreenType<double>(
                   context: context,
                   mobile: 220,

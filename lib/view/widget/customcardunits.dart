@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:get/get.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class CustomCardUnits extends StatelessWidget {
   final Function() onTap;
@@ -37,7 +39,7 @@ class CustomCardUnits extends StatelessWidget {
             colorChangeAnimationCurve: Curves.easeInCubic,
           ),
           position: badges.BadgePosition.topEnd(top: -30, end: 10),
-          showBadge: true,
+          showBadge: (Get.find<HomeController>().isDeployed == 1),
           ignorePointer: false,
           badgeStyle: const badges.BadgeStyle(
             badgeColor: AppColor.PrimaryColor,

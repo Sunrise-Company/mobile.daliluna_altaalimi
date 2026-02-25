@@ -1,9 +1,10 @@
-import 'package:daliluna_altaalimi/controller/lesson_controller.dart';
+﻿import 'package:daliluna_altaalimi/controller/lesson_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class CustomCardLesson extends StatelessWidget {
   final String lesson;
@@ -118,17 +119,19 @@ class CustomCardLesson extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            price,
-                            style: TextStyle(
-                              color: AppColor.grey,
-                              fontSize: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 13,
-                                tablet: 17,
-                              ),
-                            ),
-                          ),
+                          (Get.find<HomeController>().isDeployed == 1)
+                              ? Text(
+                                  price,
+                                  style: TextStyle(
+                                    color: AppColor.grey,
+                                    fontSize: getValueForScreenType<double>(
+                                      context: context,
+                                      mobile: 13,
+                                      tablet: 17,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox(),
                           Obx(() {
                             final isInMySections = controller.mylectures.any((
                               section,
@@ -193,7 +196,9 @@ class CustomCardLesson extends StatelessWidget {
                               );
                             }
 
-                            return CustomButtonBuy(onTap: onTapShop);
+                            return (Get.find<HomeController>().isDeployed == 1)
+                                ? CustomButtonBuy(onTap: onTapShop)
+                                : const SizedBox();
                           }),
                         ],
                       ),

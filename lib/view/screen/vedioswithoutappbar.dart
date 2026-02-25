@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:daliluna_altaalimi/constant.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
@@ -25,7 +25,6 @@ class VediosWithoutAppBar extends StatelessWidget {
   final homeController = Get.put(HomeController());
   @override
   Widget build(BuildContext context) {
-
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -77,7 +76,10 @@ class VediosWithoutAppBar extends StatelessWidget {
       itemCount: videos.length,
       itemBuilder: (BuildContext context, index) {
         final video = Map<String, dynamic>.from(videos[index]);
-        final bool isLocked = !isPurchased && video['free_status'] != '1'&& homeController.isDeployed!=0;
+        final bool isLocked =
+            !isPurchased &&
+            video['free_status'] != '1' &&
+            homeController.isDeployed == 1;
 
         final bool isYoutubeVideo =
             video['link'] != null &&
@@ -296,7 +298,7 @@ class VediosWithoutAppBar extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (isLocked&& homeController.isDeployed!=0)
+                        if (isLocked && homeController.isDeployed == 1)
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.black.withOpacity(0.4),
@@ -352,24 +354,29 @@ class VediosWithoutAppBar extends StatelessWidget {
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(6.0),
-                                      child:(homeController.isDeployed!=0) ?Text(
-                                        video['free_status'].toString() == '1'
-                                            ? "مجاني"
-                                            : "مدفوع",
-                                        style: TextStyle(
-                                          fontSize:
-                                              getValueForScreenType<double>(
-                                                context: context,
-                                                mobile: 10,
-                                                tablet: 12,
+                                      child: (homeController.isDeployed == 1)
+                                          ? Text(
+                                              video['free_status'].toString() ==
+                                                      '1'
+                                                  ? "مجاني"
+                                                  : "مدفوع",
+                                              style: TextStyle(
+                                                fontSize:
+                                                    getValueForScreenType<
+                                                      double
+                                                    >(
+                                                      context: context,
+                                                      mobile: 10,
+                                                      tablet: 12,
+                                                    ),
+                                                color: AppColor.PrimaryColor,
+                                                fontWeight: FontWeight.bold,
+                                                height: 1.3,
                                               ),
-                                          color: AppColor.PrimaryColor,
-                                          fontWeight: FontWeight.bold,
-                                          height: 1.3,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ):SizedBox(),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            )
+                                          : SizedBox(),
                                     ),
                                   )
                                 : SizedBox(),

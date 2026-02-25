@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
+import 'package:get/get.dart';
+import 'package:daliluna_altaalimi/controller/home_controller.dart';
 
 class CustomCardmySectionSelected extends StatelessWidget {
   final Function() onTap;
@@ -87,17 +89,19 @@ class CustomCardmySectionSelected extends StatelessWidget {
               ),
               Container(
                 // padding: EdgeInsets.only(bottom: 10),
-                child: Text(
-                  price,
-                  style: TextStyle(
-                    color: AppColor.grey,
-                    fontSize: getValueForScreenType<double>(
-                      context: context,
-                      mobile: 13,
-                      tablet: 15,
-                    ),
-                  ),
-                ),
+                child: (Get.find<HomeController>().isDeployed == 1)
+                    ? Text(
+                        price,
+                        style: TextStyle(
+                          color: AppColor.grey,
+                          fontSize: getValueForScreenType<double>(
+                            context: context,
+                            mobile: 13,
+                            tablet: 15,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
               ),
               Directionality(
                 textDirection: TextDirection.ltr,

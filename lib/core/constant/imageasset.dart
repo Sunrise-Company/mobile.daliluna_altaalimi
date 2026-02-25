@@ -1,7 +1,7 @@
 class AppImageAsset {
   static const String rootImages = "assets/images";
   static const String rootLottie = "assets/lottie";
-  static const String logo = "$rootImages/logo.webp";
+  static const String logo = "$rootImages/newlogo.jfif";
   // my edit
   static const String newLogo = "$rootImages/newlogo.jfif";
   static const String newLogoWithoutBackground =

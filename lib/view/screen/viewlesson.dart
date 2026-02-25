@@ -1,4 +1,4 @@
-import 'package:daliluna_altaalimi/view/widget/loading.dart';
+﻿import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 // import 'package:gradients/gradients.dart';
@@ -108,29 +108,33 @@ class ViewLesson extends StatelessWidget {
                           color: AppColor.PrimaryColor.withOpacity(0.2),
                         ),
                       ),
-                      child:(homeController.isDeployed!=0)? Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "✨ معاينة الفيديوهات المجانية",
-                            style: TextStyle(
-                              color: AppColor.PrimaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "للوصول إلى جميع فيديوهات وملفات هذا القسم، قم بالاشتراك.",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: AppColor.PrimaryColor.withOpacity(0.9),
-                              fontSize: 13,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ):SizedBox(),
+                      child: (homeController.isDeployed == 1)
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "✨ معاينة الفيديوهات المجانية",
+                                  style: TextStyle(
+                                    color: AppColor.PrimaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  "للوصول إلى جميع فيديوهات وملفات هذا القسم، قم بالاشتراك.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: AppColor.PrimaryColor.withOpacity(
+                                      0.9,
+                                    ),
+                                    fontSize: 13,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : SizedBox(),
                     ),
                   ),
                   Expanded(

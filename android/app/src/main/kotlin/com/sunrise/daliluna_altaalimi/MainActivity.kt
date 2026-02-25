@@ -36,8 +36,8 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // لا نزال نستخدم FLAG_SECURE كطبقة حماية أولى (لمنع لقطات الشاشة)
-       window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        // Initial state: Screens are allowed by default for "Review Mode"
+        // Dart will call setSecure(true) if isDeployed != 0
 
         // تهيئة DisplayManager
         displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
@@ -123,6 +123,24 @@ class MainActivity : FlutterActivity() {
                 }
             } else {
                 result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.sunrise.daliluna/security"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "setSecure" -> {
+                    val enabled = call.arguments as Boolean
+                    if (enabled) {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    } else {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
+                    result.success(null)
+                }
+                else -> result.notImplemented()
             }
         }
     }

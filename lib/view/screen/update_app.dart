@@ -1,4 +1,3 @@
-import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:responsive_builder/responsive_builder.dart';

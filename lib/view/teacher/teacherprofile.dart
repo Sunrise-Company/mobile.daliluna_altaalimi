@@ -1,4 +1,5 @@
 import 'package:daliluna_altaalimi/controller/teacherController/teacherProfile.dart';
+import '../../core/constant/imageasset.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -50,13 +51,13 @@ class TeacherProfileWidget extends StatelessWidget {
           ),
         ),
         body: Obx(() {
-          if (teacherController.isLoading.value) return const Center(child: Loading());
+          if (teacherController.isLoading.value)
+            return const Center(child: Loading());
 
           final image = teacherController.image.value;
           final name = teacherController.arabicName.value;
           final description = "${teacherController.description.value}";
           final education = teacherController.education.value;
-
 
           return ResponsiveBuilder(
             builder: (context, sizingInformation) {
@@ -76,11 +77,9 @@ class TeacherProfileWidget extends StatelessWidget {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: NetworkImage(
-                            image.isNotEmpty
-                                ? AppLink.image + "/" + image
-                                : 'https://placehold.co/600x400',
-                          ),
+                          image: image.isNotEmpty
+                              ? NetworkImage(AppLink.image + "/" + image)
+                              : AssetImage(AppImageAsset.logo) as ImageProvider,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -186,7 +185,8 @@ class TeacherProfileWidget extends StatelessWidget {
                           const SizedBox(height: 25),
 
                           Obx(() {
-                            if (teacherController.institutes.isEmpty) return SizedBox();
+                            if (teacherController.institutes.isEmpty)
+                              return SizedBox();
 
                             return Column(
                               children: [
@@ -198,11 +198,14 @@ class TeacherProfileWidget extends StatelessWidget {
                                 Wrap(
                                   spacing: 8,
                                   runSpacing: 8,
-                                  children: teacherController.institutes.map((inst) {
+                                  children: teacherController.institutes.map((
+                                    inst,
+                                  ) {
                                     String name = "";
                                     if (inst is String) {
                                       name = inst;
-                                    } else if (inst is Map && inst['name'] != null) {
+                                    } else if (inst is Map &&
+                                        inst['name'] != null) {
                                       name = inst['name'];
                                     }
 
@@ -214,7 +217,8 @@ class TeacherProfileWidget extends StatelessWidget {
                             );
                           }),
                           Obx(() {
-                            if (teacherController.classes.isEmpty) return SizedBox();
+                            if (teacherController.classes.isEmpty)
+                              return SizedBox();
 
                             return Column(
                               children: [
@@ -226,11 +230,14 @@ class TeacherProfileWidget extends StatelessWidget {
                                 Wrap(
                                   spacing: 8,
                                   runSpacing: 8,
-                                  children: teacherController.classes.map((cls) {
+                                  children: teacherController.classes.map((
+                                    cls,
+                                  ) {
                                     String name = "";
                                     if (cls is String) {
                                       name = cls;
-                                    } else if (cls is Map && cls['name'] != null) {
+                                    } else if (cls is Map &&
+                                        cls['name'] != null) {
                                       name = cls['name'];
                                     }
 

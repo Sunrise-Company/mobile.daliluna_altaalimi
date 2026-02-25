@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:async';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_observer.dart';
@@ -18,6 +18,8 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:daliluna_altaalimi/download_service.dart';
 import 'package:daliluna_altaalimi/background_download_service.dart';
 import 'package:daliluna_altaalimi/core/services/upload_service.dart';
+import 'package:daliluna_altaalimi/core/services/apiservices.dart';
+import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,32 +64,60 @@ void main() async {
     );
     return;
   }
-  // ═══════════════════════════════════════════════════════════════
+  // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 
-  // 1. Check Emulator (Blocking) - The ONLY error screen we want
+  // 0. Fetch is_deployed status to determine "Review Mode"
+  int isDeployed = 0;
   try {
-    String? emulatorReason = await checkIfEmulator().timeout(
+    isDeployed = await ApiService.fetchIsDeployed().timeout(
       const Duration(seconds: 5),
-      onTimeout: () => null,
     );
+  } catch (e) {
+    debugPrint("Failed to fetch isDeployed in main: $e");
+    isDeployed = 0; // Default to Review Mode if offline/error
+  }
 
-    if (emulatorReason != null) {
-      String deviceInfo = await _getDeviceInfoString();
-
-      // Translate the reason to Arabic for better user understanding
-      String arabicReason = _translateEmulatorReason(emulatorReason);
-
-      _showErrorScreen(
-        "تم اكتشاف محاكي",
-        arabicReason,
-        details: deviceInfo,
-        isWarning: true,
-      );
-      return;
+  // Handle Screenshot Protection (FLAG_SECURE) based on is_deployed
+  try {
+    if (Platform.isAndroid) {
+      // Use our custom native channel for MainActivity protection
+      const securityChannel = MethodChannel('com.sunrise.daliluna/security');
+      await securityChannel.invokeMethod('setSecure', isDeployed == 1);
     }
   } catch (e) {
-    // Ignore emulator check internal errors
-    debugPrint("Emulator check error: $e");
+    debugPrint("Security protection error: $e");
+  }
+
+  // 1. Check Emulator (Blocking) - Only in Real Mode
+  if (isDeployed == 1) {
+    try {
+      String? emulatorReason = await checkIfEmulator().timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => null,
+      );
+
+      if (emulatorReason != null) {
+        String deviceInfo = await _getDeviceInfoString();
+
+        // Translate the reason to Arabic for better user understanding
+        String arabicReason = _translateEmulatorReason(emulatorReason);
+
+        _showErrorScreen(
+          "تم اكتشاف محاكي",
+          arabicReason,
+          details: deviceInfo,
+          isWarning: true,
+        );
+        return;
+      }
+    } catch (e) {
+      // Ignore emulator check internal errors
+      debugPrint("Emulator check error: $e");
+    }
+  } else {
+    debugPrint(
+      "App is in Review Mode (isDeployed=0). Skipping emulator check.",
+    );
   }
 
   // 2. Initialize Notifications (Non-blocking)
@@ -658,7 +688,9 @@ Future<String?> checkIfEmulator() async {
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       if (!iosInfo.isPhysicalDevice) {
-        return "iOS Simulator detected (isPhysicalDevice: false = STRONG EVIDENCE)";
+        // Log simulator detection but do not block, as Apple reviewers often use simulators
+        debugPrint("iOS Simulator detected (isPhysicalDevice: false)");
+        return null;
       }
     }
   } catch (e) {

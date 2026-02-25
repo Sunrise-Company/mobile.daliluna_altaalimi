@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_iacademyv3utable
+﻿// ignore_for_file: must_be_iacademyv3utable
 import 'package:daliluna_altaalimi/view/widget/breadcrumb_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -309,31 +309,37 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   color: AppColor.PrimaryColor,
                                                 ),
                                               ),
-                                              subtitle:(homeController.isDeployed!=0)? Padding(
-                                                padding: const EdgeInsets.only(
-                                                  top: 5.0,
-                                                ),
-                                                child: Text(
-                                                  "السعر: $price ",
-                                                  style: TextStyle(
-                                                    color: AppColor.grey,
-                                                    fontSize:
-                                                        getValueForScreenType<
-                                                          double
-                                                        >(
-                                                          context: context,
-                                                          mobile: 13,
-                                                          tablet: 18,
+                                              subtitle:
+                                                  (homeController.isDeployed ==
+                                                      1)
+                                                  ? Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            top: 5.0,
+                                                          ),
+                                                      child: Text(
+                                                        "السعر: $price ",
+                                                        style: TextStyle(
+                                                          color: AppColor.grey,
+                                                          fontSize:
+                                                              getValueForScreenType<
+                                                                double
+                                                              >(
+                                                                context:
+                                                                    context,
+                                                                mobile: 13,
+                                                                tablet: 18,
+                                                              ),
                                                         ),
-                                                  ),
-                                                ),
-                                              ):SizedBox(),
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
                                               trailing: Obx(() {
                                                 final currentUnitId = item['id']
                                                     ?.toString();
 
                                                 // نتحقق من أن الوحدة موجودة في myunits
-                                                // نفترض أن myunits تحتوي فقط على الوحدات المشتراة ككل
+                                                // نفترض أن myunits تحتوي فقط على الوحدات المشترآة ككل
                                                 final isUnitPurchased =
                                                     controller.myunits.any((
                                                       unit,
@@ -379,36 +385,48 @@ class UnitsSubject extends GetView<UnitsSubjectController> {
                                                   );
                                                 }
 
-                                                return (homeController.isDeployed!=0)? CustomButtonBuy(
-                                                  onTap: () async {
-                                                    return await baskerc
-                                                        .updateBasket(
-                                                          item['id'].toString(),
-                                                          'unit',
-                                                          item['name'],
-                                                          item['price'],
-                                                          baskerc.teacherName
-                                                              .toString(),
-                                                          baskerc.className
-                                                              .toString(),
-                                                          baskerc.subjectName
-                                                              .toString(),
-                                                          baskerc.teacherId
-                                                              .toString(),
-                                                          baskerc.classId
-                                                              .toString(),
-                                                          baskerc.subjectId
-                                                              .toString(),
-                                                          baskerc.maindepId
-                                                              .toString(),
-                                                          baskerc.instituteId
-                                                              .toString(),
-                                                        );
-                                                  },
-                                                  targetCartKey:
-                                                      CartAnimationKeys
-                                                          .unitsSubject,
-                                                ):SizedBox();
+                                                return (homeController
+                                                            .isDeployed ==
+                                                        1)
+                                                    ? CustomButtonBuy(
+                                                        onTap: () async {
+                                                          return await baskerc
+                                                              .updateBasket(
+                                                                item['id']
+                                                                    .toString(),
+                                                                'unit',
+                                                                item['name'],
+                                                                item['price'],
+                                                                baskerc
+                                                                    .teacherName
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .className
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .subjectName
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .teacherId
+                                                                    .toString(),
+                                                                baskerc.classId
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .subjectId
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .maindepId
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .instituteId
+                                                                    .toString(),
+                                                              );
+                                                        },
+                                                        targetCartKey:
+                                                            CartAnimationKeys
+                                                                .unitsSubject,
+                                                      )
+                                                    : SizedBox();
                                               }),
                                             ),
                                           ),

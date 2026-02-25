@@ -15,6 +15,7 @@ class RegisterController extends GetxController {
   late TextEditingController confirmPassword;
   late TextEditingController phone;
   late TextEditingController birthday;
+  int? isDeployed;
 
   String? id;
   getDeviceDetails() async {
@@ -36,6 +37,16 @@ class RegisterController extends GetxController {
   void onClickRadioButton(value) {
     gender = value;
     update();
+  }
+
+  Future<void> fetchIsDeployed() async {
+    try {
+      isDeployed = await ApiService.fetchIsDeployed();
+      update();
+    } catch (e) {
+      isDeployed = 0; // Default to safe mode on error (Review Mode)
+      update();
+    }
   }
 
   var countryselectedValue = ''.obs;
@@ -69,15 +80,15 @@ class RegisterController extends GetxController {
     data = {
       "arabic_name": usernameAr.text,
       "english_name": usernameEn.text,
-      "father_name": fathersName.text,
-      "mother_name": mothersName.text,
-      "gender": gender.toString(),
+      "father_name": fathersName.text.isEmpty ? "N/A" : fathersName.text,
+      "mother_name": mothersName.text.isEmpty ? "N/A" : mothersName.text,
+      "gender": gender?.toString() ?? "N/A",
       "country": countryselectedValue.toString(),
-      "birth_date": birthday.text,
-      "address": address.text,
+      "birth_date": birthday.text.isEmpty ? "2000-01-01" : birthday.text,
+      "address": address.text.isEmpty ? "N/A" : address.text,
       "password": password.text,
       "confirm_password": confirmPassword.text,
-      "phone": phone.text,
+      "phone": phone.text.isEmpty ? "0000000000" : phone.text,
       "device_id": id.toString(),
     };
   }
@@ -111,6 +122,7 @@ class RegisterController extends GetxController {
   Map<String, dynamic> appPolicy = {
     'app_policy': {'id': '', 'app_policy': ''},
   };
+
   void fetchAppPolicy() async {
     try {
       appPolicy = await ApiService.fetchAppPolicy();
@@ -122,6 +134,7 @@ class RegisterController extends GetxController {
   @override
   void onInit() {
     fetchAppPolicy();
+    fetchIsDeployed();
     usernameAr = TextEditingController();
     usernameEn = TextEditingController();
     mothersName = TextEditingController();

@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+﻿// ignore_for_file: must_be_immutable
 
 import 'dart:developer';
 import 'package:daliluna_altaalimi/view/widget/custombuttonbuy.dart';
@@ -20,7 +20,6 @@ import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 
 class Lessons extends GetView<LessonsController> {
-
   Lessons({super.key});
   late BasketController baskerc;
   final homeController = Get.put(HomeController());
@@ -80,7 +79,7 @@ class Lessons extends GetView<LessonsController> {
         //       ),
         //     ],
         //     title: Text(
-        //       "الدروس",
+        //       "ط§ظ„ط¯ط±ظˆط³",
         //       style: TextStyle(
         //         color: AppColor.White,
         //         fontSize: getValueForScreenType<double>(
@@ -327,35 +326,64 @@ class Lessons extends GetView<LessonsController> {
                                                     child: Wrap(
                                                       spacing: 8,
                                                       runSpacing: 8,
-                                                      crossAxisAlignment: WrapCrossAlignment.center,
+                                                      crossAxisAlignment:
+                                                          WrapCrossAlignment
+                                                              .center,
                                                       children: [
                                                         // Files Count Badge
                                                         Container(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 4,
+                                                              ),
                                                           decoration: BoxDecoration(
-                                                            color: Colors.grey[100],
-                                                            borderRadius: BorderRadius.circular(8),
-                                                            border: Border.all(color: Colors.grey[300]!, width: 0.5),
+                                                            color: Colors
+                                                                .grey[100],
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                            border: Border.all(
+                                                              color: Colors
+                                                                  .grey[300]!,
+                                                              width: 0.5,
+                                                            ),
                                                           ),
                                                           child: Row(
-                                                            mainAxisSize: MainAxisSize.min,
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
                                                             children: [
                                                               Icon(
-                                                                Icons.file_copy_outlined,
+                                                                Icons
+                                                                    .file_copy_outlined,
                                                                 size: 14,
-                                                                color: Colors.grey[600],
+                                                                color: Colors
+                                                                    .grey[600],
                                                               ),
-                                                              const SizedBox(width: 5),
+                                                              const SizedBox(
+                                                                width: 5,
+                                                              ),
                                                               Text(
-                                                                "${controller.dataList[index]['app_lesson_lecture_files_count']} ملفات",
+                                                                "${controller.dataList[index]['app_lesson_lecture_files_count']} ظ…ظ„ظپط§طھ",
                                                                 style: TextStyle(
-                                                                  fontSize: getValueForScreenType<double>(
-                                                                    context: context,
-                                                                    mobile: 11,
-                                                                    tablet: 14,
-                                                                  ),
-                                                                  fontWeight: FontWeight.w500,
-                                                                  color: Colors.grey[800],
+                                                                  fontSize:
+                                                                      getValueForScreenType<
+                                                                        double
+                                                                      >(
+                                                                        context:
+                                                                            context,
+                                                                        mobile:
+                                                                            11,
+                                                                        tablet:
+                                                                            14,
+                                                                      ),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  color: Colors
+                                                                      .grey[800],
                                                                 ),
                                                               ),
                                                             ],
@@ -363,48 +391,89 @@ class Lessons extends GetView<LessonsController> {
                                                         ),
                                                         // Price Badge
                                                         Container(
-                                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 4,
+                                                              ),
                                                           decoration: BoxDecoration(
-                                                            color: AppColor.SecondryColor.withOpacity(0.12),
-                                                            borderRadius: BorderRadius.circular(8),
-                                                            border: Border.all(color: AppColor.SecondryColor.withOpacity(0.3), width: 0.5),
+                                                            color:
+                                                                AppColor
+                                                                    .SecondryColor.withOpacity(
+                                                                  0.12,
+                                                                ),
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  8,
+                                                                ),
+                                                            border: Border.all(
+                                                              color:
+                                                                  AppColor
+                                                                      .SecondryColor.withOpacity(
+                                                                    0.3,
+                                                                  ),
+                                                              width: 0.5,
+                                                            ),
                                                           ),
-                                                          child:(homeController.isDeployed!=0)? Row(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.payments_outlined,
-                                                                size: 14,
-                                                                color: AppColor.PrimaryColor,
-                                                              ),
-                                                              const SizedBox(width: 5),
-                                                              Text(
-                                                                "${controller.dataList[index]['price'] ?? '0'}",
-                                                                style: TextStyle(
-                                                                  fontSize: getValueForScreenType<double>(
-                                                                    context: context,
-                                                                    mobile: 12,
-                                                                    tablet: 15,
-                                                                  ),
-                                                                  color: AppColor.PrimaryColor,
-                                                                  fontWeight: FontWeight.bold,
-                                                                ),
-                                                              ),
-                                                              const SizedBox(width: 3),
-                                                              Text(
-                                                                "ل.س",
-                                                                style: TextStyle(
-                                                                  fontSize: getValueForScreenType<double>(
-                                                                    context: context,
-                                                                    mobile: 10,
-                                                                    tablet: 12,
-                                                                  ),
-                                                                  fontWeight: FontWeight.w500,
-                                                                  color: AppColor.PrimaryColor,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ):SizedBox(),
+                                                          child:
+                                                              (homeController
+                                                                      .isDeployed ==
+                                                                  1)
+                                                              ? Row(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .payments_outlined,
+                                                                      size: 14,
+                                                                      color: AppColor
+                                                                          .PrimaryColor,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 5,
+                                                                    ),
+                                                                    Text(
+                                                                      "${controller.dataList[index]['price'] ?? '0'}",
+                                                                      style: TextStyle(
+                                                                        fontSize:
+                                                                            getValueForScreenType<
+                                                                              double
+                                                                            >(
+                                                                              context: context,
+                                                                              mobile: 12,
+                                                                              tablet: 15,
+                                                                            ),
+                                                                        color: AppColor
+                                                                            .PrimaryColor,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 3,
+                                                                    ),
+                                                                    Text(
+                                                                      "ل.س",
+                                                                      style: TextStyle(
+                                                                        fontSize:
+                                                                            getValueForScreenType<
+                                                                              double
+                                                                            >(
+                                                                              context: context,
+                                                                              mobile: 10,
+                                                                              tablet: 12,
+                                                                            ),
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                        color: AppColor
+                                                                            .PrimaryColor,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                )
+                                                              : SizedBox(),
                                                         ),
                                                       ],
                                                     ),
@@ -505,46 +574,57 @@ class Lessons extends GetView<LessonsController> {
                                                       );
                                                     }
 
-                                                    return(homeController.isDeployed!=0)? CustomButtonBuy(
-                                                      onTap: () async {
-                                                        var res = await baskerc.updateBasket(
-                                                          controller
-                                                              .dataList[index]['id']
-                                                              .toString(),
-                                                          'lesson',
-                                                          controller
-                                                              .dataList[index]['name'],
-                                                          controller
-                                                              .dataList[index]['price'],
-                                                          baskerc.teacherName
-                                                              .toString(),
-                                                          baskerc.className
-                                                              .toString(),
-                                                          baskerc.subjectName
-                                                              .toString(),
-                                                          baskerc.teacherId
-                                                              .toString(),
-                                                          baskerc.classId
-                                                              .toString(),
-                                                          baskerc.subjectId
-                                                              .toString(),
-                                                          baskerc.maindepId
-                                                              .toString(),
-                                                          baskerc.instituteId
-                                                              .toString(),
-                                                          controller
-                                                              .dataList[index]['app_unit_id']
-                                                              .toString(),
-                                                        );
-                                                        print(
-                                                          'lesson add success',
-                                                        );
-                                                        return res;
-                                                      },
-                                                      targetCartKey:
-                                                          CartAnimationKeys
-                                                              .lessons,
-                                                    ):SizedBox();
+                                                    return (homeController
+                                                                .isDeployed ==
+                                                            1)
+                                                        ? CustomButtonBuy(
+                                                            onTap: () async {
+                                                              var res = await baskerc.updateBasket(
+                                                                controller
+                                                                    .dataList[index]['id']
+                                                                    .toString(),
+                                                                'lesson',
+                                                                controller
+                                                                    .dataList[index]['name'],
+                                                                controller
+                                                                    .dataList[index]['price'],
+                                                                baskerc
+                                                                    .teacherName
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .className
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .subjectName
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .teacherId
+                                                                    .toString(),
+                                                                baskerc.classId
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .subjectId
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .maindepId
+                                                                    .toString(),
+                                                                baskerc
+                                                                    .instituteId
+                                                                    .toString(),
+                                                                controller
+                                                                    .dataList[index]['app_unit_id']
+                                                                    .toString(),
+                                                              );
+                                                              print(
+                                                                'lesson add success',
+                                                              );
+                                                              return res;
+                                                            },
+                                                            targetCartKey:
+                                                                CartAnimationKeys
+                                                                    .lessons,
+                                                          )
+                                                        : SizedBox();
                                                   }),
 
                                                   onTap: () {
@@ -569,7 +649,7 @@ class Lessons extends GetView<LessonsController> {
                                 ),
                               ),
                             )
-                          : const Center(child: Text("لا يوجد"))
+                          : const Center(child: Text("ظ„ط§ ظٹظˆط¬ط¯"))
                     : Loading(),
               ),
             ),
@@ -578,13 +658,13 @@ class Lessons extends GetView<LessonsController> {
         floatingActionButton: SizedBox(
           width: getValueForScreenType<double>(
             context: context,
-            mobile: 56, // العرض على الموبايل
-            tablet: 80, // العرض على التابلت
+            mobile: 56, // ط§ظ„ط¹ط±ط¶ ط¹ظ„ظ‰ ط§ظ„ظ…ظˆط¨ط§ظٹظ„
+            tablet: 80, // ط§ظ„ط¹ط±ط¶ ط¹ظ„ظ‰ ط§ظ„طھط§ط¨ظ„طھ
           ),
           height: getValueForScreenType<double>(
             context: context,
-            mobile: 56, // الارتفاع على الموبايل
-            tablet: 80, // الارتفاع على التابلت
+            mobile: 56, // ط§ظ„ط§ط±طھظپط§ط¹ ط¹ظ„ظ‰ ط§ظ„ظ…ظˆط¨ط§ظٹظ„
+            tablet: 80, // ط§ظ„ط§ط±طھظپط§ط¹ ط¹ظ„ظ‰ ط§ظ„طھط§ط¨ظ„طھ
           ),
           child: BasketWidget(
             heroTag: "three",

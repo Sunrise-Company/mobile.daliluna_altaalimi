@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_iacademyv3utable
+﻿// ignore_for_file: must_be_iacademyv3utable
 
 import 'package:daliluna_altaalimi/view/widget/customDrawer.dart';
 import 'package:daliluna_altaalimi/view/widget/customcardhome.dart';
@@ -761,96 +761,42 @@ class Home extends GetView<HomeController> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
-                            vertical: 40,
+                            vertical: 20,
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
+                              if (homeController.isDeployed == 1) ...[
+                                Icon(
                                   Icons.wifi_off_rounded,
-                                  size: getValueForScreenType<double>(
-                                    context: context,
-                                    mobile: 40,
-                                    tablet: 60,
+                                  size: 40,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "عذراً، حدث خطأ ما",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: AppColor.PrimaryColor,
                                   ),
-                                  color: Colors.red.shade400,
                                 ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "عذراً، حدث خطأ ما",
-                                style: TextStyle(
-                                  fontSize: getValueForScreenType<double>(
-                                    context: context,
-                                    mobile: 18,
-                                    tablet: 24,
-                                  ),
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColor.PrimaryColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                homeController.citiesError!,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: getValueForScreenType<double>(
-                                    context: context,
-                                    mobile: 14,
-                                    tablet: 18,
-                                  ),
-                                  color: Colors.grey[600],
-                                  height: 1.5,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              SizedBox(
-                                width: getValueForScreenType<double>(
-                                  context: context,
-                                  mobile: 200,
-                                  tablet: 300,
-                                ),
-                                height: 50,
-                                child: ElevatedButton(
+                                const SizedBox(height: 10),
+                                ElevatedButton(
                                   onPressed: homeController.fetchCities,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColor.PrimaryColor,
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.refresh,
-                                        color: Colors.white,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        "إعادة المحاولة",
-                                        style: TextStyle(
-                                          fontSize:
-                                              getValueForScreenType<double>(
-                                                context: context,
-                                                mobile: 16,
-                                                tablet: 20,
-                                              ),
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
+                                  child: const Text("تحديث"),
+                                ),
+                              ] else ...[
+                                // In review mode, show nothing or a friendly message
+                                const SizedBox(height: 20),
+                                Text(
+                                  "إعادة المحاولة",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColor.PrimaryColor,
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                         ),
@@ -1010,9 +956,7 @@ class Home extends GetView<HomeController> {
               mobile: 56, // الارتفاع على الموبايل
               tablet: 80, // الارتفاع على التابلت
             ),
-            child: BasketWidget(
-              heroTag: 'one',
-            ),
+            child: BasketWidget(heroTag: 'one'),
           ),
         ),
       ),
