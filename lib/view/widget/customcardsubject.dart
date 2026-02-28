@@ -1,8 +1,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
+
+import '../../controller/teacherController/homeTeacherController.dart';
 
 class CustomCardSubject extends StatelessWidget {
   final String text;
@@ -10,14 +14,14 @@ class CustomCardSubject extends StatelessWidget {
   final void Function() onTap;
   final void Function() onTapShop;
 
-  const CustomCardSubject({
+   CustomCardSubject({
     super.key,
     this.isFree,
     required this.text,
     required this.onTap,
     required this.onTapShop,
   });
-
+  final homeTeacherController = Get.put(HomePageTeacherController());
   @override
   Widget build(BuildContext context) {
     final double iconSize = getValueForScreenType<double>(
@@ -135,7 +139,7 @@ class CustomCardSubject extends StatelessWidget {
               onTap: onTap,
             ),
           ),
-          if (isFree == 1)
+          if (isFree == 1 && homeTeacherController.isDeployed!=0)
             Positioned(
               top: 0,
               left: 0, // أقصى اليسار
