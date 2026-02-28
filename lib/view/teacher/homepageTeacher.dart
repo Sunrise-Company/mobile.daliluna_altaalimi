@@ -1,105 +1,4 @@
-// import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
-//
-// import 'package:daliluna_altaalimi/controller/teacherController/chat/listchatStudentForteacherController.dart';
-// import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
-// import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
-// import 'package:flutter/material.dart';
-// import 'package:daliluna_altaalimi/view/teacher/sutedntTeacher/subjectTeacher.dart';
-// import 'package:get/get.dart';
-//
-// import 'package:daliluna_altaalimi/core/constant/color.dart';
-//
-// import '../../controller/teacherController/homeTeacherController.dart';
-//
-// import 'chatTeacher/groupChat/listgroupChat.dart';
-// import 'chatTeacher/listTeacherChat.dart';
-// import 'homeTeacher.dart';
-//
-// class HomePageTeacher extends GetView<HomePageTeacherController> {
-//   HomePageTeacher({super.key});
-//
-//   ChatStudentListTeacherController chatStudentListTeacherController =
-//       ChatStudentListTeacherController();
-//   ListStudentChatController listStudentChatController =
-//       ListStudentChatController();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     listStudentChatController = Get.put(
-//       ListStudentChatController(),
-//     );
-//
-//     return Directionality(
-//       textDirection: TextDirection.rtl,
-//       child: Scaffold(
-//         body: Obx(() => _buildPage(controller.selectedPage.value)),
-//         bottomNavigationBar: Obx(() => Visibility(
-//             // visible: ourcontroller.isUpdate == 0 ? false : true,
-//             child: _buildBottomNavigationBar(controller))),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildPage(int index) {
-//     final List<Widget> screens = [
-//       StudentListPage(),
-//       HomeTeacher(),
-//       SubjectTeacher(),
-//       GroupChatListPage()
-//     ];
-//
-//     return IndexedStack(
-//       index: index,
-//       children: screens,
-//     );
-//   }
-//
-//   Widget _buildBottomNavigationBar(HomePageTeacherController controller) {
-//     return CurvedNavigationBar(
-//       index: controller.selectedPage.value,
-//       height: Get.height / 12.0,
-//       items: <CurvedNavigationBarItem>[
-//         CurvedNavigationBarItem(
-//           child: Icon(
-//             Icons.chat_bubble_outline_sharp,
-//             size: 30,
-//             color: AppColor.White,
-//           ),
-//         ),
-//         CurvedNavigationBarItem(
-//           child: Icon(
-//             Icons.home,
-//             size: 30,
-//             color: AppColor.White,
-//           ),
-//         ),
-//         CurvedNavigationBarItem(
-//           child: Icon(
-//             Icons.person,
-//             size: 30,
-//             color: AppColor.White,
-//           ),
-//         ),
-//         CurvedNavigationBarItem(
-//           child: Icon(
-//             Icons.group_add,
-//             size: 30,
-//             color: AppColor.White,
-//           ),
-//         ),
-//       ],
-//       color: AppColor.PrimaryColor,
-//       buttonBackgroundColor: AppColor.SecondryColor,
-//       backgroundColor: AppColor.BackGround2,
-//       animationCurve: Curves.easeInOut,
-//       animationDuration: const Duration(milliseconds: 500),
-//       onTap: (index) {
-//         controller.changePage(index);
-//
-//       },
-//     );
-//   }
-// }
+
 import 'package:daliluna_altaalimi/controller/chatStudnet/chatStudentListTeacherController.dart';
 import 'package:daliluna_altaalimi/controller/teacherController/chat/listchatStudentForteacherController.dart';
 import 'package:flutter/material.dart';
@@ -137,7 +36,7 @@ class HomePageTeacher extends GetView<HomePageTeacherController> {
     final List<Widget> screens = [
       StudentListPage(),
       HomeTeacher(),
-      SubjectTeacher(),
+      if (controller.isDeployed.value != 0) SubjectTeacher(),
       GroupChatListPage(),
     ];
 
@@ -148,14 +47,14 @@ class HomePageTeacher extends GetView<HomePageTeacherController> {
     final List<IconData> icons = [
       Icons.chat_bubble_outline_sharp,
       Icons.home,
-      Icons.person,
+      if (controller.isDeployed.value != 0) Icons.person,
       Icons.group_add,
     ];
 
     final List<String> labels = [
       'المحادثات',
       'الرئيسية',
-      'مشتريات الطلاب',
+      if (controller.isDeployed.value != 0) 'مشتريات الطلاب',
       'المجموعات',
     ];
 
