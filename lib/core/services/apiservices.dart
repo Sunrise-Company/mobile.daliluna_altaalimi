@@ -782,4 +782,42 @@ class ApiService {
       };
     }
   }
+
+  static Future<Map<String, dynamic>> deleteAccount(String password) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? token = prefs.getString('token');
+
+      final response = await http.post(
+        Uri.parse(AppLink.studentDeleteAccount),
+        body: json.encode({'password': password}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data['status'] == true) {
+        // Clear all local session data
+        await prefs.clear();
+        return {
+          'status': true,
+          'message': data['message'] ?? 'تم حذف الحساب بنجاح',
+        };
+      } else {
+        return {
+          'status': false,
+          'message': data['message'] ?? 'كلمة المرور غير صحيحة',
+        };
+      }
+    } catch (e) {
+      return {
+        'status': false,
+        'message': 'حدث خطأ غير متوقع، الرجاء المحاولة لاحقًا',
+      };
+    }
+  }
 }

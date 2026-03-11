@@ -114,39 +114,41 @@ class Register extends GetView<RegisterController> {
                               tablet: 60,
                             ),
                           ),
-                          CustomTextFromFields(
-                            validator: (val) {
-                              if (val!.isEmpty) {
-                                return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
-                              }
+                          if (controller.isDeployed == 1) ...[
+                            CustomTextFromFields(
+                              validator: (val) {
+                                if (val!.isEmpty) {
+                                  return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ";
+                                }
 
-                              if (val.length < 3) {
-                                return "لا يمكن أن يكون أقل من 3";
-                              }
+                                if (val.length < 3) {
+                                  return "لا يمكن أن يكون أقل من 3";
+                                }
 
-                              if (val.length > 50) {
-                                return "لا يمكن أن يكون أكبر من 50";
-                              }
-                              return null;
-                            },
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^[a-zA-Z_ -]+$'),
-                              ),
-                            ],
-                            readOnly: false,
-                            keyboardType: TextInputType.text,
-                            label: "اسم المستخدم باللغة الانكليزية",
-                            preIcon: Icons.abc_rounded,
-                            controller: controller.usernameEn,
-                          ),
-                          SizedBox(
-                            height: getValueForScreenType<double>(
-                              context: context,
-                              mobile: 30,
-                              tablet: 60,
+                                if (val.length > 50) {
+                                  return "لا يمكن أن يكون أكبر من 50";
+                                }
+                                return null;
+                              },
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^[a-zA-Z_ -]+$'),
+                                ),
+                              ],
+                              readOnly: false,
+                              keyboardType: TextInputType.text,
+                              label: "اسم المستخدم باللغة الانكليزية",
+                              preIcon: Icons.abc_rounded,
+                              controller: controller.usernameEn,
                             ),
-                          ),
+                            SizedBox(
+                              height: getValueForScreenType<double>(
+                                context: context,
+                                mobile: 30,
+                                tablet: 60,
+                              ),
+                            ),
+                          ],
                           if (controller.isDeployed == 1) ...[
                             CustomTextFromFields(
                               validator: (val) {
@@ -492,41 +494,41 @@ class Register extends GetView<RegisterController> {
                               tablet: 60,
                             ),
                           ),
-                          if (controller.isDeployed == 1) ...[
-                            CustomTextFromFields(
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\+?\d{0,12}'),
-                                ),
-                              ],
-                              readOnly: false,
-                              keyboardType: TextInputType.phone,
-                              label: "رقم الهاتف",
-                              validator: (val) {
-                                if (val!.isEmpty) {
-                                  return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ ";
-                                }
 
-                                if (val.length < 10) {
-                                  return "لا يمكن أن يكون أقل من 10";
-                                }
-
-                                if (val.length > 30) {
-                                  return "لا يمكن أن يكون أكبر من 30";
-                                }
-                                return null;
-                              },
-                              preIcon: Icons.phone_android_rounded,
-                              controller: controller.phone,
-                            ),
-                            SizedBox(
-                              height: getValueForScreenType<double>(
-                                context: context,
-                                mobile: 30,
-                                tablet: 60,
+                          CustomTextFromFields(
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\+?\d{0,12}'),
                               ),
+                            ],
+                            readOnly: false,
+                            keyboardType: TextInputType.phone,
+                            label: "رقم الهاتف",
+                            validator: (val) {
+                              if (val!.isEmpty) {
+                                return "هذا الحقل مطلوب ولا يمكن أن يكون فارغ ";
+                              }
+
+                              if (val.length < 10) {
+                                return "لا يمكن أن يكون أقل من 10";
+                              }
+
+                              if (val.length > 30) {
+                                return "لا يمكن أن يكون أكبر من 30";
+                              }
+                              return null;
+                            },
+                            preIcon: Icons.phone_android_rounded,
+                            controller: controller.phone,
+                          ),
+                          SizedBox(
+                            height: getValueForScreenType<double>(
+                              context: context,
+                              mobile: 30,
+                              tablet: 60,
                             ),
-                          ],
+                          ),
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

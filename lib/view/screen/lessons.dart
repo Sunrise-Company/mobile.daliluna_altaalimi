@@ -366,7 +366,7 @@ class Lessons extends GetView<LessonsController> {
                                                                 width: 5,
                                                               ),
                                                               Text(
-                                                                "${controller.dataList[index]['app_lesson_lecture_files_count']} ظ…ظ„ظپط§طھ",
+                                                                "${controller.dataList[index]['app_lesson_lecture_files_count']} ملف",
                                                                 style: TextStyle(
                                                                   fontSize:
                                                                       getValueForScreenType<
@@ -649,7 +649,7 @@ class Lessons extends GetView<LessonsController> {
                                 ),
                               ),
                             )
-                          : const Center(child: Text("ظ„ط§ ظٹظˆط¬ط¯"))
+                          : const Center(child: Text("لا يوجد دروس"))
                     : Loading(),
               ),
             ),
