@@ -6,6 +6,8 @@ import UserNotifications
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
+    private var screenCaptureEventSink: FlutterEventSink?
+
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -29,6 +31,9 @@ import UserNotifications
         // ----------------------------
 
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+        let screenCaptureEvents = FlutterEventChannel(name: "com.sunrise.daliluna/screen_capture_events", binaryMessenger: controller.binaryMessenger)
+        screenCaptureEvents.setStreamHandler(ScreenCaptureStreamHandler(appDelegate: self))
+
         let muxChannel = FlutterMethodChannel(name: "com.example.muxer", binaryMessenger: controller.binaryMessenger)
         
         muxChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
@@ -73,10 +78,19 @@ import UserNotifications
     @objc private func screenCaptureChanged() {
         let isCaptured = UIScreen.main.isCaptured
         print("🎬 Screen recording status: \(isCaptured)")
+        screenCaptureEventSink?(isCaptured)
         if isCaptured {
             // Show a black screen or alert if needed
             // The secure text field hack usually handles this by making the video content black
         }
+    }
+
+    fileprivate func sendCurrentCaptureState() {
+        screenCaptureEventSink?(UIScreen.main.isCaptured)
+    }
+
+    fileprivate func setScreenCaptureEventSink(_ sink: FlutterEventSink?) {
+        screenCaptureEventSink = sink
     }
     // ------------------------------------
     
@@ -209,5 +223,25 @@ import UserNotifications
                 }
             }
         }
+    }
+}
+
+private class ScreenCaptureStreamHandler: NSObject, FlutterStreamHandler {
+    private weak var appDelegate: AppDelegate?
+
+    init(appDelegate: AppDelegate) {
+        self.appDelegate = appDelegate
+        super.init()
+    }
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        appDelegate?.setScreenCaptureEventSink(events)
+        appDelegate?.sendCurrentCaptureState()
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        appDelegate?.setScreenCaptureEventSink(nil)
+        return nil
     }
 }

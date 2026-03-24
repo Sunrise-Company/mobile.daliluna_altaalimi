@@ -1,5 +1,6 @@
 ﻿import 'dart:io';
 import 'dart:async';
+import 'dart:ui';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_observer.dart';
 import 'package:daliluna_altaalimi/core/services/version_service.dart';
@@ -763,12 +764,14 @@ class MyApp extends StatelessWidget {
       useInheritedMediaQuery: true,
       // builder: DevicePreview.appBuilder,
       builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: SafeArea(
-            top: true,
-            bottom: true,
-            child: DevicePreview.appBuilder(context, child),
+        return ScreenCaptureShield(
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: SafeArea(
+              top: true,
+              bottom: true,
+              child: DevicePreview.appBuilder(context, child),
+            ),
           ),
         );
       },
@@ -782,6 +785,89 @@ class MyApp extends StatelessWidget {
       initialBinding: BasketBinding(),
       navigatorObservers: [BreadcrumbObserver()],
       home: forceUpdate ? ForceUpdateScreen() : null,
+    );
+  }
+}
+
+class ScreenCaptureShield extends StatefulWidget {
+  final Widget child;
+
+  const ScreenCaptureShield({required this.child, super.key});
+
+  @override
+  State<ScreenCaptureShield> createState() => _ScreenCaptureShieldState();
+}
+
+class _ScreenCaptureShieldState extends State<ScreenCaptureShield> {
+  static const EventChannel _captureEventChannel = EventChannel(
+    'com.sunrise.daliluna/screen_capture_events',
+  );
+
+  StreamSubscription<dynamic>? _captureSubscription;
+  bool _isCaptureActive = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      _captureSubscription = _captureEventChannel
+          .receiveBroadcastStream()
+          .listen(
+            (dynamic event) {
+              final bool isActive = event == true;
+              if (!mounted || _isCaptureActive == isActive) {
+                return;
+              }
+              setState(() {
+                _isCaptureActive = isActive;
+              });
+            },
+            onError: (Object error) {
+              debugPrint('Screen capture stream error: $error');
+            },
+          );
+    }
+  }
+
+  @override
+  void dispose() {
+    _captureSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        widget.child,
+        if (_isCaptureActive)
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: false,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  color: Colors.black.withOpacity(0.9),
+                  alignment: Alignment.center,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'تم إخفاء المحتوى لحماية البيانات أثناء التسجيل أو العرض على شاشة خارجية',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

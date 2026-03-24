@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import android.media.MediaCodec
 import android.media.MediaExtractor
@@ -19,6 +20,7 @@ import java.nio.ByteBuffer
 class MainActivity : FlutterActivity() {
     private lateinit var displayManager: DisplayManager
     private var overlayView: View? = null
+    private var screenCaptureEventSink: EventChannel.EventSink? = null
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
@@ -77,8 +79,9 @@ class MainActivity : FlutterActivity() {
         // الحصول على قائمة بكل الشاشات المتصلة
         val displays = displayManager.displays
         // شاشة الهاتف هي دائمًا Display.DEFAULT_DISPLAY
+        val hasExternalDisplay = displays.size > 1
 
-        if (displays.size > 1) {
+        if (hasExternalDisplay) {
             // إذا كان هناك أكثر من شاشة واحدة، فهذا يعني وجود شاشة خارجية
             // قم بإظهار الشاشة السوداء
             showOverlay()
@@ -86,6 +89,8 @@ class MainActivity : FlutterActivity() {
             // إذا كانت شاشة الهاتف هي الوحيدة، قم بإخفاء الشاشة السوداء
             hideOverlay()
         }
+
+        screenCaptureEventSink?.success(hasExternalDisplay)
     }
 
     private fun showOverlay() {
@@ -143,6 +148,20 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+
+        EventChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.sunrise.daliluna/screen_capture_events"
+        ).setStreamHandler(object : EventChannel.StreamHandler {
+            override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                screenCaptureEventSink = events
+                checkForExternalDisplays()
+            }
+
+            override fun onCancel(arguments: Any?) {
+                screenCaptureEventSink = null
+            }
+        })
     }
 
     private fun muxMp4(video: String, audio: String, out: String) {
