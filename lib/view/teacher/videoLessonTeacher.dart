@@ -15,41 +15,20 @@ import 'package:daliluna_altaalimi/view/widget/customvideo.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../controller/teacherController/homeTeacherController.dart';
 import '../widget/GetValueForScreen.dart';
 
 class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
-  VediosTeacherLesson({super.key});
 
+  VediosTeacherLesson({super.key});
+  final homeTeacherController = Get.put(HomePageTeacherController());
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: Colors.white,
-        // appBar: AppBar(
-        //   leading: CustomIconAppBar(),
-        //   elevation: 0,
-        //   flexibleSpace: Container(
-        //     decoration: const BoxDecoration(
-        //       gradient: LinearGradientPainter(
-        //         begin: Alignment.topRight,
-        //         end: Alignment.topCenter,
-        //         colors: <Color>[AppColor.SecondryColor2, AppColor.DeepPurple],
-        //       ),
-        //     ),
-        //   ),
-        //   title: Text(
-        //     "الفيديوهات",
-        //     style: TextStyle(
-        //       color: AppColor.White,
-        //       fontSize: getValueForScreenType<double>(
-        //         context: context,
-        //         mobile: 20,
-        //         tablet: 30,
-        //       ),
-        //     ),
-        //   ),
-        // ),
+
         appBar: PreferredSize(
           preferredSize: Size.fromHeight(
             getValueForScreenType<double>(
@@ -400,7 +379,7 @@ class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            video['free_status'].toString() == '1'
+                            (   video['free_status'].toString() == '1'&& homeTeacherController.isDeployed!=0)
                                 ? Container(
                                     decoration: BoxDecoration(
                                       color: AppColor.SecondryColor,

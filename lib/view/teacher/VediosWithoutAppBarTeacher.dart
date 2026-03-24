@@ -13,11 +13,13 @@ import 'package:daliluna_altaalimi/view/widget/customvideo.dart';
 import 'package:daliluna_altaalimi/view/widget/loading.dart';
 import 'package:http/http.dart' as http;
 
+import '../../controller/teacherController/homeTeacherController.dart';
+
 class VediosWithoutAppBarTeacher extends StatelessWidget {
   final List videos;
   final bool isLoading;
   VediosWithoutAppBarTeacher(this.videos, this.isLoading);
-
+  final homeTeacherController = Get.put(HomePageTeacherController());
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -345,7 +347,7 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            if (video['free_status'].toString() == '1')
+                            if (video['free_status'].toString() == '1'&& homeTeacherController.isDeployed!=0)
 
                               InkWell(
                                 onTap: (){
