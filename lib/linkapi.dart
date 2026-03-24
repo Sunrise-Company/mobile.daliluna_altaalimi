@@ -36,4 +36,5 @@ class AppLink {
   static const String deviceinfo = "$server/app_version_num";
   static const String app_main_deps2 = "$server/app_main_deps2";
   static const String appMainSearch = "$server/app_main_search";
+  static const String studentDeleteAccount = "$server/student_delete_account";
 }

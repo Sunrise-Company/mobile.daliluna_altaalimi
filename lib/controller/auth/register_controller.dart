@@ -20,11 +20,16 @@ class RegisterController extends GetxController {
   String? id;
   getDeviceDetails() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    id = androidInfo.id; // Corrected line
-
+    if (GetPlatform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      id = androidInfo.id;
+    } else if (GetPlatform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      id = iosInfo.identifierForVendor ?? 'unknown';
+    } else {
+      id = 'unknown';
+    }
     update();
-    // print('Device ID: ${id}');
   }
 
   GlobalKey<FormState> formstate = GlobalKey<FormState>();
@@ -79,7 +84,7 @@ class RegisterController extends GetxController {
   getdata() {
     data = {
       "arabic_name": usernameAr.text,
-      "english_name": usernameEn.text,
+      "english_name": usernameEn.text.isEmpty ? "N/A" : usernameEn.text,
       "father_name": fathersName.text.isEmpty ? "N/A" : fathersName.text,
       "mother_name": mothersName.text.isEmpty ? "N/A" : mothersName.text,
       "gender": gender?.toString() ?? "N/A",

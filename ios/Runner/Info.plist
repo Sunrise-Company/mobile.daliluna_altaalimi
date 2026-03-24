@@ -44,7 +44,7 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>نحتاج للوصول إلى مكتبة الصور لحفظ الصور والفيديوهات المرسلة في المحادثة.</string>
+	<string>يستخدم التطبيق مكتبة الصور لحفظ الصور ومقاطع الفيديو الواردة في المحادثات التعليمية. على سبيل المثال، يمكنك حفظ صورة أو مقطع فيديو أرسله معلمك مباشرةً في ألبوم صورك.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
@@ -59,13 +59,13 @@
 		<string>dev.flutter.background.refresh</string>
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>نحتاج للوصول إلى الميكروفون لتسجيل الصوت.</string>
+	<string>يستخدم التطبيق الميكروفون لتسجيل الرسائل الصوتية التي يرسلها المستخدم خلال المحادثات التعليمية. على سبيل المثال، يمكنك تسجيل سؤال صوتي وإرساله لمعلمك مباشرةً داخل المحادثة.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>نحتاج للوصول إلى الكاميرا لالتقاط الصور.</string>
+	<string>يستخدم التطبيق الكاميرا لالتقاط الصور ومقاطع الفيديو وإرسالها ضمن المحادثات التعليمية. على سبيل المثال، يمكنك تصوير واجب مدرسي أو سبورة وإرساله مباشرةً إلى معلمك.</string>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>نحتاج للوصول إلى الوسائط لتشغيل الملفات الصوتية.</string>
+	<string>يستخدم التطبيق مكتبة الوسائط لتشغيل الملفات الصوتية التعليمية المرسلة في المحادثات. على سبيل المثال، يمكنك الاستماع إلى تسجيل صوتي أرسله معلمك مباشرةً داخل التطبيق.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>نحتاج للوصول إلى مكتبة الصور لحفظ الصور والفيديوهات.</string>
+	<string>يستخدم التطبيق مكتبة الصور لاختيار الصور ومقاطع الفيديو وإرسالها ضمن المحادثات التعليمية. على سبيل المثال، يمكنك اختيار صورة واجب منزلي من معرض صورك وإرسالها مباشرةً إلى معلمك.</string>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
