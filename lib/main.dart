@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'dart:async';
 import 'dart:ui';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
@@ -231,6 +231,13 @@ $reason
 
 ⚠️ هذا قد يشير إلى محاكي.
 إذا كنت تستخدم جهاز حقيقي، يرجى التواصل مع الدعم الفني.
+''';
+  } else if (reason.contains('iOS Simulator detected')) {
+    return '''
+تم اكتشاف أن هذا الجهاز هو محاكي iOS (Simulator) وليس جهازاً حقيقياً.
+
+⚠️ هذا التطبيق لا يعمل على المحاكيات لأسباب أمنية.
+يرجى استخدام جهاز iPhone أو iPad حقيقي لتشغيل التطبيق.
 ''';
   } else if (reason.contains('Generic EmulatorChecker')) {
     return '''
@@ -689,9 +696,8 @@ Future<String?> checkIfEmulator() async {
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       if (!iosInfo.isPhysicalDevice) {
-        // Log simulator detection but do not block, as Apple reviewers often use simulators
-        debugPrint("iOS Simulator detected (isPhysicalDevice: false)");
-        return null;
+        // Block simulator when isDeployed == 1 (this function is only called in that case)
+        return "iOS Simulator detected (isPhysicalDevice: false)";
       }
     }
   } catch (e) {
