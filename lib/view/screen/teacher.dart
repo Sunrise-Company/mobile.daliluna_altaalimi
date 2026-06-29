@@ -11,7 +11,6 @@ import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/controller/teacher_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../widget/GetValueForScreen.dart';
 import '../widget/basketWidget.dart';
 

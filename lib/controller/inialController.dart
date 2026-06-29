@@ -7,7 +7,6 @@ class InialController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
     isteacher();
     super.onInit();
   }
@@ -21,7 +20,7 @@ class InialController extends GetxController {
     int? teacher_id = prefs.getInt('teacher_id');
 
     await Future.delayed(Duration(seconds: 2));
-    isLoading.value = false; // Set loading to false after checking
+    isLoading.value = false;
 
     if (teacher_id != null) {
       Get.toNamed('/homepageTeacher');
