@@ -43,3 +43,20 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Generated build/cache artifacts
+ios/build/
+macos/Flutter/ephemeral/
+android/.kotlin/
+
+# Local secrets/signing
+.env
+android/app/keystore.txt
+
+# Local build/export artifacts
+*.ipa
+android/build_log*.txt
+android/deps.txt
+.temp_*
+.notification_scenarios_check.md
+screenShotsIOS/
