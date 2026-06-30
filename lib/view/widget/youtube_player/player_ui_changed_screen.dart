@@ -22,7 +22,7 @@ class PlayerUiChangedScreen extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF4444).withOpacity(0.15),
+                    color: const Color(0xFFFF4444).withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -47,7 +47,7 @@ class PlayerUiChangedScreen extends StatelessWidget {
                   'الفريق التقني يعمل على حل هذه المشكلة في أقرب وقت.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.6),
+                    color: Colors.white.withValues(alpha: 0.6),
                     fontSize: 14,
                     height: 1.7,
                     fontFamily: 'Cairo',
@@ -62,7 +62,7 @@ class PlayerUiChangedScreen extends StatelessWidget {
                   child: Text(
                     'رجوع',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       fontSize: 14,
                       fontFamily: 'Cairo',
                     ),

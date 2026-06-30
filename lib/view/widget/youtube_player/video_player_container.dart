@@ -32,7 +32,7 @@ class VideoPlayerContainer extends StatelessWidget {
       }
     }
 
-    if (ctrl.uiChangedDetected) {
+    if (ctrl.localVideoPath == null && ctrl.uiChangedDetected) {
       return PlayerUiChangedScreen(ctrl: ctrl);
     }
 
@@ -43,13 +43,17 @@ class VideoPlayerContainer extends StatelessWidget {
         children: [
           if (localPlayer != null)
             localPlayer
-          else
+          else if (ctrl.localVideoPath == null)
             AnimatedOpacity(
               opacity: ctrl.isPlayerReady ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 500),
               child: ctrl.webViewController != null
                   ? WebViewWidget(controller: ctrl.webViewController!)
                   : const SizedBox(),
+            )
+          else
+            const Center(
+              child: CircularProgressIndicator(color: Colors.white),
             ),
           if (ctrl.localVideoPath == null && !ctrl.isPlayerReady)
             const CircularProgressIndicator(color: Colors.white),

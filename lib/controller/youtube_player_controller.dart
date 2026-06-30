@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,9 @@ class YoutubePlayerController extends GetxController {
   bool embedErrorDetected = false;
   bool uiChangedDetected = false;
   String? videoTitle;
+
+  StreamSubscription<Map<String, DownloadTask>>? _downloadSub;
+  bool _isSwitchingToLocal = false;
   String? fetchError;
 
   VideoPlayerController? videoPlayerController;
@@ -60,10 +64,81 @@ class YoutubePlayerController extends GetxController {
     );
 
     _initializePlayer();
+    _listenForDownloadCompletion();
+  }
+
+  /// يُراقب تحديثات التحميل مباشرةً — عندما يكتمل تحميل هذا الفيديو
+  /// تحديداً نُعيد تهيئة المشغّل لعرض الملف المحلي.
+  void _listenForDownloadCompletion() {
+    _downloadSub = downloadService.progressStream.listen((tasks) {
+      final task = tasks[videoId];
+      if (task?.status == DownloadStatus.completed && localVideoPath == null) {
+        _switchToLocalPlayer();
+      }
+    });
+  }
+
+  Future<void> _switchToLocalPlayer() async {
+    if (_isSwitchingToLocal || localVideoPath != null) return;
+    _isSwitchingToLocal = true;
+    isLoading = true;
+    update();
+
+    try {
+      final localPath = await getLocalFilePath();
+      final localFile = File(localPath);
+      if (!await localFile.exists()) {
+        _isSwitchingToLocal = false;
+        isLoading = false;
+        update();
+        return;
+      }
+
+      localVideoPath = localPath;
+
+      videoPlayerController?.dispose();
+      chewieController?.dispose();
+      betterPlayerController?.dispose();
+
+      if (Platform.isIOS) {
+        videoPlayerController = VideoPlayerController.file(localFile);
+        await videoPlayerController!.initialize();
+        chewieController = ChewieController(
+          videoPlayerController: videoPlayerController!,
+          autoPlay: true,
+          looping: true,
+          aspectRatio: videoPlayerController!.value.aspectRatio,
+          allowFullScreen: true,
+          allowPlaybackSpeedChanging: true,
+        );
+      } else {
+        final dataSource = BetterPlayerDataSource(
+          BetterPlayerDataSourceType.file,
+          localPath,
+        );
+        betterPlayerController = BetterPlayerController(
+          const BetterPlayerConfiguration(
+            autoPlay: true,
+            looping: true,
+            fit: BoxFit.contain,
+          ),
+          betterPlayerDataSource: dataSource,
+        );
+      }
+
+      isPlayerReady = true;
+    } catch (e) {
+      debugPrint("Error switching to local player: $e");
+    } finally {
+      _isSwitchingToLocal = false;
+      isLoading = false;
+      update();
+    }
   }
 
   @override
   void onClose() {
+    _downloadSub?.cancel();
     videoPlayerController?.dispose();
     chewieController?.dispose();
     betterPlayerController?.dispose();
@@ -156,19 +231,18 @@ class YoutubePlayerController extends GetxController {
           .where((s) => s.container == ytd.StreamContainer.mp4)
           .withHighestBitrate();
 
-      if (bestAudio != null) {
-        options.addAll(
-          manifest.videoOnly
-              .where((s) => s.container == ytd.StreamContainer.mp4)
-              .where((s) => s.videoResolution.height >= 480)
-              .where(
-                (v) => !options.any(
-                  (o) => o.label.startsWith('\${v.videoResolution.height}p'),
-                ),
-              )
-              .map((v) => DownloadOption.separate(v, bestAudio)),
-        );
-      }
+      // bestAudio is non-nullable after withHighestBitrate()
+      options.addAll(
+        manifest.videoOnly
+            .where((s) => s.container == ytd.StreamContainer.mp4)
+            .where((s) => s.videoResolution.height >= 480)
+            .where(
+              (v) => !options.any(
+                (o) => o.label.startsWith('\${v.videoResolution.height}p'),
+              ),
+            )
+            .map((v) => DownloadOption.separate(v, bestAudio)),
+      );
       options.sort((a, b) => b.streamInfo.size.compareTo(a.streamInfo.size));
 
       prefetchedQualities = options;
@@ -244,62 +318,70 @@ class YoutubePlayerController extends GetxController {
   }
 
   Future<String> getLocalFilePath() async {
-    final directory = await getApplicationDocumentsDirectory();
     String cleanId = videoId;
     try {
       cleanId = ytd.VideoId(videoId).value;
     } catch (_) {
       cleanId = videoId.replaceAll(RegExp(r'[^\w\d_-]'), '');
     }
-    return '\${directory.path}/$cleanId.mp4';
+    final dir = await getApplicationDocumentsDirectory();
+    return '${dir.path}/$cleanId.mp4';
   }
 
+  bool _isInitializing = false;
+
   Future<void> _initializePlayer() async {
-    final localPath = await getLocalFilePath();
-    final localFile = File(localPath);
+    if (_isInitializing) return;
+    _isInitializing = true;
 
-    if (await localFile.exists()) {
-      localVideoPath = localPath;
+    try {
+      final localPath = await getLocalFilePath();
+      final localFile = File(localPath);
 
-      videoPlayerController?.dispose();
-      chewieController?.dispose();
-      betterPlayerController?.dispose();
+      if (await localFile.exists()) {
+        localVideoPath = localPath;
 
-      if (Platform.isIOS) {
-        videoPlayerController = VideoPlayerController.file(localFile);
-        await videoPlayerController!.initialize();
+        videoPlayerController?.dispose();
+        chewieController?.dispose();
+        betterPlayerController?.dispose();
 
-        chewieController = ChewieController(
-          videoPlayerController: videoPlayerController!,
-          autoPlay: true,
-          looping: true,
-          aspectRatio: videoPlayerController!.value.aspectRatio,
-          allowFullScreen: true,
-          allowPlaybackSpeedChanging: true,
-        );
-      } else {
-        final dataSource = BetterPlayerDataSource(
-          BetterPlayerDataSourceType.file,
-          localPath,
-        );
-        betterPlayerController = BetterPlayerController(
-          const BetterPlayerConfiguration(
+        if (Platform.isIOS) {
+          videoPlayerController = VideoPlayerController.file(localFile);
+          await videoPlayerController!.initialize();
+
+          chewieController = ChewieController(
+            videoPlayerController: videoPlayerController!,
             autoPlay: true,
             looping: true,
-            fit: BoxFit.contain,
-          ),
-          betterPlayerDataSource: dataSource,
-        );
+            aspectRatio: videoPlayerController!.value.aspectRatio,
+            allowFullScreen: true,
+            allowPlaybackSpeedChanging: true,
+          );
+        } else {
+          final dataSource = BetterPlayerDataSource(
+            BetterPlayerDataSourceType.file,
+            localPath,
+          );
+          betterPlayerController = BetterPlayerController(
+            const BetterPlayerConfiguration(
+              autoPlay: true,
+              looping: true,
+              fit: BoxFit.contain,
+            ),
+            betterPlayerDataSource: dataSource,
+          );
+        }
+
+        isPlayerReady = true;
+        update();
+      } else {
+        await _initializeWebView();
       }
-
-      isPlayerReady = true;
+    } finally {
+      _isInitializing = false;
+      isLoading = false;
       update();
-    } else {
-      await _initializeWebView();
     }
-
-    isLoading = false;
-    update();
   }
 
   Future<void> _initializeWebView() async {
@@ -529,6 +611,7 @@ class YoutubePlayerController extends GetxController {
       isLoading = true;
       localVideoPath = null;
       isPlayerReady = false;
+      // hasAttemptedLocalLoad = false;
       update();
 
       await _initializePlayer();

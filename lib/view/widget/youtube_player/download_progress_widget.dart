@@ -21,12 +21,12 @@ class DownloadProgressWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: AppColor.PrimaryColor.withOpacity(0.03),
+            color: AppColor.PrimaryColor.withValues(alpha: 0.03),
             blurRadius: 24,
             spreadRadius: 2,
           ),
@@ -42,7 +42,7 @@ class DownloadProgressWidget extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: AppColor.PrimaryColor.withOpacity(0.08),
+                  color: AppColor.PrimaryColor.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -87,7 +87,7 @@ class DownloadProgressWidget extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColor.SecondryColor.withOpacity(0.15),
+                  color: AppColor.SecondryColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -125,7 +125,7 @@ class DownloadProgressWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColor.PrimaryColor.withOpacity(0.3),
+                        color: AppColor.PrimaryColor.withValues(alpha: 0.3),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),

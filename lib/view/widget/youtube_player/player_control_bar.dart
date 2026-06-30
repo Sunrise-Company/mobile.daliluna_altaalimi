@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
-import 'package:daliluna_altaalimi/controller/youtube_player_controller.dart';
+// import 'package:daliluna_altaalimi/controller/youtube_player_controller.dart';
+import '../../../controller/youtube_player_controller.dart';
 import 'premium_action_button.dart';
 
 class PlayerControlBar extends StatelessWidget {
@@ -22,7 +23,7 @@ class PlayerControlBar extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -91,7 +92,7 @@ class PlayerControlBar extends StatelessWidget {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: AppColor.SecondryColor2.withOpacity(0.3),
+        color: AppColor.SecondryColor2.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Center(

@@ -28,7 +28,7 @@ class PremiumActionButton extends StatelessWidget {
         ? Colors.red.shade50
         : isPrimary
         ? AppColor.PrimaryColor
-        : AppColor.SecondryColor2.withOpacity(0.3);
+        : AppColor.SecondryColor2.withValues(alpha: 0.3);
 
     final textColor = isDisabled
         ? Colors.grey.shade400
@@ -63,7 +63,7 @@ class PremiumActionButton extends StatelessWidget {
             boxShadow: isPrimary && !isDisabled
                 ? [
                     BoxShadow(
-                      color: AppColor.PrimaryColor.withOpacity(0.3),
+                      color: AppColor.PrimaryColor.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

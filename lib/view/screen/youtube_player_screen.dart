@@ -19,15 +19,16 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
         return Scaffold(
           backgroundColor: Colors.black,
           body: SafeArea(
-            child: WillPopScope(
-              onWillPop: () async {
+            child: PopScope(
+              canPop: false,
+              onPopInvokedWithResult: (didPop, _) {
+                if (didPop) return;
                 if (ctrl.isFullScreen) {
                   ctrl.toggleFullScreen();
-                  return false;
+                  return;
                 }
-
                 ctrl.restoreSystemUI();
-                return true;
+                Get.back();
               },
               child: StreamBuilder<Map<String, DownloadTask>>(
                 stream: ctrl.downloadService.progressStream,
@@ -38,12 +39,6 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
                       task?.status == DownloadStatus.downloading ||
                       task?.status == DownloadStatus.merging;
 
-                  if (task?.status == DownloadStatus.completed &&
-                      ctrl.localVideoPath == null) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ctrl.reinitializePlayer();
-                    });
-                  }
                   return Stack(
                     children: [
                       // ── المحتوى أسفل المشغّل (شريط التحكم والتعليقات) ──
@@ -149,7 +144,7 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
                             child: IgnorePointer(
                               ignoring: !ctrl.isFullScreen,
                               child: Material(
-                                color: Colors.black.withOpacity(0.6),
+                                color: Colors.black.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(30),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(30),
