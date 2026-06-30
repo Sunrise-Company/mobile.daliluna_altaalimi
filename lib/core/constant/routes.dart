@@ -39,4 +39,5 @@ class AppRoute {
   static const String myteacher = "/myteacher";
   static const String search = "/search";
   static const String teacherProfile = "/teacherProfile";
+  static const String youtubePlayer = "/youtubeplayer";
 }

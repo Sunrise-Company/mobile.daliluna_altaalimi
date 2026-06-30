@@ -97,7 +97,9 @@ import 'package:daliluna_altaalimi/view/screen/viewlesson.dart';
 import 'package:daliluna_altaalimi/view/screen/viewpdf.dart';
 import 'package:daliluna_altaalimi/view/screen/viewvideo.dart';
 import 'modules/bindings/exam/examSoltionsBinding.dart';
-import 'modules/bindings/exam/startExamBinding.dart';
+import 'package:daliluna_altaalimi/modules/bindings/exam/startExamBinding.dart';
+import 'package:daliluna_altaalimi/modules/bindings/youtube_player_binding.dart';
+import 'package:daliluna_altaalimi/view/screen/youtube_player_screen.dart';
 import 'modules/teacherBinding/fileTeacherBinding.dart';
 import 'modules/teacherBinding/homePageTeacherBinding.dart';
 import 'modules/teacherBinding/lecutreTeacherBinding.dart';
@@ -246,10 +248,17 @@ List<GetPage<dynamic>>? routes = [
     page: () => LessonDetailsPage(),
   ),
   GetPage(
+    name: AppRoute.youtubePlayer,
+    page: () => const YoutubePlayerScreen(),
+    binding: YoutubePlayerBinding(),
+  ),
+  GetPage(name: AppRoute.teacherProfile, page: () => TeacherProfileWidget()),
+  GetPage(
     name: AppRoute.teacher,
     binding: TeacherBinding(),
     page: () => Teacher(),
   ),
+
   GetPage(
     name: AppRoute.myteacher,
     binding: TeacherBinding(),
@@ -260,13 +269,11 @@ List<GetPage<dynamic>>? routes = [
     binding: LessonsBinding(),
     page: () => Lessons(),
   ),
-
   GetPage(
     name: AppRoute.mylessons,
     binding: LessonsBinding(),
     page: () => MyLessons(),
   ),
-
   GetPage(
     name: AppRoute.viewLessons,
     binding: ViewLessonBinding(),

@@ -1,5 +1,6 @@
+import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/controller/vidoeLesson.dart';
-import 'package:daliluna_altaalimi/view/screen/ytPlayer.dart';
+import 'package:daliluna_altaalimi/view/screen/youtube_player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:get/get.dart';
@@ -28,11 +29,17 @@ class VideoLessons extends GetView<VideoLessonsController> {
       } catch (e) {}
 
       if (videoId != null) {
-        return YoutubePlayer(
-          videoId: videoId,
-          lessonId: lessonId,
-          type: 'lesson_dep_file',
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offNamed(
+            AppRoute.youtubePlayer,
+            arguments: {
+              'videoId': videoId,
+              'lessonId': lessonId,
+              'type': 'lesson_dep_file',
+            },
+          );
+        });
+        return const Scaffold(backgroundColor: Colors.black);
       } else {
         return Scaffold(
           appBar: AppBar(title: const Text("Error")),
