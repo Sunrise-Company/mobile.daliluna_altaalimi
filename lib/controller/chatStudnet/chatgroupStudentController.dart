@@ -132,7 +132,8 @@ class ChatGroupMessageStudentController extends GetxController {
 
     final url = Uri.parse(AppLink.server + '/message_group');
     String tempMessageId = DateTime.now().millisecondsSinceEpoch.toString();
-    // insert temporary message immediately for better UX
+    
+
     messageList.insert(0, {
       'message_id': tempMessageId,
       'msg': text ?? '',

@@ -214,8 +214,9 @@ class YoutubePlayerController extends GetxController {
       final manifest = await yt.videos.streamsClient.getManifest(
         cleanId,
         ytClients: [
-          ytd.YoutubeApiClient.safari,
-          ytd.YoutubeApiClient.androidVr,
+          // ytd.YoutubeApiClient.android,   // الأكثر توافقاً - يعمل مع أغلب الفيديوهات
+          ytd.YoutubeApiClient.safari, // احتياطي 1
+          ytd.YoutubeApiClient.androidVr, // احتياطي 2
         ],
       );
       final List<DownloadOption> options = [];

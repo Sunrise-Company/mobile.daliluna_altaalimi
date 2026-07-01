@@ -35,6 +35,7 @@ class LessonDetailsPage extends GetView<LessonDetailsController> {
         //   ),
         //   child: AppBar(
         //     leading: CustomIconAppBar(),
+        
         //     elevation: 0.0,
         //     flexibleSpace: Container(
         //       decoration: BoxDecoration(

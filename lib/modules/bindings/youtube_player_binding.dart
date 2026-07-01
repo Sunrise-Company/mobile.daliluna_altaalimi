@@ -4,10 +4,12 @@ import 'package:get/get.dart';
 class YoutubePlayerBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(YoutubePlayerController(
-      videoId: Get.arguments['videoId'],
-      lessonId: Get.arguments['lessonId'],
-      type: Get.arguments['type'],
-    ));
+    Get.put(
+      YoutubePlayerController(
+        videoId: Get.arguments['videoId'],
+        lessonId: Get.arguments['lessonId'],
+        type: Get.arguments['type'],
+      ),
+    );
   }
 }

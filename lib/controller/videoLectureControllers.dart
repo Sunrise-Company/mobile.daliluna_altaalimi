@@ -207,6 +207,7 @@ class VideoLecturesController extends GetxController {
       String videoId = video != null && video['id'] != null
           ? video['id'].toString()
           : url;
+
       final filePath = '${dir.path}/video_${videoId}_$resolution.mp4';
 
       String progressKey = '${videoId}_$resolution';
