@@ -395,26 +395,21 @@ class YoutubePlayerController extends GetxController {
        } catch(e) {}
 
        function cleanPlayer() {
-         const css = `
-           /* ① الشريط العلوي: عنوان الفيديو + القناة */
-           .ytmVideoInfoVideoTitleContainer { display: none !important; }
-
-           /* ② صورة القناة العائمة على اليسار (absolute positioned) */
-           .ytmVideoInfoChannelLogo, .ytmVideoInfoChannelAvatar, .ytmVideoInfoLink { display: none !important; }
-
-           /* ③ شريط "Watch on YouTube" + "Copy link" السفلي */
-           .fullscreen-action-menu { display: none !important; }
-
-           /* ④ عناصر قديمة للتوافق فقط */
-           .ytp-chrome-top, .ytp-youtube-button, .ytp-impression-link,
-           .iv-branding, .ytp-endscreen, .ytp-endscreen-content,
-           .ytp-pause-overlay, .ytp-watermark, .ytp-contextmenu { display: none !important; }
-
-           /* ⑤ إخفاء زر التكبير الأصلي لليوتيوب (الاعتماد على الزر اليدوي فقط) */
-           .ytp-fullscreen-button, .ytm-fullscreen-button, .fullscreen-icon,
-           button[aria-label*="Full screen"], button[aria-label*="full screen"],
-           button[title*="Full screen"], button[title*="full screen"] { display: none !important; }
-         `;
+         const css =
+           '.ytmVideoInfoVideoTitleContainer{display:none!important}' +
+           '.ytmVideoInfoChannelLogo,.ytmVideoInfoChannelAvatar,.ytmVideoInfoLink{display:none!important}' +
+           '.fullscreen-action-menu{display:none!important}' +
+           '.ytp-chrome-top,.ytp-youtube-button,.ytp-impression-link,' +
+           '.iv-branding,.ytp-endscreen,.ytp-endscreen-content,' +
+           '.ytp-pause-overlay,.ytp-watermark,.ytp-contextmenu{display:none!important}' +
+           '.ytp-fullscreen-button,.ytm-fullscreen-button,.fullscreen-icon,' +
+           'button[aria-label*="Full screen"],button[title*="Full screen"]{display:none!important}' +
+           /* ⑥ زر خيارات إضافية / More options بكل اللغات */
+           '.ytp-overflow-button,.ytp-more-button,.ytp-overflow-button-container{display:none!important;pointer-events:none!important}' +
+           '.ytp-panel,.ytp-panel-menu,.ytp-share-panel{display:none!important}' +
+           '.ytp-share-button,.ytEmbedPlayerShareButton{display:none!important;pointer-events:none!important}' +
+           /* CSS wildcard يغطي كل aria-label يحتوي options */
+           '[aria-label*="options"],[aria-label*="Options"]{display:none!important;pointer-events:none!important}';
 
          let styleEl = document.getElementById('yt-flutter-cleaner');
          if (!styleEl) {
@@ -425,6 +420,68 @@ class YoutubePlayerController extends GetxController {
          }
          styleEl.textContent = css;
 
+         // ── فحص كل الأزرار بالـ aria-label (الحل الجذري لكل اللغات) ──
+         var blockedTerms = [
+           'more options', 'more option',
+           'share', 'copy link', 'watch on youtube',
+           'mas opciones', 'plus d', 'weitere', 'altre', 'mais op',
+           '\u062e\u064a\u0627\u0631\u0627\u062a',
+           '\u0645\u0634\u0627\u0631\u0643\u0629',
+           '\u0646\u0633\u062e \u0627\u0644\u0631\u0627\u0628\u0637',
+           '\u0634\u0627\u0647\u062f \u0639\u0644\u0649'
+         ];
+         document.querySelectorAll('button,[role="button"],[role="menuitem"]').forEach(function(btn) {
+           var combined = (
+             (btn.getAttribute('aria-label') || '') + ' ' +
+             (btn.getAttribute('title') || '') + ' ' +
+             (btn.innerText || btn.textContent || '')
+           ).toLowerCase();
+           for (var w = 0; w < blockedTerms.length; w++) {
+             if (combined.indexOf(blockedTerms[w]) !== -1) {
+               btn.style.setProperty('display','none','important');
+               btn.style.setProperty('pointer-events','none','important');
+               btn.style.setProperty('visibility','hidden','important');
+               break;
+             }
+           }
+         });
+
+         // ── querySelectorAll بالنص الفعلي ──
+         var sels = [
+           '[aria-label="More options"]', '[aria-label="more options"]',
+           '[aria-label="\u062e\u064a\u0627\u0631\u0627\u062a \u0625\u0636\u0627\u0641\u064a\u0629"]',
+           '[aria-label="M\u00e1s opciones"]',
+           '[aria-label="Weitere Optionen"]', '[aria-label="Altre opzioni"]',
+           '[aria-label="Share"]', '[aria-label="\u0645\u0634\u0627\u0631\u0643\u0629"]',
+           '[aria-label="Copy link"]', '[aria-label="Watch on YouTube"]',
+           '.ytp-overflow-button', '.ytp-more-button', '.ytp-overflow-button-container'
+         ];
+         sels.forEach(function(sel) {
+           try {
+             document.querySelectorAll(sel).forEach(function(el) {
+               el.style.setProperty('display','none','important');
+               el.style.setProperty('pointer-events','none','important');
+               el.style.setProperty('visibility','hidden','important');
+               el.style.setProperty('opacity','0','important');
+             });
+           } catch(e) {}
+         });
+
+         // ── إخفاء menu items بالنص ──
+         const bannedWords = ['more','share','copy','link','watch on',
+           '\u062e\u064a\u0627\u0631','\u0645\u0634\u0627\u0631','\u0646\u0633\u062e'];
+         document.querySelectorAll('[role="menuitem"],.ytp-menuitem').forEach(function(item) {
+           const txt = (
+             (item.innerText || item.textContent || '') + ' ' +
+             (item.getAttribute('aria-label') || '')
+           ).toLowerCase();
+           if (bannedWords.some(function(w){ return txt.indexOf(w) !== -1; })) {
+             item.style.setProperty('display','none','important');
+             item.style.setProperty('pointer-events','none','important');
+           }
+         });
+
+         // ── حظر الروابط الخارجية ──
          document.querySelectorAll('a').forEach(function(a) {
            if (!a.__yt_blocked) {
              a.__yt_blocked = true;
@@ -436,35 +493,20 @@ class YoutubePlayerController extends GetxController {
              a.setAttribute('target', '_self');
            }
          });
-
-         const bannedWords = ['more', 'share', 'copy', 'link', 'watch on'];
-         document.querySelectorAll('[role="menuitem"], .ytp-menuitem').forEach(function(item) {
-           const text = (item.innerText || item.textContent || '').toLowerCase().trim();
-           const aria = (item.getAttribute('aria-label') || '').toLowerCase();
-           const isBanned = bannedWords.some(function(w) { return text.includes(w) || aria.includes(w); });
-           if (isBanned) { item.style.setProperty('display', 'none', 'important'); }
-         });
-
-         [
-           '[aria-label="More options"]', '[aria-label="more options"]',
-           '[aria-label="Share"]', '[aria-label="Copy link"]', '[aria-label="Watch on YouTube"]'
-         ].forEach(function(sel) {
-           document.querySelectorAll(sel).forEach(function(el) {
-             el.style.setProperty('display', 'none', 'important');
-           });
-         });
        }
 
        const ytObserver = new MutationObserver(cleanPlayer);
-       if (document.body) { ytObserver.observe(document.body, { childList: true, subtree: true }); }
+       if (document.body) { ytObserver.observe(document.body, { childList: true, subtree: true, attributes: true }); }
        cleanPlayer();
 
        function lightweightObserver() {
          try {
+           cleanPlayer();
            const dangerElements = document.querySelectorAll(
-             '.ytp-share-button, .ytp-share-panel, .ytEmbedPlayerShareButton, ' +
-             '[aria-label*="Share"], [aria-label*="Copy"], [aria-label*="More options"], ' +
-             '[title*="Share"], [title*="Copy"]'
+             '.ytp-share-button,.ytp-share-panel,.ytEmbedPlayerShareButton,' +
+             '.ytp-overflow-button,.ytp-more-button,' +
+             '[aria-label*="Share"],[aria-label*="Copy"],[aria-label*="More options"],' +
+             '[title*="Share"],[title*="Copy"]'
            );
            for (let i = 0; i < dangerElements.length; i++) {
              const el = dangerElements[i];
