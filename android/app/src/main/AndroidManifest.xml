@@ -64,12 +64,18 @@
 
         </activity>
 
-        <!-- خدمة التحميل في الخلفية - هذا التعريف يحل الـ Conflict -->
+        <!-- خدمة Foreground Service التابعة لـ flutter_local_notifications -->
+        <!-- هذه تحمي عملية التحميل وتمنع أندرويد من قطع الشبكة عند تحويل التطبيق للخلفية -->
+        <service
+            android:name="com.dexterous.flutterlocalnotifications.ForegroundService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false"
+            android:stopWithTask="false" />
+
+        <!-- خدمة Foreground Service التابعة لـ flutter_background_service -->
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:foregroundServiceType="dataSync"
-            android:exported="true"
-            tools:replace="android:exported"/>
+            android:foregroundServiceType="dataSync" />
 
         <meta-data
             android:name="flutterEmbedding"

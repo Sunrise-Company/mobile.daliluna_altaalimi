@@ -15,12 +15,14 @@ import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
+import android.os.PowerManager
 import java.nio.ByteBuffer
 
 class MainActivity : FlutterActivity() {
     private lateinit var displayManager: DisplayManager
     private var overlayView: View? = null
     private var screenCaptureEventSink: EventChannel.EventSink? = null
+    private var partialWakeLock: PowerManager.WakeLock? = null
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
@@ -142,6 +144,31 @@ class MainActivity : FlutterActivity() {
                         window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     } else {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    }
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
+
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.sunrise.daliluna/wakelock"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "acquire" -> {
+                    if (partialWakeLock == null) {
+                        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                        partialWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Daliluna::DownloadWakeLock")
+                    }
+                    if (partialWakeLock?.isHeld == false) {
+                        partialWakeLock?.acquire()
+                    }
+                    result.success(null)
+                }
+                "release" -> {
+                    if (partialWakeLock?.isHeld == true) {
+                        partialWakeLock?.release()
                     }
                     result.success(null)
                 }

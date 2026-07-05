@@ -3,12 +3,28 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
 import 'package:daliluna_altaalimi/background_download_service.dart';
 import 'dart:math';
+import 'dart:isolate';
+import 'dart:ui';
+
+@pragma('vm:entry-point')
+void downloadNotificationBackgroundHandler(NotificationResponse response) {
+  if (response.payload == null) return;
+  final videoId = response.payload!;
+
+  final sendPort = IsolateNameServer.lookupPortByName('download_send_port');
+  if (sendPort != null) {
+    if (response.actionId == 'cancel_download') {
+      sendPort.send({'action': 'cancel', 'videoId': videoId});
+    }
+  }
+}
 
 class DownloadOption {
   final String label;
@@ -118,7 +134,7 @@ class DownloadTask {
   );
 }
 
-class DownloadService {
+class DownloadService with WidgetsBindingObserver {
   DownloadService._privateConstructor();
   static final DownloadService _instance =
       DownloadService._privateConstructor();
@@ -129,6 +145,7 @@ class DownloadService {
   final _progressController =
       StreamController<Map<String, DownloadTask>>.broadcast();
   final Map<String, CancelToken> _cancelTokens = {};
+  final Map<String, int> _lastNotifiedProgress = {};
 
   // إشعارات
   final FlutterLocalNotificationsPlugin _notifications =
@@ -145,13 +162,52 @@ class DownloadService {
   Map<String, DownloadTask> get tasks => _tasks;
 
   static const _muxChannel = MethodChannel('com.example.muxer');
+  static const _wakeLockChannel = MethodChannel(
+    'com.sunrise.daliluna/wakelock',
+  );
   static const _prefsKey = 'download_tasks';
 
   DownloadTask? getTask(String videoId) => _tasks[videoId];
 
+  Future<void> _acquireWakeLock() async {
+    if (Platform.isAndroid) {
+      try {
+        await _wakeLockChannel.invokeMethod('acquire');
+        print('🟢 Partial WakeLock acquired.');
+      } catch (e) {
+        print('Wakelock acquire error: $e');
+      }
+    }
+  }
+
+  Future<void> _releaseWakeLock() async {
+    if (Platform.isAndroid) {
+      try {
+        await _wakeLockChannel.invokeMethod('release');
+        print('🔴 Partial WakeLock released.');
+      } catch (e) {
+        print('Wakelock release error: $e');
+      }
+    }
+  }
+
+  void _checkAndReleaseWakeLock() {
+    final hasActiveDownloads = _tasks.values.any(
+      (t) =>
+          t.status == DownloadStatus.downloading ||
+          t.status == DownloadStatus.merging,
+    );
+    if (!hasActiveDownloads) {
+      _releaseWakeLock();
+    }
+  }
+
   /// تهيئة الإشعارات
   Future<void> initNotifications() async {
     if (_notificationsInitialized) return;
+
+    // مراقبة دورة حياة التطبيق لمعالجة إغلاق التطبيق (onTaskRemoved)
+    WidgetsBinding.instance.addObserver(this);
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -167,8 +223,63 @@ class DownloadService {
       macOS: darwinSettings,
     );
 
-    await _notifications.initialize(initSettings);
+    await _notifications.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: (response) {
+        print(
+          '🟡 [Foreground] Notification Clicked: actionId=${response.actionId}',
+        );
+        if (response.payload == null) return;
+        final videoId = response.payload!;
+        if (response.actionId == 'pause_download') {
+          DownloadService.instance.pauseDownload(videoId);
+        } else if (response.actionId == 'resume_download') {
+          DownloadService.instance.resumeDownload(videoId);
+        } else if (response.actionId == 'cancel_download') {
+          print('🟡 [Foreground] Executing cancelDownload for $videoId');
+          DownloadService.instance.cancelDownload(videoId);
+        }
+      },
+      onDidReceiveBackgroundNotificationResponse:
+          downloadNotificationBackgroundHandler,
+    );
+
+    // Register ReceivePort for background communication
+    final port = ReceivePort();
+    IsolateNameServer.removePortNameMapping('download_send_port');
+    IsolateNameServer.registerPortWithName(port.sendPort, 'download_send_port');
+    port.listen((message) {
+      if (message is Map<String, dynamic>) {
+        final action = message['action'];
+        final videoId = message['videoId'];
+        if (action == 'pause') {
+          DownloadService.instance.pauseDownload(videoId);
+        } else if (action == 'resume') {
+          DownloadService.instance.resumeDownload(videoId);
+        } else if (action == 'cancel') {
+          DownloadService.instance.cancelDownload(videoId);
+        }
+      }
+    });
+
     _notificationsInitialized = true;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      print(
+        '🔴 App is detached. User swiped app away, stopping foreground service to clear notification.',
+      );
+      // إيقاف الخدمة لإزالة الإشعار المعلق عندما يغلق المستخدم التطبيق (السحب من المهام)
+      _stopForegroundService();
+      _checkAndReleaseWakeLock();
+
+      // إيقاف جميع التحميلات النشطة بشكل نظيف لكي لا يبقى شيء معلقاً
+      for (final videoId in _cancelTokens.keys.toList()) {
+        _cancelTokens[videoId]?.cancel('App killed by user');
+      }
+    }
   }
 
   /// استعادة التحميلات المحفوظة عند بدء التطبيق
@@ -221,35 +332,100 @@ class DownloadService {
   /// عرض/تحديث إشعار التقدم
   Future<void> _showProgressNotification(DownloadTask task) async {
     if (!_notificationsInitialized) await initNotifications();
-
     final progress = (task.progress * 100).toInt();
+
+    // خنق التحديثات (Rate Limiting) لتجنب اختناق نظام أندرويد
+    if (task.status == DownloadStatus.downloading) {
+      final lastProgress = _lastNotifiedProgress[task.videoId];
+      // لا تقم بتحديث الإشعار إذا لم تتغير النسبة المئوية
+      if (lastProgress != null && progress == lastProgress) {
+        return;
+      }
+      _lastNotifiedProgress[task.videoId] = progress;
+    }
     final title = task.videoName != null && task.videoName!.isNotEmpty
         ? 'تحميل: ${task.videoName}'
         : 'جاري التحميل';
 
+    // أزرار الإجراء تختلف بحسب الحالة
+    final List<AndroidNotificationAction> actions;
+    if (task.status == DownloadStatus.paused) {
+      actions = [
+        const AndroidNotificationAction(
+          'resume_download',
+          '▶ استمرار',
+          showsUserInterface: true,
+          cancelNotification: false,
+        ),
+        const AndroidNotificationAction(
+          'cancel_download',
+          '✕ إلغاء',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ];
+    } else {
+      actions = [
+        const AndroidNotificationAction(
+          'pause_download',
+          '⏸ إيقاف مؤقت',
+          showsUserInterface: true,
+          cancelNotification: false,
+        ),
+        const AndroidNotificationAction(
+          'cancel_download',
+          '✕ إلغاء',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ];
+    }
+
     final androidDetails = AndroidNotificationDetails(
-      'download_channel',
+      'download_channel_v2', // تم تغيير المعرف لكي يقبل أندرويد الإعدادات الجديدة
       'تحميل الفيديو',
       channelDescription: 'إشعارات تقدم التحميل',
-      importance: Importance.low,
-      priority: Priority.low,
-      ongoing: task.status == DownloadStatus.downloading,
+      importance:
+          Importance.max, // لمنع الإشعار من الذهاب لقسم "الإشعارات الصامتة"
+      priority: Priority.high,
+      playSound: false, // بدون صوت أثناء التقدم المباشر
+      enableVibration: false,
+      ongoing:
+          task.status == DownloadStatus.downloading ||
+          task.status == DownloadStatus.merging,
       showProgress: true,
       maxProgress: 100,
       progress: progress,
       icon: '@mipmap/ic_launcher',
+      actions: actions,
     );
 
-    await _notifications.show(
-      task.videoId.hashCode,
-      title,
-      task.statusText,
-      NotificationDetails(
-        android: androidDetails,
-        iOS: const DarwinNotificationDetails(),
-        macOS: const DarwinNotificationDetails(),
-      ),
-    );
+    if (Platform.isAndroid) {
+      // إجبار أندرويد على احترام العملية ومنع إغلاقها في الخلفية
+      await _notifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.startForegroundService(
+            task.videoId.hashCode,
+            title,
+            task.statusText,
+            notificationDetails: androidDetails,
+            payload: task.videoId,
+          );
+    } else {
+      await _notifications.show(
+        task.videoId.hashCode,
+        title,
+        task.statusText,
+        NotificationDetails(
+          android: androidDetails,
+          iOS: const DarwinNotificationDetails(),
+          macOS: const DarwinNotificationDetails(),
+        ),
+        payload: task.videoId,
+      );
+    }
   }
 
   /// عرض إشعار الاكتمال
@@ -267,11 +443,13 @@ class DownloadService {
         : (success ? 'تم تحميل الفيديو بنجاح' : 'فشل التحميل بعد عدة محاولات');
 
     final androidDetails = AndroidNotificationDetails(
-      'download_channel',
+      'download_channel_v2', // يجب أن يتطابق مع معرف تقدم التحميل
       'تحميل الفيديو',
       channelDescription: 'إشعارات تحميل الفيديو',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
+      playSound: true, // تفعيل الصوت عند الاكتمال
+      enableVibration: true,
       icon: '@mipmap/ic_launcher',
     );
 
@@ -326,6 +504,7 @@ class DownloadService {
     _cancelTokens[videoId] = CancelToken();
     _notifyUpdates();
     await _saveTasksState();
+    await _acquireWakeLock();
 
     await _executeDownload(task, option);
   }
@@ -371,6 +550,42 @@ class DownloadService {
     );
   }
 
+  /// إيقاف مؤقت للتحميل
+  Future<void> pauseDownload(String videoId) async {
+    final task = _tasks[videoId];
+    if (task == null) return;
+    if (task.status != DownloadStatus.downloading &&
+        task.status != DownloadStatus.merging)
+      return;
+
+    // إلغاء الطلب الجاري (الـ Dio سيرمي CanceledException)
+    _cancelTokens[videoId]?.cancel('pause');
+    _cancelTokens.remove(videoId);
+
+    task.status = DownloadStatus.paused;
+    task.statusText = 'متوقف مؤقتاً - اضغط للاستمرار';
+    _notifyUpdates();
+    await _saveTasksState();
+    await _stopForegroundService();
+    _checkAndReleaseWakeLock();
+
+    // تحديث الإشعار ليعرض زر الاستئناف
+    _showProgressNotification(task);
+  }
+
+  /// إيقاف خدمة الـ Foreground Service
+  Future<void> _stopForegroundService() async {
+    try {
+      await _notifications
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.stopForegroundService();
+    } catch (e) {
+      print('Foreground service stop error: $e');
+    }
+  }
+
   /// استئناف التحميل المتوقف
   Future<void> resumeDownload(String videoId) async {
     final task = _tasks[videoId];
@@ -392,135 +607,21 @@ class DownloadService {
     _cancelTokens[videoId] = CancelToken();
     _notifyUpdates();
     await _saveTasksState();
+    await _acquireWakeLock();
+
+    // تحديث الإشعار ليعرض حالة التحميل
+    _showProgressNotification(task);
 
     print('✅ بدء استئناف التحميل للفيديو: $videoId');
-    print('📊 التقدم السابق: ${(task.progress * 100).toStringAsFixed(1)}%');
-    print(
-      '📥 البيانات المحملة: ${task.downloadedBytes} / ${task.totalBytes} bytes',
-    );
 
-    // بما أن روابط YouTube تنتهي صلاحيتها، نحتاج إلى جلب روابط جديدة
-    // ولكن سنحاول الاستئناف من نقطة التوقف إذا كان الملف موجوداً جزئياً
-    if (task.videoUrl != null && task.videoUrl!.isNotEmpty) {
-      // محاولة الاستئناف باستخدام الرابط القديم أولاً
-      try {
-        await _executeDownloadResume(task);
-        return;
-      } catch (e) {
-        print('⚠️ فشل الاستئناف بالرابط القديم، سيتم جلب رابط جديد من YouTube');
-      }
-    }
-
-    // إعادة جلب الروابط من YouTube (الروابط القديمة انتهت صلاحيتها)
-    final yt = ytd.YoutubeExplode();
-    try {
-      print('🌐 جاري جلب روابط جديدة من YouTube...');
-      final manifest = await yt.videos.streamsClient.getManifest(videoId);
-      final muxedStreams = manifest.muxed
-          .where((s) => s.container == ytd.StreamContainer.mp4)
-          .toList();
-
-      if (muxedStreams.isNotEmpty) {
-        // اختر أفضل جودة متاحة
-        final stream = muxedStreams.first;
-        final option = DownloadOption.muxed(stream);
-
-        // تحديث الروابط الجديدة في المهمة
-        task.videoUrl = option.streamInfo.url.toString();
-        task.totalBytes = stream.size.totalBytes;
-
-        // إعادة تعيين downloadedBytes لأننا سنبدأ من جديد
-        task.downloadedBytes = 0;
-        task.progress = 0.0;
-        await _saveTasksState();
-
-        print('⚠️ ملاحظة: رابط YouTube القديم انتهى، سيبدأ التحميل من الصفر');
-
-        // بدء التحميل من جديد (لأننا لا نستطيع ضمان استمرارية رابط YouTube)
-        await _executeDownload(task, option);
-      } else {
-        throw Exception('لم يتم العثور على دقات متاحة');
-      }
-    } catch (e) {
-      print('❌ خطأ في جلب البيانات من YouTube: $e');
-      task.status = DownloadStatus.failed;
-      task.statusText = 'فشل الاستئناف - حاول مجدداً';
-      _notifyUpdates();
-      await _saveTasksState();
-    } finally {
-      yt.close();
-    }
-  }
-
-  /// تنفيذ استئناف التحميل من نقطة التوقف
-  Future<void> _executeDownloadResume(DownloadTask task) async {
-    // هذه الدالة تحاول الاستئناف من حيث توقف التحميل
-    final outPath = await _getLocalFilePath(task.videoId);
-    final file = File(outPath);
-
-    // التحقق من وجود ملف جزئي
-    if (await file.exists()) {
-      final fileSize = await file.length();
-      print('📁 حجم الملف الموجود: $fileSize bytes');
-
-      if (fileSize > 0 && fileSize < task.totalBytes) {
-        print('✅ وجد ملف جزئي، محاولة الاستئناف...');
-
-        try {
-          // محاولة الاستئناف باستخدام الرابط القديم
-          await _downloadWithRetryAndResume(
-            url: task.videoUrl!,
-            path: outPath,
-            task: task,
-            startByte: fileSize,
-            onProgress: (received, total) {
-              task.progress = (fileSize + received) / total;
-              task.statusText =
-                  'جاري الاستئناف... ${(task.progress * 100).toStringAsFixed(0)}%';
-              _notifyUpdates();
-              _showProgressNotification(task);
-            },
-          );
-
-          // اكتمل التحميل
-          task.status = DownloadStatus.completed;
-          task.statusText = 'اكتمل التحميل!';
-          _notifyUpdates();
-          await _saveTasksState();
-          await _showCompletionNotification(task, true);
-          return;
-        } catch (e) {
-          print('⚠️ فشل الاستئناف بالرابط القديم: $e');
-          // إذا فشل الاستئناف، حاول حذف الملف الجزئي والبدء من جديد
-          // لأن الملف قد يكون تالفاً أو الرابط انتهى
-          print('🔄 سيتم البدء من جديد مع رابط جديد...');
-
-          // حذف الملف الجزئي التالف
-          try {
-            await file.delete();
-            print('🗑️ تم حذف الملف الجزئي');
-          } catch (deleteError) {
-            print('⚠️ فشل حذف الملف الجزئي: $deleteError');
-          }
-        }
-      } else if (fileSize >= task.totalBytes) {
-        print('✅ الملف مكتمل بالفعل!');
-        task.status = DownloadStatus.completed;
-        task.statusText = 'اكتمل التحميل!';
-        _notifyUpdates();
-        await _saveTasksState();
-        return;
-      }
-    } else {
-      print('📭 لا يوجد ملف جزئي');
-    }
-
-    // إذا لم يوجد ملف جزئي أو فشل الاستئناف، ارمِ خطأ للرجوع للطريقة البديلة
-    throw Exception('يجب جلب رابط جديد والبدء من الصفر');
+    // استخدام دالة التحميل الموحدة التي تدعم الاستئناف التلقائي
+    await _executeDownload(task, null);
   }
 
   /// إلغاء التحميل
   Future<void> cancelDownload(String videoId) async {
+    print('🔴 يتم الآن إلغاء التحميل للفيديو: $videoId');
+
     _cancelTokens[videoId]?.cancel('User cancelled');
     _cancelTokens.remove(videoId);
 
@@ -531,10 +632,14 @@ class DownloadService {
       _notifyUpdates();
     }
 
+    // إيقاف الـ Foreground Service ضروري جداً لكي يختفي الإشعار في الأندرويد
+    await _stopForegroundService();
     await _cancelNotification(videoId);
+
     _tasks.remove(videoId);
     await _saveTasksState();
     _notifyUpdates();
+    _checkAndReleaseWakeLock();
   }
 
   /// تنفيذ التحميل الفعلي مع إعادة المحاولة
@@ -544,7 +649,6 @@ class DownloadService {
   ) async {
     try {
       final outPath = await _getLocalFilePath(task.videoId);
-      final cancelToken = _cancelTokens[task.videoId];
 
       // عرض الإشعار والبدء
       _showProgressNotification(task);
@@ -564,17 +668,34 @@ class DownloadService {
       }
 
       if (task.isMuxed && videoStreamInfo != null) {
+        // التحقق من وجود ملف جزئي
+        int fileSize = 0;
+        if (await File(outPath).exists()) {
+          fileSize = await File(outPath).length();
+        }
+
+        if (task.totalBytes > 0 && fileSize >= task.totalBytes) {
+          task.status = DownloadStatus.completed;
+          task.statusText = 'اكتمل التحميل!';
+          task.progress = 1.0;
+          _notifyUpdates();
+          await _saveTasksState();
+          await _showCompletionNotification(task, true);
+          return;
+        }
+
         // Use retry/resume logic
         await _downloadWithRetryAndResume(
           url: videoStreamInfo.url.toString(),
           path: outPath,
           task: task,
-          startByte: 0,
+          startByte: fileSize,
           onProgress: (received, total) {
             final t = task.totalBytes > 0 ? task.totalBytes : total;
             if (t > 0) {
-              task.progress = received / t;
-              task.downloadedBytes = received; // This tracks total downloaded
+              final totalNow = fileSize + received;
+              task.progress = totalNow / t;
+              task.downloadedBytes = totalNow;
               task.statusText =
                   'جاري التحميل... ${(task.progress * 100).toStringAsFixed(0)}%';
               _notifyUpdates();
@@ -588,52 +709,66 @@ class DownloadService {
         final totalSize =
             videoStreamInfo.size.totalBytes + audioStreamInfo.size.totalBytes;
 
-        // تحميل الفيديو
-        task.statusText = 'جاري تحميل الفيديو...';
-        _notifyUpdates();
-        _showProgressNotification(task);
+        int vSize = 0;
+        if (await File(vTmp).exists()) vSize = await File(vTmp).length();
 
-        await _downloadWithRetryAndResume(
-          url: videoStreamInfo.url.toString(),
-          path: vTmp,
-          task: task,
-          startByte: 0,
-          onProgress: (received, _) {
-            // received is file size here
-            if (totalSize > 0) {
-              task.progress = received / totalSize;
-              task.downloadedBytes = received; // Stores video size
-              task.statusText =
-                  'جاري تحميل الفيديو... ${(task.progress * 100).toStringAsFixed(0)}%';
-              _notifyUpdates();
-              _showProgressNotification(task);
-            }
-          },
-        );
+        int aSize = 0;
+        if (await File(aTmp).exists()) aSize = await File(aTmp).length();
 
-        // تحميل الصوت
-        task.statusText = 'جاري تحميل الصوت...';
-        _notifyUpdates();
-        _showProgressNotification(task);
+        // تحميل الفيديو إذا لم يكتمل
+        if (vSize < videoStreamInfo.size.totalBytes) {
+          task.statusText = 'جاري تحميل الفيديو...';
+          _notifyUpdates();
+          _showProgressNotification(task);
 
-        await _downloadWithRetryAndResume(
-          url: audioStreamInfo.url.toString(),
-          path: aTmp,
-          task: task,
-          startByte: 0,
-          onProgress: (received, _) {
-            if (totalSize > 0) {
-              final vSize =
-                  task.downloadedBytes; // Video size stored previously
-              task.progress = (vSize + received) / totalSize;
-              task.audioDownloadedBytes = received;
-              task.statusText =
-                  'جاري تحميل الصوت... ${(task.progress * 100).toStringAsFixed(0)}%';
-              _notifyUpdates();
-              _showProgressNotification(task);
-            }
-          },
-        );
+          await _downloadWithRetryAndResume(
+            url: videoStreamInfo.url.toString(),
+            path: vTmp,
+            task: task,
+            startByte: vSize,
+            onProgress: (received, _) {
+              if (totalSize > 0) {
+                final totalV = vSize + received;
+                task.progress = (totalV + aSize) / totalSize;
+                task.downloadedBytes = totalV;
+                task.statusText =
+                    'جاري تحميل الفيديو... ${(task.progress * 100).toStringAsFixed(0)}%';
+                _notifyUpdates();
+                _showProgressNotification(task);
+              }
+            },
+          );
+
+          // تحديث الحجم بعد الانتهاء للدمج الصحيح
+          if (await File(vTmp).exists()) vSize = await File(vTmp).length();
+        } else {
+          task.downloadedBytes = videoStreamInfo.size.totalBytes;
+        }
+
+        // تحميل الصوت إذا لم يكتمل
+        if (aSize < audioStreamInfo.size.totalBytes) {
+          task.statusText = 'جاري تحميل الصوت...';
+          _notifyUpdates();
+          _showProgressNotification(task);
+
+          await _downloadWithRetryAndResume(
+            url: audioStreamInfo.url.toString(),
+            path: aTmp,
+            task: task,
+            startByte: aSize,
+            onProgress: (received, _) {
+              if (totalSize > 0) {
+                final totalA = aSize + received;
+                task.progress = (vSize + totalA) / totalSize;
+                task.audioDownloadedBytes = totalA;
+                task.statusText =
+                    'جاري تحميل الصوت... ${(task.progress * 100).toStringAsFixed(0)}%';
+                _notifyUpdates();
+                _showProgressNotification(task);
+              }
+            },
+          );
+        }
 
         if (!(await File(vTmp).exists()) ||
             (await File(vTmp).length()) < 1000) {
@@ -696,6 +831,8 @@ class DownloadService {
       }
     } catch (e) {
       await _handleDownloadError(task, e);
+    } finally {
+      _checkAndReleaseWakeLock();
     }
   }
 

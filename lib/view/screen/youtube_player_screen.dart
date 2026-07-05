@@ -55,12 +55,31 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
                                 ctrl: ctrl,
                                 isDownloading: isDownloading,
                               ),
-                              if (isDownloading)
+                              if (task != null &&
+                                  (task.status == DownloadStatus.downloading ||
+                                      task.status == DownloadStatus.merging ||
+                                      task.status == DownloadStatus.paused))
                                 Container(
                                   color: Colors.white,
                                   child: DownloadProgressWidget(
-                                    progress: task?.progress ?? 0.0,
-                                    statusText: task?.statusText ?? '',
+                                    progress: task.progress,
+                                    statusText: task.statusText,
+                                    status: task.status,
+                                    onPause:
+                                        task.status ==
+                                                DownloadStatus.downloading ||
+                                            task.status ==
+                                                DownloadStatus.merging
+                                        ? () => ctrl.downloadService
+                                              .pauseDownload(ctrl.videoId)
+                                        : null,
+                                    onResume:
+                                        task.status == DownloadStatus.paused
+                                        ? () => ctrl.downloadService
+                                              .resumeDownload(ctrl.videoId)
+                                        : null,
+                                    onCancel: () => ctrl.downloadService
+                                        .cancelDownload(ctrl.videoId),
                                   ),
                                 ),
                               Expanded(

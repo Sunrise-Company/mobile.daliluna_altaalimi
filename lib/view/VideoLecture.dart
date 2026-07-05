@@ -2,7 +2,6 @@ import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'dart:io';
 import 'package:better_player_plus/better_player_plus.dart';
 import 'package:daliluna_altaalimi/controller/videoLectureControllers.dart';
-import 'package:daliluna_altaalimi/view/screen/youtube_player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:get/get.dart';

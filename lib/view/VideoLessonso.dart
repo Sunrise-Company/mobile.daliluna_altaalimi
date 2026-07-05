@@ -1,6 +1,5 @@
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/controller/vidoeLesson.dart';
-import 'package:daliluna_altaalimi/view/screen/youtube_player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:get/get.dart';
