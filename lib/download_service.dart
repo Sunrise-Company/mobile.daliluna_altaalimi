@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,6 +15,7 @@ import 'dart:math';
 import 'dart:isolate';
 import 'dart:ui';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:get/get.dart' hide Response;
 
 @pragma('vm:entry-point')
 void downloadNotificationBackgroundHandler(NotificationResponse response) {
@@ -486,7 +489,47 @@ class DownloadService with WidgetsBindingObserver {
     if (Platform.isAndroid) {
       final status = await Permission.ignoreBatteryOptimizations.status;
       if (!status.isGranted) {
-        await Permission.ignoreBatteryOptimizations.request();
+        final bool? proceed = await Get.defaultDialog<bool>(
+          title: "إعداد هام جداً ⚠️",
+          titleStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Cairo',
+            fontSize: 18,
+            color: AppColor.PrimaryColor,
+          ),
+          content: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              "لضمان استمرار التحميل في الخلفية وعدم توقفه، يرجى تفعيل السماح للتطبيق بالعمل في الخلفية (أو اختيار 'بدون قيود' / No restrictions) في الشاشة التالية.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: 'Cairo', fontSize: 14),
+            ),
+          ),
+          barrierDismissible: false,
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text(
+                'تخطي',
+                style: TextStyle(fontFamily: 'Cairo', color: AppColor.grey),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColor.PrimaryColor,
+              ),
+              child: const Text(
+                'الانتقال للإعدادات',
+                style: TextStyle(fontFamily: 'Cairo', color: Colors.white),
+              ),
+            ),
+          ],
+        );
+
+        if (proceed == true) {
+          await Permission.ignoreBatteryOptimizations.request();
+        }
       }
     }
 
