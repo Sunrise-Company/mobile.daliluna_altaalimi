@@ -12,6 +12,7 @@ import 'package:daliluna_altaalimi/background_download_service.dart';
 import 'dart:math';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:permission_handler/permission_handler.dart';
 
 @pragma('vm:entry-point')
 void downloadNotificationBackgroundHandler(NotificationResponse response) {
@@ -479,6 +480,14 @@ class DownloadService with WidgetsBindingObserver {
     if (_tasks[videoId]?.status == DownloadStatus.downloading ||
         _tasks[videoId]?.status == DownloadStatus.merging) {
       return;
+    }
+
+    // طلب السماح بتجاهل تحسينات البطارية (لمنع إغلاق التطبيق بسبب الرام)
+    if (Platform.isAndroid) {
+      final status = await Permission.ignoreBatteryOptimizations.status;
+      if (!status.isGranted) {
+        await Permission.ignoreBatteryOptimizations.request();
+      }
     }
 
     // حساب الحجم الإجمالي
