@@ -32,13 +32,13 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
               },
               child: StreamBuilder<Map<String, DownloadTask>>(
                 stream: ctrl.downloadService.progressStream,
-                initialData: const {},
+                initialData: ctrl.downloadService.tasks,
                 builder: (context, snapshot) {
                   final task = snapshot.data?[ctrl.videoId];
                   final isDownloading =
                       task?.status == DownloadStatus.downloading ||
-                      task?.status == DownloadStatus.merging;
-
+                      task?.status == DownloadStatus.merging ||
+                      task?.status == DownloadStatus.paused;
                   return Stack(
                     children: [
                       // ── المحتوى أسفل المشغّل (شريط التحكم والتعليقات) ──
