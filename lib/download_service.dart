@@ -611,8 +611,9 @@ class DownloadService with WidgetsBindingObserver {
       return;
 
     // إلغاء الطلب الجاري (الـ Dio سيرمي CanceledException)
-    _cancelTokens[videoId]?.cancel('pause');
-    _cancelTokens.remove(videoId);
+    if (!(_cancelTokens[videoId]?.isCancelled ?? true)) {
+      _cancelTokens[videoId]?.cancel('pause');
+    }
 
     task.status = DownloadStatus.paused;
     task.statusText = 'متوقف مؤقتاً - اضغط للاستمرار';
@@ -674,7 +675,9 @@ class DownloadService with WidgetsBindingObserver {
   Future<void> cancelDownload(String videoId) async {
     print('🔴 يتم الآن إلغاء التحميل للفيديو: $videoId');
 
-    _cancelTokens[videoId]?.cancel('User cancelled');
+    if (!(_cancelTokens[videoId]?.isCancelled ?? true)) {
+      _cancelTokens[videoId]?.cancel('User cancelled');
+    }
     _cancelTokens.remove(videoId);
 
     final task = _tasks[videoId];
@@ -902,7 +905,9 @@ class DownloadService with WidgetsBindingObserver {
     while (attempts < maxRetries) {
       try {
         final cancelToken = _cancelTokens[task.videoId];
-        if (cancelToken?.isCancelled ?? false) {
+        if ((cancelToken?.isCancelled ?? false) ||
+            task.status == DownloadStatus.paused ||
+            task.status == DownloadStatus.none) {
           throw DioException(
             requestOptions: RequestOptions(path: url),
             type: DioExceptionType.cancel,
@@ -954,7 +959,9 @@ class DownloadService with WidgetsBindingObserver {
           final stream = response.data!.stream;
           await for (final chunk in stream) {
             // Check cancel again inside loop for responsiveness
-            if (cancelToken?.isCancelled ?? false) {
+            if ((cancelToken?.isCancelled ?? false) ||
+                task.status == DownloadStatus.paused ||
+                task.status == DownloadStatus.none) {
               throw DioException(
                 requestOptions: RequestOptions(path: url),
                 type: DioExceptionType.cancel,
@@ -988,11 +995,16 @@ class DownloadService with WidgetsBindingObserver {
         print(
           '⚠️ فشل التحميل (محاولة $attempts/$maxRetries). إعادة المحاولة...',
         );
+        task.statusText = 'جاري إعادة المحاولة ($attempts/$maxRetries)...';
+        _notifyUpdates();
         await Future.delayed(delay);
         delay *= 2;
       } catch (e) {
         attempts++;
         if (attempts >= maxRetries) rethrow;
+
+        task.statusText = 'جاري إعادة المحاولة ($attempts/$maxRetries)...';
+        _notifyUpdates();
         await Future.delayed(delay);
       }
     }
