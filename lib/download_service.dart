@@ -1122,7 +1122,12 @@ class DownloadService with WidgetsBindingObserver {
               s.container == ytd.StreamContainer.mp4 &&
               s.videoCodec.startsWith('avc1'),
         );
-        final a = manifest.audioOnly.withHighestBitrate();
+        final audioStreams = manifest.audioOnly.where(
+          (s) => s.container == ytd.StreamContainer.mp4 && !s.audioCodec.toLowerCase().contains('opus'),
+        );
+        final a = audioStreams.isNotEmpty 
+            ? audioStreams.withHighestBitrate() 
+            : manifest.audioOnly.withHighestBitrate();
 
         ytd.VideoOnlyStreamInfo? v;
         if (task.qualityLabel != null) {

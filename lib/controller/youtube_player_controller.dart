@@ -228,9 +228,14 @@ class YoutubePlayerController extends GetxController {
             .map((s) => DownloadOption.muxed(s)),
       );
 
-      final bestAudio = manifest.audioOnly
-          .where((s) => s.container == ytd.StreamContainer.mp4)
-          .withHighestBitrate();
+      final audioStreams = manifest.audioOnly.where(
+        (s) =>
+            s.container == ytd.StreamContainer.mp4 &&
+            !s.audioCodec.toLowerCase().contains('opus'),
+      );
+      final bestAudio = audioStreams.isNotEmpty
+          ? audioStreams.withHighestBitrate()
+          : manifest.audioOnly.withHighestBitrate();
 
       // bestAudio is non-nullable after withHighestBitrate()
       options.addAll(
