@@ -144,11 +144,14 @@ class VideoLessons extends GetView<VideoLessonsController> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      LinearProgressIndicator(
-                        value: controller.progress.value,
-                        backgroundColor: Colors.grey[200],
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColor.DeepPurple,
+                      Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: LinearProgressIndicator(
+                          value: controller.progress.value,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            AppColor.DeepPurple,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),

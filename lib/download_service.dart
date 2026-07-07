@@ -213,9 +213,7 @@ class DownloadService with WidgetsBindingObserver {
     // مراقبة دورة حياة التطبيق لمعالجة إغلاق التطبيق (onTaskRemoved)
     WidgetsBinding.instance.addObserver(this);
 
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
+    const androidSettings = AndroidInitializationSettings('ic_stat_logo');
     const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -400,36 +398,22 @@ class DownloadService with WidgetsBindingObserver {
       showProgress: true,
       maxProgress: 100,
       progress: progress,
-      icon: '@mipmap/ic_launcher',
+      icon: 'ic_stat_logo',
       actions: actions,
     );
 
-    if (Platform.isAndroid) {
-      // إجبار أندرويد على احترام العملية ومنع إغلاقها في الخلفية
-      await _notifications
-          .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin
-          >()
-          ?.startForegroundService(
-            task.videoId.hashCode,
-            title,
-            task.statusText,
-            notificationDetails: androidDetails,
-            payload: task.videoId,
-          );
-    } else {
-      await _notifications.show(
-        task.videoId.hashCode,
-        title,
-        task.statusText,
-        NotificationDetails(
-          android: androidDetails,
-          iOS: const DarwinNotificationDetails(),
-          macOS: const DarwinNotificationDetails(),
-        ),
-        payload: task.videoId,
-      );
-    }
+    // عرض إشعار التقدم الفردي لكل فيديو
+    await _notifications.show(
+      task.videoId.hashCode,
+      title,
+      task.statusText,
+      NotificationDetails(
+        android: androidDetails,
+        iOS: const DarwinNotificationDetails(),
+        macOS: const DarwinNotificationDetails(),
+      ),
+      payload: task.videoId,
+    );
   }
 
   /// عرض إشعار الاكتمال
@@ -454,7 +438,7 @@ class DownloadService with WidgetsBindingObserver {
       priority: Priority.high,
       playSound: true, // تفعيل الصوت عند الاكتمال
       enableVibration: true,
-      icon: '@mipmap/ic_launcher',
+      icon: 'ic_stat_logo',
     );
 
     await _notifications.show(
@@ -1123,10 +1107,12 @@ class DownloadService with WidgetsBindingObserver {
               s.videoCodec.startsWith('avc1'),
         );
         final audioStreams = manifest.audioOnly.where(
-          (s) => s.container == ytd.StreamContainer.mp4 && !s.audioCodec.toLowerCase().contains('opus'),
+          (s) =>
+              s.container == ytd.StreamContainer.mp4 &&
+              !s.audioCodec.toLowerCase().contains('opus'),
         );
-        final a = audioStreams.isNotEmpty 
-            ? audioStreams.withHighestBitrate() 
+        final a = audioStreams.isNotEmpty
+            ? audioStreams.withHighestBitrate()
             : manifest.audioOnly.withHighestBitrate();
 
         ytd.VideoOnlyStreamInfo? v;

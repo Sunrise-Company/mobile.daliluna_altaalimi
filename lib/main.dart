@@ -269,7 +269,7 @@ Future<String> _getDeviceInfoString() async {
     var androidInfo = await deviceInfoPlugin.androidInfo;
     return '''
 ╔════════════════════════════════════════╗
-║        معلومات الجهاز - Device Info   ║
+║        معلومات الجهاز - Device Info    ║
 ╚════════════════════════════════════════╝
 
 📱 الجهاز الأساسي:
@@ -301,7 +301,7 @@ Future<String> _getDeviceInfoString() async {
     var iosInfo = await deviceInfoPlugin.iosInfo;
     return '''
 ╔════════════════════════════════════════╗
-║        معلومات الجهاز - Device Info   ║
+║        معلومات الجهاز - Device Info    ║
 ╚════════════════════════════════════════╝
 
 📱 الجهاز الأساسي:
@@ -773,7 +773,7 @@ class MyApp extends StatelessWidget {
           child: Directionality(
             textDirection: TextDirection.rtl,
             child: SafeArea(
-              top: true,
+              top: false,
               bottom: true,
               child: DevicePreview.appBuilder(context, child),
             ),

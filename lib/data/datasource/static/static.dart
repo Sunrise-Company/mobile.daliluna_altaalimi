@@ -138,12 +138,12 @@ List<LessonOpenedModel> SubjectList = [
 ];
 
 List<OurCoursesModel> TeacherList = [
-  OurCoursesModel(textIcon: "بتول النويلاتي", image: AppImageAsset.teacher3),
-  OurCoursesModel(textIcon: "مازن الخطيب", image: AppImageAsset.teacher2),
-  OurCoursesModel(textIcon: "نور المصري", image: AppImageAsset.teacher),
-  OurCoursesModel(textIcon: "بتول النويلاتي", image: AppImageAsset.teacher3),
-  OurCoursesModel(textIcon: "مازن الخطيب", image: AppImageAsset.teacher2),
-  OurCoursesModel(textIcon: "نور المصري", image: AppImageAsset.teacher),
+  OurCoursesModel(textIcon: "بتول النويلاتي", image: AppImageAsset.pic3),
+  OurCoursesModel(textIcon: "مازن الخطيب", image: AppImageAsset.pic2),
+  OurCoursesModel(textIcon: "نور المصري", image: AppImageAsset.pic),
+  OurCoursesModel(textIcon: "بتول النويلاتي", image: AppImageAsset.pic3),
+  OurCoursesModel(textIcon: "مازن الخطيب", image: AppImageAsset.pic2),
+  OurCoursesModel(textIcon: "نور المصري", image: AppImageAsset.pic),
 ];
 
 List<LessonModel> LessonList = [

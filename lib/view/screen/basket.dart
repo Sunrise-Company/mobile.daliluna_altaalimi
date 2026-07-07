@@ -7,11 +7,8 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:daliluna_altaalimi/controller/basket_controller.dart';
 import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:daliluna_altaalimi/core/function/alertpaidMethod.dart';
-import 'package:daliluna_altaalimi/view/widget/customelevatedbutton.dart';
-import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:daliluna_altaalimi/view/widget/loadingimage.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../controller/home_controller.dart';
 import '../../core/constant/imageasset.dart';
 import '../widget/GetValueForScreen.dart';

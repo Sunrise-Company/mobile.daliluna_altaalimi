@@ -1,5 +1,4 @@
 package com.sunrise.daliluna_altaalimi
-
 import android.content.Context
 import android.hardware.display.DisplayManager
 import android.os.Bundle
@@ -17,12 +16,17 @@ import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.PowerManager
 import java.nio.ByteBuffer
+import android.os.Handler
+import android.os.Looper
+import java.util.concurrent.Executors
 
 class MainActivity : FlutterActivity() {
     private lateinit var displayManager: DisplayManager
     private var overlayView: View? = null
     private var screenCaptureEventSink: EventChannel.EventSink? = null
     private var partialWakeLock: PowerManager.WakeLock? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val muxExecutor = Executors.newSingleThreadExecutor()
 
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(displayId: Int) {
@@ -122,11 +126,17 @@ class MainActivity : FlutterActivity() {
                 val video = call.argument<String>("video")!!
                 val audio = call.argument<String>("audio")!!
                 val out = call.argument<String>("out")!!
-                try {
-                    muxMp4(video, audio, out)
-                    result.success(null)
-                } catch (e: Exception) {
-                    result.error("MUX_ERR", e.message, null)
+                muxExecutor.execute {
+                    try {
+                        muxMp4(video, audio, out)
+                        mainHandler.post {
+                            result.success(null)
+                        }
+                    } catch (e: Exception) {
+                        mainHandler.post {
+                            result.error("MUX_ERR", e.message, null)
+                        }
+                    }
                 }
             } else {
                 result.notImplemented()
@@ -236,5 +246,10 @@ class MainActivity : FlutterActivity() {
         muxer.release()
         vExt.release()
         aExt.release()
+    }
+
+    override fun onDestroy() {
+        muxExecutor.shutdown()
+        super.onDestroy()
     }
 }

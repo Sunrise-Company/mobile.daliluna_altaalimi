@@ -138,7 +138,7 @@ void onStart(ServiceInstance service) async {
   final notifications = FlutterLocalNotificationsPlugin();
 
   // تهيئة الإشعارات
-  const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const androidSettings = AndroidInitializationSettings('ic_stat_logo');
   const darwinSettings = DarwinInitializationSettings(
     requestAlertPermission: true,
     requestBadgePermission: true,
@@ -317,7 +317,7 @@ Future<void> _updateNotification(
     maxProgress: 100,
     progress: progress,
     indeterminate: indeterminate,
-    icon: '@mipmap/ic_launcher',
+    icon: 'ic_stat_logo',
   );
 
   const darwinDetails = DarwinNotificationDetails(
@@ -350,7 +350,7 @@ Future<void> _showCompletionNotification(
     channelDescription: 'إشعارات تحميل الفيديو',
     importance: Importance.high,
     priority: Priority.high,
-    icon: '@mipmap/ic_launcher',
+    icon: 'ic_stat_logo',
   );
 
   const darwinDetails = DarwinNotificationDetails(
