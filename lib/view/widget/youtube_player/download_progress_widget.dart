@@ -27,9 +27,11 @@ class DownloadProgressWidget extends StatelessWidget {
         status == DownloadStatus.merging;
     final bool isPaused = status == DownloadStatus.paused;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.all(16),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -208,7 +210,7 @@ class DownloadProgressWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 

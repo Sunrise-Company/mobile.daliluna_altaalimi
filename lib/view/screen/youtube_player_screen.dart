@@ -13,8 +13,12 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
   const YoutubePlayerScreen({super.key});
 
   @override
+  String? get tag => Get.arguments['videoId'];
+
+  @override
   Widget build(BuildContext context) {
     return GetBuilder<YoutubePlayerController>(
+      tag: Get.arguments['videoId'],
       builder: (ctrl) {
         return Scaffold(
           backgroundColor: Colors.black,

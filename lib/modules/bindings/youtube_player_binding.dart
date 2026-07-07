@@ -10,6 +10,7 @@ class YoutubePlayerBinding extends Bindings {
         lessonId: Get.arguments['lessonId'],
         type: Get.arguments['type'],
       ),
+      tag: Get.arguments['videoId'],
     );
   }
 }

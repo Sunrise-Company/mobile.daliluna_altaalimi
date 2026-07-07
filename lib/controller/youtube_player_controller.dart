@@ -281,6 +281,8 @@ class YoutubePlayerController extends GetxController {
         videoId,
         selectedOption,
         videoName: videoTitle,
+        lessonId: lessonId,
+        type: type,
       );
     }
   }

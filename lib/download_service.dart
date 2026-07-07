@@ -19,14 +19,30 @@ import 'package:get/get.dart' hide Response;
 
 @pragma('vm:entry-point')
 void downloadNotificationBackgroundHandler(NotificationResponse response) {
-  if (response.payload == null) return;
+  print('🟣 [Background] Handler triggered! Action: ${response.actionId}');
+  DartPluginRegistrant.ensureInitialized();
+
+  if (response.payload == null) {
+    print('🟣 [Background] Payload is null! Aborting.');
+    return;
+  }
   final videoId = response.payload!;
+  print('🟣 [Background] Payload videoId: $videoId');
 
   final sendPort = IsolateNameServer.lookupPortByName('download_send_port');
   if (sendPort != null) {
+    print('🟣 [Background] SendPort FOUND! Sending message...');
     if (response.actionId == 'cancel_download') {
       sendPort.send({'action': 'cancel', 'videoId': videoId});
+    } else if (response.actionId == 'pause_download') {
+      sendPort.send({'action': 'pause', 'videoId': videoId});
+    } else if (response.actionId == 'resume_download') {
+      sendPort.send({'action': 'resume', 'videoId': videoId});
     }
+  } else {
+    print(
+      '🟣 [Background] SendPort is NULL! Main isolate might be dead or port not registered.',
+    );
   }
 }
 
@@ -80,6 +96,8 @@ class DownloadTask {
   int? audioDownloadedBytes; // للتحميلات المنفصلة
   int? audioTotalBytes; // للتحميلات المنفصلة
   String? qualityLabel; // لتذكر الدقة المختارة عند التجديد
+  int? lessonId;
+  String? type;
 
   DownloadTask({
     required this.videoId,
@@ -97,6 +115,8 @@ class DownloadTask {
     this.audioDownloadedBytes,
     this.audioTotalBytes,
     this.qualityLabel,
+    this.lessonId,
+    this.type,
   });
 
   Map<String, dynamic> toJson() => {
@@ -115,6 +135,8 @@ class DownloadTask {
     'audioDownloadedBytes': audioDownloadedBytes,
     'audioTotalBytes': audioTotalBytes,
     'qualityLabel': qualityLabel,
+    'lessonId': lessonId,
+    'type': type,
   };
 
   factory DownloadTask.fromJson(Map<String, dynamic> json) => DownloadTask(
@@ -135,6 +157,8 @@ class DownloadTask {
     audioDownloadedBytes: json['audioDownloadedBytes'],
     audioTotalBytes: json['audioTotalBytes'],
     qualityLabel: json['qualityLabel'],
+    lessonId: json['lessonId'],
+    type: json['type'],
   );
 }
 
@@ -240,6 +264,34 @@ class DownloadService with WidgetsBindingObserver {
         } else if (response.actionId == 'cancel_download') {
           print('🟡 [Foreground] Executing cancelDownload for $videoId');
           DownloadService.instance.cancelDownload(videoId);
+        } else {
+          // If actionId is empty, it means the user clicked the notification body itself
+          final task = DownloadService.instance._tasks[videoId];
+
+          final currentArgs = Get.arguments;
+          final isSameVideo =
+              Get.currentRoute == '/youtubeplayer' &&
+              currentArgs != null &&
+              currentArgs is Map &&
+              currentArgs['videoId'] == videoId;
+
+          if (isSameVideo) {
+            print(
+              '🟡 [Foreground] Already on the same video screen, ignoring navigation.',
+            );
+            return;
+          }
+
+          Get.toNamed(
+            '/youtubeplayer', // AppRoute.youtubePlayer (all lowercase)
+            preventDuplicates:
+                false, // يسمح بفتح أكثر من فيديو فوق بعضهم (ولكن ليس نفس الفيديو)
+            arguments: {
+              'videoId': videoId,
+              'lessonId': task?.lessonId ?? 0,
+              'type': task?.type ?? 'lesson_dep_file',
+            },
+          );
         }
       },
       onDidReceiveBackgroundNotificationResponse:
@@ -251,9 +303,11 @@ class DownloadService with WidgetsBindingObserver {
     IsolateNameServer.removePortNameMapping('download_send_port');
     IsolateNameServer.registerPortWithName(port.sendPort, 'download_send_port');
     port.listen((message) {
-      if (message is Map<String, dynamic>) {
+      print('🟢 [Foreground] Received message from background: $message');
+      if (message is Map) {
         final action = message['action'];
         final videoId = message['videoId'];
+        print('🟢 [Foreground] Action parsed: $action for video: $videoId');
         if (action == 'pause') {
           DownloadService.instance.pauseDownload(videoId);
         } else if (action == 'resume') {
@@ -261,6 +315,10 @@ class DownloadService with WidgetsBindingObserver {
         } else if (action == 'cancel') {
           DownloadService.instance.cancelDownload(videoId);
         }
+      } else {
+        print(
+          '🟢 [Foreground] Message is NOT a Map! Type: ${message.runtimeType}',
+        );
       }
     });
 
@@ -356,13 +414,13 @@ class DownloadService with WidgetsBindingObserver {
         const AndroidNotificationAction(
           'resume_download',
           '▶ استمرار',
-          showsUserInterface: true,
+          showsUserInterface: false,
           cancelNotification: false,
         ),
         const AndroidNotificationAction(
           'cancel_download',
           '✕ إلغاء',
-          showsUserInterface: true,
+          showsUserInterface: false,
           cancelNotification: true,
         ),
       ];
@@ -371,13 +429,13 @@ class DownloadService with WidgetsBindingObserver {
         const AndroidNotificationAction(
           'pause_download',
           '⏸ إيقاف مؤقت',
-          showsUserInterface: true,
+          showsUserInterface: false,
           cancelNotification: false,
         ),
         const AndroidNotificationAction(
           'cancel_download',
           '✕ إلغاء',
-          showsUserInterface: true,
+          showsUserInterface: false,
           cancelNotification: true,
         ),
       ];
@@ -385,7 +443,7 @@ class DownloadService with WidgetsBindingObserver {
 
     final androidDetails = AndroidNotificationDetails(
       'download_channel_v2', // تم تغيير المعرف لكي يقبل أندرويد الإعدادات الجديدة
-      'تحميل الفيديو',
+      'دليلنا التعليمي',
       channelDescription: 'إشعارات تقدم التحميل',
       importance:
           Importance.max, // لمنع الإشعار من الذهاب لقسم "الإشعارات الصامتة"
@@ -395,6 +453,7 @@ class DownloadService with WidgetsBindingObserver {
       ongoing:
           task.status == DownloadStatus.downloading ||
           task.status == DownloadStatus.merging,
+      autoCancel: false,
       showProgress: true,
       maxProgress: 100,
       progress: progress,
@@ -432,7 +491,7 @@ class DownloadService with WidgetsBindingObserver {
 
     final androidDetails = AndroidNotificationDetails(
       'download_channel_v2', // يجب أن يتطابق مع معرف تقدم التحميل
-      'تحميل الفيديو',
+      'دليلنا التعليمي',
       channelDescription: 'إشعارات تحميل الفيديو',
       importance: Importance.max,
       priority: Priority.high,
@@ -463,6 +522,8 @@ class DownloadService with WidgetsBindingObserver {
     String videoId,
     DownloadOption option, {
     String? videoName,
+    int? lessonId,
+    String? type,
   }) async {
     if (_tasks[videoId]?.status == DownloadStatus.downloading ||
         _tasks[videoId]?.status == DownloadStatus.merging) {
@@ -473,46 +534,52 @@ class DownloadService with WidgetsBindingObserver {
     if (Platform.isAndroid) {
       final status = await Permission.ignoreBatteryOptimizations.status;
       if (!status.isGranted) {
-        final bool? proceed = await Get.defaultDialog<bool>(
-          title: "إعداد هام جداً ⚠️",
-          titleStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Cairo',
-            fontSize: 18,
-            color: AppColor.PrimaryColor,
-          ),
-          content: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.0),
-            child: Text(
-              "لضمان استمرار التحميل في الخلفية وعدم توقفه، يرجى تفعيل السماح للتطبيق بالعمل في الخلفية (أو اختيار 'بدون قيود' / No restrictions) في الشاشة التالية.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontFamily: 'Cairo', fontSize: 14),
-            ),
-          ),
-          barrierDismissible: false,
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(result: false),
-              child: const Text(
-                'تخطي',
-                style: TextStyle(fontFamily: 'Cairo', color: AppColor.grey),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () => Get.back(result: true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.PrimaryColor,
-              ),
-              child: const Text(
-                'الانتقال للإعدادات',
-                style: TextStyle(fontFamily: 'Cairo', color: Colors.white),
-              ),
-            ),
-          ],
-        );
+        final prefs = await SharedPreferences.getInstance();
+        final hasSeen = prefs.getBool('has_seen_battery_dialog') ?? false;
 
-        if (proceed == true) {
-          await Permission.ignoreBatteryOptimizations.request();
+        if (!hasSeen) {
+          await prefs.setBool('has_seen_battery_dialog', true);
+          final bool? proceed = await Get.defaultDialog<bool>(
+            title: "إعداد هام جداً ⚠️",
+            titleStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Cairo',
+              fontSize: 18,
+              color: AppColor.PrimaryColor,
+            ),
+            content: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              child: Text(
+                "لضمان استمرار التحميل في الخلفية وعدم توقفه، يرجى تفعيل السماح للتطبيق بالعمل في الخلفية (أو اختيار 'بدون قيود' / No restrictions) في الشاشة التالية.",
+                textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: 'Cairo', fontSize: 14),
+              ),
+            ),
+            barrierDismissible: false,
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: const Text(
+                  'تخطي',
+                  style: TextStyle(fontFamily: 'Cairo', color: AppColor.grey),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () => Get.back(result: true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColor.PrimaryColor,
+                ),
+                child: const Text(
+                  'الانتقال للإعدادات',
+                  style: TextStyle(fontFamily: 'Cairo', color: Colors.white),
+                ),
+              ),
+            ],
+          );
+
+          if (proceed == true) {
+            await Permission.ignoreBatteryOptimizations.request();
+          }
         }
       }
     }
@@ -534,6 +601,8 @@ class DownloadService with WidgetsBindingObserver {
       startTime: DateTime.now(),
       totalBytes: totalSize,
       qualityLabel: option.label,
+      lessonId: lessonId,
+      type: type,
     );
 
     _tasks[videoId] = task;
@@ -549,6 +618,8 @@ class DownloadService with WidgetsBindingObserver {
     String videoId,
     DownloadOption option, {
     String? videoName,
+    int? lessonId,
+    String? type,
   }) async {
     if (_tasks[videoId]?.status == DownloadStatus.downloading ||
         _tasks[videoId]?.status == DownloadStatus.merging) {
@@ -571,6 +642,9 @@ class DownloadService with WidgetsBindingObserver {
       isMuxed: option.isMuxed,
       startTime: DateTime.now(),
       totalBytes: totalSize,
+      qualityLabel: option.label,
+      lessonId: lessonId,
+      type: type,
     );
 
     _tasks[videoId] = task;
@@ -646,6 +720,8 @@ class DownloadService with WidgetsBindingObserver {
     await _saveTasksState();
     await _acquireWakeLock();
 
+    // مسح الذاكرة المؤقتة للنسبة المئوية لإجبار الإشعار على التحديث الفوري لحالة "الاستئناف"
+    _lastNotifiedProgress.remove(videoId);
     // تحديث الإشعار ليعرض حالة التحميل
     _showProgressNotification(task);
 
