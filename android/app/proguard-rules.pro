@@ -22,3 +22,6 @@
 # For 16 KB page size support
 -dontoptimize
 -dontpreverify
+
+# Keep flutter_local_notifications plugin classes from being obfuscated or stripped
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
