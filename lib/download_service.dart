@@ -26,7 +26,19 @@ void downloadNotificationBackgroundHandler(NotificationResponse response) {
     print('🟣 [Background] Payload is null! Aborting.');
     return;
   }
-  final videoId = response.payload!;
+
+  String videoId;
+  if (response.payload!.startsWith('{')) {
+    try {
+      final data = jsonDecode(response.payload!);
+      videoId = data['videoId'];
+    } catch (e) {
+      videoId = response.payload!;
+    }
+  } else {
+    videoId = response.payload!;
+  }
+
   print('🟣 [Background] Payload videoId: $videoId');
 
   final sendPort = IsolateNameServer.lookupPortByName('download_send_port');
@@ -256,7 +268,27 @@ class DownloadService with WidgetsBindingObserver {
           '🟡 [Foreground] Notification Clicked: actionId=${response.actionId}',
         );
         if (response.payload == null) return;
-        final videoId = response.payload!;
+
+        String videoId;
+        int lessonId = 0;
+        String type = 'lesson_dep_file';
+
+        if (response.payload!.startsWith('{')) {
+          try {
+            final data = jsonDecode(response.payload!);
+            videoId = data['videoId'];
+            lessonId = data['lessonId'] ?? 0;
+            type = data['type'] ?? 'lesson_dep_file';
+          } catch (e) {
+            videoId = response.payload!;
+          }
+        } else {
+          videoId = response.payload!;
+          final task = DownloadService.instance._tasks[videoId];
+          lessonId = task?.lessonId ?? 0;
+          type = task?.type ?? 'lesson_dep_file';
+        }
+
         if (response.actionId == 'pause_download') {
           DownloadService.instance.pauseDownload(videoId);
         } else if (response.actionId == 'resume_download') {
@@ -266,8 +298,6 @@ class DownloadService with WidgetsBindingObserver {
           DownloadService.instance.cancelDownload(videoId);
         } else {
           // If actionId is empty, it means the user clicked the notification body itself
-          final task = DownloadService.instance._tasks[videoId];
-
           final currentArgs = Get.arguments;
           final isSameVideo =
               Get.currentRoute == '/youtubeplayer' &&
@@ -286,11 +316,7 @@ class DownloadService with WidgetsBindingObserver {
             '/youtubeplayer', // AppRoute.youtubePlayer (all lowercase)
             preventDuplicates:
                 false, // يسمح بفتح أكثر من فيديو فوق بعضهم (ولكن ليس نفس الفيديو)
-            arguments: {
-              'videoId': videoId,
-              'lessonId': task?.lessonId ?? 0,
-              'type': task?.type ?? 'lesson_dep_file',
-            },
+            arguments: {'videoId': videoId, 'lessonId': lessonId, 'type': type},
           );
         }
       },
@@ -353,9 +379,10 @@ class DownloadService with WidgetsBindingObserver {
         for (final entry in tasksMap.entries) {
           final task = DownloadTask.fromJson(entry.value);
 
-          // استمر فقط في التحميلات غير المكتملة
+          // استمر فقط في التحميلات غير المكتملة أو قيد الدمج
           if (task.status == DownloadStatus.downloading ||
-              task.status == DownloadStatus.paused) {
+              task.status == DownloadStatus.paused ||
+              task.status == DownloadStatus.merging) {
             task.status = DownloadStatus.paused;
             task.statusText = 'متوقف مؤقتاً - اضغط للاستمرار';
             _tasks[entry.key] = task;
@@ -471,7 +498,11 @@ class DownloadService with WidgetsBindingObserver {
         iOS: const DarwinNotificationDetails(),
         macOS: const DarwinNotificationDetails(),
       ),
-      payload: task.videoId,
+      payload: jsonEncode({
+        'videoId': task.videoId,
+        'lessonId': task.lessonId,
+        'type': task.type,
+      }),
     );
   }
 
@@ -509,6 +540,11 @@ class DownloadService with WidgetsBindingObserver {
         iOS: const DarwinNotificationDetails(),
         macOS: const DarwinNotificationDetails(),
       ),
+      payload: jsonEncode({
+        'videoId': task.videoId,
+        'lessonId': task.lessonId,
+        'type': task.type,
+      }),
     );
   }
 
@@ -657,6 +693,8 @@ class DownloadService with WidgetsBindingObserver {
       videoUrl: option.streamInfo.url.toString(),
       audioUrl: option.audioStream?.url.toString(),
       isMuxed: option.isMuxed,
+      lessonId: lessonId ?? 0,
+      type: type ?? '',
     );
   }
 
@@ -842,6 +880,9 @@ class DownloadService with WidgetsBindingObserver {
             task: task,
             startByte: vSize,
             onProgress: (received, _) {
+              if (task.status == DownloadStatus.paused ||
+                  task.status == DownloadStatus.none)
+                return;
               if (totalSize > 0) {
                 final totalV = vSize + received;
                 task.progress = (totalV + aSize) / totalSize;
@@ -862,6 +903,9 @@ class DownloadService with WidgetsBindingObserver {
 
         // تحميل الصوت إذا لم يكتمل
         if (aSize < audioStreamInfo.size.totalBytes) {
+          if (task.status == DownloadStatus.paused ||
+              task.status == DownloadStatus.none)
+            return;
           task.statusText = 'جاري تحميل الصوت...';
           _notifyUpdates();
           _showProgressNotification(task);
@@ -872,6 +916,9 @@ class DownloadService with WidgetsBindingObserver {
             task: task,
             startByte: aSize,
             onProgress: (received, _) {
+              if (task.status == DownloadStatus.paused ||
+                  task.status == DownloadStatus.none)
+                return;
               if (totalSize > 0) {
                 final totalA = aSize + received;
                 task.progress = (vSize + totalA) / totalSize;

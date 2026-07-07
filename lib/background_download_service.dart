@@ -75,6 +75,8 @@ class BackgroundDownloadService {
     required String videoUrl,
     String? audioUrl,
     required bool isMuxed,
+    required int lessonId,
+    required String type,
   }) async {
     if (!Platform.isAndroid && !Platform.isIOS) {
       debugPrint("Background service not supported on this platform");
@@ -89,6 +91,8 @@ class BackgroundDownloadService {
         'videoUrl': videoUrl,
         'audioUrl': audioUrl,
         'isMuxed': isMuxed,
+        'lessonId': lessonId,
+        'type': type,
         'startTime': DateTime.now().toIso8601String(),
       }),
     );
@@ -222,37 +226,46 @@ void onStart(ServiceInstance service) async {
         progressMultiplier: 0.5,
       );
 
-      // دمج الفيديو والصوت (يتطلب native code)
+      // ملاحظة: الدمج يتطلب استدعاء native code
+      // سنترك الملفات المؤقتة ليتم دمجها لاحقاً في التطبيق
       _updateNotification(
         notifications,
         videoId,
-        'جاري الدمج',
-        'يتم دمج الفيديو والصوت...',
+        'جاري المعالجة',
+        'يرجى فتح التطبيق لإنهاء الدمج...',
         100,
         indeterminate: true,
       );
 
-      // ملاحظة: الدمج يتطلب استدعاء native code
-      // سنترك الملفات المؤقتة ليتم دمجها لاحقاً في التطبيق
-
-      // تنظيف
-      try {
-        await File(vTmp).delete();
-      } catch (_) {}
-      try {
-        await File(aTmp).delete();
-      } catch (_) {}
+      // Do not delete vTmp and aTmp! The foreground app needs them to mux.
+      await _showCompletionNotification(
+        notifications,
+        videoId,
+        true,
+        isMuxed: false,
+      );
+      await _clearActiveDownload();
+      return;
     }
 
-    // اكتمل التحميل
-    await _showCompletionNotification(notifications, videoId, true);
+    // اكتمل التحميل (للملفات المدمجة الجاهزة)
+    await _showCompletionNotification(
+      notifications,
+      videoId,
+      true,
+      isMuxed: true,
+    );
     await _clearActiveDownload();
   } catch (e) {
     // فشل التحميل
-    await _showCompletionNotification(notifications, videoId, false);
+    await _showCompletionNotification(
+      notifications,
+      videoId,
+      false,
+      isMuxed: true,
+    );
     await _clearActiveDownload();
   }
-
   await service.stopSelf();
 }
 
@@ -342,8 +355,19 @@ Future<void> _updateNotification(
 Future<void> _showCompletionNotification(
   FlutterLocalNotificationsPlugin notifications,
   String videoId,
-  bool success,
-) async {
+  bool success, {
+  bool isMuxed = true,
+}) async {
+  int lessonId = 0;
+  String type = '';
+  try {
+    final info = await BackgroundDownloadService.getActiveDownloadInfo();
+    if (info != null) {
+      lessonId = info['lessonId'] ?? 0;
+      type = info['type'] ?? '';
+    }
+  } catch (_) {}
+
   final androidDetails = AndroidNotificationDetails(
     'download_channel',
     'تحميل الفيديو',
@@ -359,15 +383,28 @@ Future<void> _showCompletionNotification(
     presentSound: true,
   );
 
+  String title = success ? 'اكتمل التحميل ✓' : 'فشل التحميل ✗';
+  String body = success ? 'تم تحميل الفيديو بنجاح' : 'حدث خطأ أثناء التحميل';
+
+  if (success && !isMuxed) {
+    title = 'اكتمل التنزيل، مطلوب الدمج';
+    body = 'اضغط لفتح التطبيق وإنهاء تجهيز الفيديو';
+  }
+
   await notifications.show(
     videoId.hashCode,
-    success ? 'اكتمل التحميل ✓' : 'فشل التحميل ✗',
-    success ? 'تم تحميل الفيديو بنجاح' : 'حدث خطأ أثناء التحميل',
+    title,
+    body,
     NotificationDetails(
       android: androidDetails,
       iOS: darwinDetails,
       macOS: darwinDetails,
     ),
+    payload: jsonEncode({
+      'videoId': videoId,
+      'lessonId': lessonId,
+      'type': type,
+    }),
   );
 }
 

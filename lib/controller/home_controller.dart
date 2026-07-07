@@ -13,7 +13,7 @@ class HomeController extends GetxController {
   List<dynamic> cities = [];
   bool isLoadingCities = false;
   String? citiesError;
-  int isDeployed = 0; // Default to Review Mode
+  int isDeployed = 0;
 
   @override
   void onInit() {
