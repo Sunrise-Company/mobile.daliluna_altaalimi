@@ -696,9 +696,8 @@ class DownloadService with WidgetsBindingObserver {
   Future<void> pauseDownload(String videoId) async {
     final task = _tasks[videoId];
     if (task == null) return;
-    if (task.status != DownloadStatus.downloading &&
-        task.status != DownloadStatus.merging)
-      return;
+    // لا يمكن إيقاف التحميل في مرحلة الدمج لأنه يعتمد على عملية Native لا يمكن إلغاؤها بسهولة
+    if (task.status != DownloadStatus.downloading) return;
 
     // إلغاء الطلب الجاري (الـ Dio سيرمي CanceledException)
     if (!(_cancelTokens[videoId]?.isCancelled ?? true)) {
@@ -929,6 +928,12 @@ class DownloadService with WidgetsBindingObserver {
         if (!(await File(vTmp).exists()) ||
             (await File(vTmp).length()) < 1000) {
           throw Exception('فشل تحميل الفيديو (ملف تالف)');
+        }
+
+        // تحقق إضافي لمنع الدخول في مرحلة الدمج إذا قام المستخدم بإيقاف التحميل للتو
+        if (task.status == DownloadStatus.paused ||
+            task.status == DownloadStatus.none) {
+          return;
         }
 
         task.status = DownloadStatus.merging;

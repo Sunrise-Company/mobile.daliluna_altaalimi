@@ -36,18 +36,6 @@ class PlayerControlBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Expanded(
-            child: PremiumActionButton(
-              icon: Icons.arrow_back_rounded,
-              label: 'رجوع',
-              onTap: () {
-                ctrl.restoreSystemUI();
-                Get.back();
-              },
-              color: AppColor.PrimaryColor,
-            ),
-          ),
-          const SizedBox(width: 12),
           if (ctrl.localVideoPath == null && ctrl.isPlayerReady) ...[
             Expanded(
               child: ctrl.isFetchingQualities

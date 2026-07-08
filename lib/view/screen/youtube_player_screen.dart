@@ -110,9 +110,7 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
                                     status: task.status,
                                     onPause:
                                         task.status ==
-                                                DownloadStatus.downloading ||
-                                            task.status ==
-                                                DownloadStatus.merging
+                                            DownloadStatus.downloading
                                         ? () => ctrl.downloadService
                                               .pauseDownload(ctrl.videoId)
                                         : null,
