@@ -87,8 +87,6 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
                         SafeArea(
                           child: Column(
                             children: [
-                              // مسافة بين ال AppBar والفيديو
-                              const SizedBox(height: 16),
                               // مساحة محجوزة وهمية بنفس حجم المشغّل تماماً
                               const AspectRatio(
                                 aspectRatio: 16 / 9,
@@ -138,60 +136,58 @@ class YoutubePlayerScreen extends GetView<YoutubePlayerController> {
 
                       // ── المشغّل ──
                       SafeArea(
+                        key: const ValueKey('player_safe_area'),
                         top: !ctrl.isFullScreen,
                         bottom: !ctrl.isFullScreen,
                         left: !ctrl.isFullScreen,
                         right: !ctrl.isFullScreen,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16.0),
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final screenSize = MediaQuery.of(context).size;
-                                final maxDim = math.max(
-                                  screenSize.width,
-                                  screenSize.height,
-                                );
-                                final minDim = math.min(
-                                  screenSize.width,
-                                  screenSize.height,
-                                );
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final screenSize = MediaQuery.of(context).size;
+                              final maxDim = math.max(
+                                screenSize.width,
+                                screenSize.height,
+                              );
+                              final minDim = math.min(
+                                screenSize.width,
+                                screenSize.height,
+                              );
 
-                                final targetWidth = ctrl.isFullScreen
-                                    ? maxDim
-                                    : minDim;
-                                final targetHeight = ctrl.isFullScreen
-                                    ? minDim
-                                    : (minDim * 9 / 16);
+                              final targetWidth = ctrl.isFullScreen
+                                  ? maxDim
+                                  : minDim;
+                              final targetHeight = ctrl.isFullScreen
+                                  ? minDim
+                                  : (minDim * 9 / 16);
 
-                                return OverflowBox(
-                                  alignment: Alignment.topCenter,
-                                  maxWidth: double.infinity,
-                                  maxHeight: double.infinity,
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 350),
-                                    curve: Curves.easeInOutCubic,
-                                    width: ctrl.isFullScreen ? maxDim : minDim,
-                                    height: ctrl.isFullScreen
-                                        ? minDim
-                                        : (minDim * 9 / 16),
-                                    child: ctrl.localVideoPath != null
-                                        ? VideoPlayerContainer(ctrl: ctrl)
-                                        : FittedBox(
-                                            fit: BoxFit.fill,
-                                            child: SizedBox(
-                                              width: targetWidth,
-                                              height: targetHeight,
-                                              child: VideoPlayerContainer(
-                                                ctrl: ctrl,
-                                              ),
+                              return OverflowBox(
+                                alignment: Alignment.topCenter,
+                                maxWidth: double.infinity,
+                                maxHeight: double.infinity,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 350),
+                                  curve: Curves.easeInOutCubic,
+                                  width: ctrl.isFullScreen ? maxDim : minDim,
+                                  height: ctrl.isFullScreen
+                                      ? minDim
+                                      : (minDim * 9 / 16),
+                                  child: ctrl.localVideoPath != null
+                                      ? VideoPlayerContainer(ctrl: ctrl)
+                                      : FittedBox(
+                                          fit: BoxFit.fill,
+                                          child: SizedBox(
+                                            width: targetWidth,
+                                            height: targetHeight,
+                                            child: VideoPlayerContainer(
+                                              ctrl: ctrl,
                                             ),
                                           ),
-                                  ),
-                                );
-                              },
-                            ),
+                                        ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),

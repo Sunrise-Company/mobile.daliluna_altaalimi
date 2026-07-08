@@ -27,7 +27,10 @@ class VideoPlayerContainer extends StatelessWidget {
             : null;
       } else {
         localPlayer = ctrl.betterPlayerController != null
-            ? BetterPlayer(controller: ctrl.betterPlayerController!)
+            ? BetterPlayer(
+                key: ctrl.betterPlayerKey,
+                controller: ctrl.betterPlayerController!
+              )
             : null;
       }
     }
@@ -52,9 +55,7 @@ class VideoPlayerContainer extends StatelessWidget {
                   : const SizedBox(),
             )
           else
-            const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
           if (ctrl.localVideoPath == null && !ctrl.isPlayerReady)
             const CircularProgressIndicator(color: Colors.white),
         ],

@@ -37,6 +37,7 @@ class YoutubePlayerController extends GetxController {
   VideoPlayerController? videoPlayerController;
   ChewieController? chewieController;
   BetterPlayerController? betterPlayerController;
+  final GlobalKey betterPlayerKey = GlobalKey();
   WebViewController? webViewController;
 
   bool isPlayerReady = false;
@@ -108,7 +109,7 @@ class YoutubePlayerController extends GetxController {
           autoPlay: true,
           looping: true,
           aspectRatio: videoPlayerController!.value.aspectRatio,
-          allowFullScreen: true,
+          allowFullScreen: false,
           allowPlaybackSpeedChanging: true,
         );
       } else {
@@ -117,10 +118,13 @@ class YoutubePlayerController extends GetxController {
           localPath,
         );
         betterPlayerController = BetterPlayerController(
-          const BetterPlayerConfiguration(
+          BetterPlayerConfiguration(
             autoPlay: true,
             looping: true,
             fit: BoxFit.contain,
+            controlsConfiguration: const BetterPlayerControlsConfiguration(
+              enableFullscreen: false,
+            ),
           ),
           betterPlayerDataSource: dataSource,
         );
@@ -362,7 +366,7 @@ class YoutubePlayerController extends GetxController {
             autoPlay: true,
             looping: true,
             aspectRatio: videoPlayerController!.value.aspectRatio,
-            allowFullScreen: true,
+            allowFullScreen: false,
             allowPlaybackSpeedChanging: true,
           );
         } else {
@@ -371,10 +375,13 @@ class YoutubePlayerController extends GetxController {
             localPath,
           );
           betterPlayerController = BetterPlayerController(
-            const BetterPlayerConfiguration(
+            BetterPlayerConfiguration(
               autoPlay: true,
               looping: true,
               fit: BoxFit.contain,
+              controlsConfiguration: const BetterPlayerControlsConfiguration(
+                enableFullscreen: false,
+              ),
             ),
             betterPlayerDataSource: dataSource,
           );
