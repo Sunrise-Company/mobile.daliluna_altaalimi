@@ -19,7 +19,6 @@ import '../../controller/teacherController/homeTeacherController.dart';
 import '../widget/GetValueForScreen.dart';
 
 class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
-
   VediosTeacherLesson({super.key});
   final homeTeacherController = Get.put(HomePageTeacherController());
   @override
@@ -242,6 +241,7 @@ class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
                       'url': video['link'],
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
+                      'name': video['name'] ?? 'فيديو',
                     },
                   );
                 } else {
@@ -252,6 +252,7 @@ class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
                           '${AppLink.baseUrl}/storage/' + (video['file'] ?? ''),
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
+                      'name': video['name'] ?? 'فيديو',
                     },
                   );
                 }
@@ -379,7 +380,8 @@ class VediosTeacherLesson extends GetView<TeacherVideosLessonContrlloer> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            (   video['free_status'].toString() == '1'&& homeTeacherController.isDeployed!=0)
+                            (video['free_status'].toString() == '1' &&
+                                    homeTeacherController.isDeployed != 0)
                                 ? Container(
                                     decoration: BoxDecoration(
                                       color: AppColor.SecondryColor,

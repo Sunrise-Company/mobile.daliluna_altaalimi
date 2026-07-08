@@ -35,6 +35,7 @@ class VideoLessons extends GetView<VideoLessonsController> {
               'videoId': videoId,
               'lessonId': lessonId,
               'type': 'lesson_dep_file',
+              'name': Get.arguments['name'],
             },
           );
         });
@@ -65,9 +66,12 @@ class VideoLessons extends GetView<VideoLessonsController> {
             title: Shimmer.fromColors(
               baseColor: Colors.white,
               highlightColor: AppColor.SecondryColor,
-              child: const Text(
-                "الفيديو",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              child: Text(
+                Get.arguments['name'] ?? "فيديو الدرس",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

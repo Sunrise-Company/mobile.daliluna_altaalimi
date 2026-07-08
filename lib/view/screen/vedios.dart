@@ -1,4 +1,4 @@
-﻿import 'package:daliluna_altaalimi/constant.dart';
+import 'package:daliluna_altaalimi/constant.dart';
 import 'package:daliluna_altaalimi/linkapi.dart';
 import 'package:daliluna_altaalimi/view/widget/customiconappbar.dart';
 import 'package:flutter/material.dart';
@@ -461,6 +461,7 @@ class Vedios extends StatelessWidget {
                       'url': video['link'],
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
+                      'name': video['name'] ?? 'فيديو',
                     },
                   );
                 } else {
@@ -471,6 +472,7 @@ class Vedios extends StatelessWidget {
                           '${AppLink.baseUrl}/storage/' + (video['file'] ?? ''),
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
+                      'name': video['name'] ?? 'فيديو',
                     },
                   );
                 }

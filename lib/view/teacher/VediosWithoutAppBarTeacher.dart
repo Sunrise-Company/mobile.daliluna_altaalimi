@@ -203,6 +203,7 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
                       'url': video['link'],
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
+                      'name': video['name'] ?? 'فيديو',
                     },
                   );
                 } else {
@@ -212,6 +213,7 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
                       'url': '${AppLink.baseUrl}/storage/' + video['file'],
                       'videoFiles': video['files'],
                       'lesson_dep_file_id': video['id'],
+                      'name': video['name'] ?? 'فيديو',
                     },
                   );
                 }
@@ -347,11 +349,13 @@ class VediosWithoutAppBarTeacher extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            if (video['free_status'].toString() == '1'&& homeTeacherController.isDeployed!=0)
-
+                            if (video['free_status'].toString() == '1' &&
+                                homeTeacherController.isDeployed != 0)
                               InkWell(
-                                onTap: (){
-                                  print("ddddddddddddddddddddddddddddd${video['free_status']}");
+                                onTap: () {
+                                  print(
+                                    "ddddddddddddddddddddddddddddd${video['free_status']}",
+                                  );
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(

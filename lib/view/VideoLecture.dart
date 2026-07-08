@@ -34,6 +34,7 @@ class VideoLecture extends GetView<VideoLecturesController> {
               'videoId': videoId,
               'lessonId': lessonId,
               'type': 'lesson_lecture_file',
+              'name': Get.arguments['name'],
             },
           );
         });
@@ -70,7 +71,7 @@ class VideoLecture extends GetView<VideoLecturesController> {
               ),
             ),
             title: Text(
-              "الفيديو",
+              Get.arguments['name'] ?? "فيديو المحاضرة",
               style: TextStyle(
                 color: AppColor.White,
                 fontSize: getValueForScreenType<double>(
@@ -78,6 +79,7 @@ class VideoLecture extends GetView<VideoLecturesController> {
                   mobile: 20,
                   tablet: 30,
                 ),
+                fontWeight: FontWeight.bold,
               ),
             ),
             leading: IconButton(
