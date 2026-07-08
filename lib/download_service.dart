@@ -570,52 +570,46 @@ class DownloadService with WidgetsBindingObserver {
     if (Platform.isAndroid) {
       final status = await Permission.ignoreBatteryOptimizations.status;
       if (!status.isGranted) {
-        final prefs = await SharedPreferences.getInstance();
-        final hasSeen = prefs.getBool('has_seen_battery_dialog') ?? false;
-
-        if (!hasSeen) {
-          await prefs.setBool('has_seen_battery_dialog', true);
-          final bool? proceed = await Get.defaultDialog<bool>(
-            title: "إعداد هام جداً ⚠️",
-            titleStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Cairo',
-              fontSize: 18,
-              color: AppColor.PrimaryColor,
+        final bool? proceed = await Get.defaultDialog<bool>(
+          title: "إعداد هام جداً ⚠️",
+          titleStyle: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Cairo',
+            fontSize: 18,
+            color: AppColor.PrimaryColor,
+          ),
+          content: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
+              "لضمان استمرار التحميل في الخلفية وعدم توقفه، يرجى تفعيل السماح للتطبيق بالعمل في الخلفية (أو اختيار 'بدون قيود' / No restrictions) في الشاشة التالية.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontFamily: 'Cairo', fontSize: 14),
             ),
-            content: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.0),
-              child: Text(
-                "لضمان استمرار التحميل في الخلفية وعدم توقفه، يرجى تفعيل السماح للتطبيق بالعمل في الخلفية (أو اختيار 'بدون قيود' / No restrictions) في الشاشة التالية.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: 'Cairo', fontSize: 14),
+          ),
+          barrierDismissible: false,
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text(
+                'تخطي',
+                style: TextStyle(fontFamily: 'Cairo', color: AppColor.grey),
               ),
             ),
-            barrierDismissible: false,
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(result: false),
-                child: const Text(
-                  'تخطي',
-                  style: TextStyle(fontFamily: 'Cairo', color: AppColor.grey),
-                ),
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColor.PrimaryColor,
               ),
-              ElevatedButton(
-                onPressed: () => Get.back(result: true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.PrimaryColor,
-                ),
-                child: const Text(
-                  'الانتقال للإعدادات',
-                  style: TextStyle(fontFamily: 'Cairo', color: Colors.white),
-                ),
+              child: const Text(
+                'الانتقال للإعدادات',
+                style: TextStyle(fontFamily: 'Cairo', color: Colors.white),
               ),
-            ],
-          );
+            ),
+          ],
+        );
 
-          if (proceed == true) {
-            await Permission.ignoreBatteryOptimizations.request();
-          }
+        if (proceed == true) {
+          await Permission.ignoreBatteryOptimizations.request();
         }
       }
     }
