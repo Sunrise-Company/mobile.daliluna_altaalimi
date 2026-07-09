@@ -644,53 +644,53 @@ class DownloadService with WidgetsBindingObserver {
     await _executeDownload(task, option);
   }
 
-  Future<void> startDownloadInBackground(
-    String videoId,
-    DownloadOption option, {
-    String? videoName,
-    int? lessonId,
-    String? type,
-  }) async {
-    if (_tasks[videoId]?.status == DownloadStatus.downloading ||
-        _tasks[videoId]?.status == DownloadStatus.merging) {
-      return;
-    }
+  // Future<void> startDownloadInBackground(
+  //   String videoId,
+  //   DownloadOption option, {
+  //   String? videoName,
+  //   int? lessonId,
+  //   String? type,
+  // }) async {
+  //   if (_tasks[videoId]?.status == DownloadStatus.downloading ||
+  //       _tasks[videoId]?.status == DownloadStatus.merging) {
+  //     return;
+  //   }
 
-    // حساب الحجم الإجمالي
-    final totalSize = option.isMuxed
-        ? option.streamInfo.size.totalBytes
-        : (option.videoStream!.size.totalBytes +
-              option.audioStream!.size.totalBytes);
+  //   // حساب الحجم الإجمالي
+  //   final totalSize = option.isMuxed
+  //       ? option.streamInfo.size.totalBytes
+  //       : (option.videoStream!.size.totalBytes +
+  //             option.audioStream!.size.totalBytes);
 
-    final task = DownloadTask(
-      videoId: videoId,
-      videoName: videoName,
-      status: DownloadStatus.downloading,
-      statusText: 'جاري التحميل في الخلفية...',
-      videoUrl: option.streamInfo.url.toString(),
-      audioUrl: option.audioStream?.url.toString(),
-      isMuxed: option.isMuxed,
-      startTime: DateTime.now(),
-      totalBytes: totalSize,
-      qualityLabel: option.label,
-      lessonId: lessonId,
-      type: type,
-    );
+  //   final task = DownloadTask(
+  //     videoId: videoId,
+  //     videoName: videoName,
+  //     status: DownloadStatus.downloading,
+  //     statusText: 'جاري التحميل في الخلفية...',
+  //     videoUrl: option.streamInfo.url.toString(),
+  //     audioUrl: option.audioStream?.url.toString(),
+  //     isMuxed: option.isMuxed,
+  //     startTime: DateTime.now(),
+  //     totalBytes: totalSize,
+  //     qualityLabel: option.label,
+  //     lessonId: lessonId,
+  //     type: type,
+  //   );
 
-    _tasks[videoId] = task;
-    _notifyUpdates();
-    await _saveTasksState();
+  //   _tasks[videoId] = task;
+  //   _notifyUpdates();
+  //   await _saveTasksState();
 
-    // بدء خدمة الخلفية
-    await BackgroundDownloadService.startBackgroundDownload(
-      videoId: videoId,
-      videoUrl: option.streamInfo.url.toString(),
-      audioUrl: option.audioStream?.url.toString(),
-      isMuxed: option.isMuxed,
-      lessonId: lessonId ?? 0,
-      type: type ?? '',
-    );
-  }
+  //   // بدء خدمة الخلفية
+  //   await BackgroundDownloadService.startBackgroundDownload(
+  //     videoId: videoId,
+  //     videoUrl: option.streamInfo.url.toString(),
+  //     audioUrl: option.audioStream?.url.toString(),
+  //     isMuxed: option.isMuxed,
+  //     lessonId: lessonId ?? 0,
+  //     type: type ?? '',
+  //   );
+  // }
 
   /// إيقاف مؤقت للتحميل
   Future<void> pauseDownload(String videoId) async {

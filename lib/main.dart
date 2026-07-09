@@ -133,8 +133,8 @@ void main() async {
     await downloadService.initNotifications();
     await downloadService.restorePendingDownloads();
 
-    // تهيئة خدمة التحميل في الخلفية
-    await BackgroundDownloadService.initialize();
+    // تهيئة خدمة التحميل في الخلفية (تم تعليقها لأنها لا تستخدم وتسبب مشاكل في أندرويد 15)
+    // await BackgroundDownloadService.initialize();
   } catch (e) {
     debugPrint("Download service init failed: $e");
   }
