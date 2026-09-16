@@ -151,7 +151,7 @@ class MainActivity : FlutterActivity() {
                 "setSecure" -> {
                     val enabled = call.arguments as Boolean
                     if (enabled) {
-                        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                    //    window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     } else {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     }

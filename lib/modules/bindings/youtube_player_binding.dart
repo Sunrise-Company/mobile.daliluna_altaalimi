@@ -14,6 +14,7 @@ class YoutubePlayerBinding extends Bindings {
         videoId: videoId,
         lessonId: Get.arguments['lessonId'],
         type: Get.arguments['type'],
+        initialVideoTitle: Get.arguments['name']?.toString(),
       ),
       tag: videoId,
     );

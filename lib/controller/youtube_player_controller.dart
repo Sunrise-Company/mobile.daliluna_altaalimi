@@ -21,7 +21,8 @@ class YoutubePlayerController extends GetxController {
     required this.videoId,
     required this.lessonId,
     required this.type,
-  });
+    String? initialVideoTitle,
+  }) : videoTitle = initialVideoTitle;
 
   bool isLoading = true;
   String? localVideoPath;
@@ -207,52 +208,32 @@ class YoutubePlayerController extends GetxController {
         cleanId = ytd.VideoId(videoId).value;
       } catch (_) {}
 
-      yt.videos
-          .get(cleanId)
-          .then((video) {
-            videoTitle = video.title;
-            update();
-          })
-          .catchError((_) {});
+      // Resolve the title before exposing the download options so the task and
+      // its notification always start with the correct video name.
+      try {
+        final video = await yt.videos.get(cleanId);
+        videoTitle = video.title;
+        update();
+      } catch (_) {
+        // Keep the title supplied by the lesson screen, when available.
+      }
 
       final manifest = await yt.videos.streamsClient.getManifest(
         cleanId,
-        ytClients: [
-          // ytd.YoutubeApiClient.android,   // الأكثر توافقاً - يعمل مع أغلب الفيديوهات
-          ytd.YoutubeApiClient.safari, // احتياطي 1
-          ytd.YoutubeApiClient.androidVr, // احتياطي 2
-        ],
+        ytClients: [ytd.YoutubeApiClient.androidSdkless],
+        requireWatchPage: false,
       );
       final List<DownloadOption> options = [];
 
       options.addAll(
         manifest.muxed
             .where((s) => s.container == ytd.StreamContainer.mp4)
-            .where((s) => s.videoResolution.height >= 480)
             .map((s) => DownloadOption.muxed(s)),
       );
 
-      final audioStreams = manifest.audioOnly.where(
-        (s) =>
-            s.container == ytd.StreamContainer.mp4 &&
-            !s.audioCodec.toLowerCase().contains('opus'),
-      );
-      final bestAudio = audioStreams.isNotEmpty
-          ? audioStreams.withHighestBitrate()
-          : manifest.audioOnly.withHighestBitrate();
-
-      // bestAudio is non-nullable after withHighestBitrate()
-      options.addAll(
-        manifest.videoOnly
-            .where((s) => s.container == ytd.StreamContainer.mp4)
-            .where((s) => s.videoResolution.height >= 480)
-            .where(
-              (v) => !options.any(
-                (o) => o.label.startsWith('\${v.videoResolution.height}p'),
-              ),
-            )
-            .map((v) => DownloadOption.separate(v, bestAudio)),
-      );
+      // Like the academy app, expose only ready-to-play MP4 streams that
+      // already contain both video and audio. This avoids a second download
+      // and native muxing step after the transfer finishes.
       options.sort((a, b) => b.streamInfo.size.compareTo(a.streamInfo.size));
 
       prefetchedQualities = options;
@@ -293,7 +274,7 @@ class YoutubePlayerController extends GetxController {
 
   Future<DownloadOption?> _showDownloadOptionsBottomSheet() async {
     return Get.bottomSheet<DownloadOption>(
-      Container(
+      Material(
         color: Colors.white,
         child: SafeArea(
           child: Column(
@@ -349,8 +330,14 @@ class YoutubePlayerController extends GetxController {
     try {
       final localPath = await getLocalFilePath();
       final localFile = File(localPath);
+      final downloadTask = downloadService.getTask(videoId);
+      final isDownloadIncomplete =
+          downloadTask != null &&
+          downloadTask.status != DownloadStatus.completed;
 
-      if (await localFile.exists()) {
+      // A resumable muxed download writes directly to the final path. Do not
+      // treat that partial file as a playable, completed video.
+      if (await localFile.exists() && !isDownloadIncomplete) {
         localVideoPath = localPath;
 
         videoPlayerController?.dispose();
@@ -390,6 +377,7 @@ class YoutubePlayerController extends GetxController {
         isPlayerReady = true;
         update();
       } else {
+        localVideoPath = null;
         await _initializeWebView();
       }
     } finally {
@@ -408,8 +396,157 @@ class YoutubePlayerController extends GetxController {
          Object.defineProperty(navigator, 'vendor', {get: function(){return 'Google Inc.';}});
        } catch(e) {}
 
+       // Disable browser-style extraction gestures and popup navigation.
+       ['contextmenu', 'copy', 'cut', 'dragstart', 'selectstart'].forEach(function(eventName) {
+         document.addEventListener(eventName, function(e) {
+           e.preventDefault();
+           e.stopPropagation();
+         }, {passive: false, capture: true});
+       });
+       try {
+         window.open = function() { return null; };
+       } catch(e) {}
+
+       var qualityMenuCheckTimer = null;
+       var qualityMenuFailureCount = 0;
+       var qualityMenuMaintenanceSent = false;
+       var lastQualityMenuDebugSignature = '';
+
+       function logQualityMenu(eventName, rows) {
+         try {
+           const details = rows.map(function(row) {
+             return {
+               tag: row.tagName || '',
+               className: typeof row.className === 'string' ? row.className : '',
+               role: row.getAttribute('role') || '',
+               ariaLabel: row.getAttribute('aria-label') || '',
+               title: row.getAttribute('title') || '',
+               text: (row.innerText || row.textContent || '')
+                 .replace(/\s+/g, ' ').trim().substring(0, 160),
+               html: (row.outerHTML || '').substring(0, 500)
+             };
+           });
+           const signature = eventName + '|' + JSON.stringify(details);
+           if (signature === lastQualityMenuDebugSignature) return;
+           lastQualityMenuDebugSignature = signature;
+           DomDebugChannel.postMessage(JSON.stringify({
+             event: eventName,
+             url: location.href,
+             rows: details
+           }));
+         } catch(e) {}
+       }
+
+       function hideSettingsRow(row) {
+         row.style.setProperty('display','none','important');
+         row.style.setProperty('pointer-events','none','important');
+         row.style.setProperty('visibility','hidden','important');
+         row.setAttribute('aria-hidden', 'true');
+       }
+
+       function reportUnknownPlayerMenu() {
+         qualityMenuFailureCount++;
+         if (qualityMenuFailureCount >= 2 && !qualityMenuMaintenanceSent) {
+           qualityMenuMaintenanceSent = true;
+           UiChangeChannel.postMessage('ui_changed');
+         }
+       }
+
+       function secureQualityMenu() {
+         if (location.hash !== '#bottom-sheet') {
+           qualityMenuFailureCount = 0;
+           return;
+         }
+
+         const container = document.querySelector(
+           '.ytSpecBottomSheetLayoutBottomSheetContent > div'
+         );
+         if (!container) {
+           logQualityMenu('missing_container', []);
+           reportUnknownPlayerMenu();
+           return;
+         }
+
+         const rows = Array.from(container.children);
+         if (rows.length === 0) {
+           logQualityMenu('empty_menu', rows);
+           reportUnknownPlayerMenu();
+           return;
+         }
+
+         const rowText = function(row) {
+           return (
+             (row.innerText || row.textContent || '') + ' ' +
+             (row.getAttribute('aria-label') || '') + ' ' +
+             (row.getAttribute('title') || '')
+           ).replace(/\s+/g, ' ').trim().toLowerCase();
+         };
+         const texts = rows.map(rowText);
+
+         // Root settings menu: prove that exactly one row is Quality, then
+         // hide every sibling (Speed, Captions, More, and future additions).
+         const isRootMenu = texts.some(function(text) {
+           return text.indexOf('speed') !== -1 ||
+             text.indexOf('captions') !== -1 ||
+             text.indexOf('\u0627\u0644\u0633\u0631\u0639\u0629') !== -1 ||
+             text.indexOf('\u0627\u0644\u062a\u0631\u062c\u0645\u0629') !== -1;
+         });
+         if (isRootMenu) {
+           const qualityRows = rows.filter(function(row) {
+             const text = rowText(row);
+             return text.indexOf('quality') !== -1 ||
+               text.indexOf('\u0627\u0644\u062c\u0648\u062f\u0629') !== -1;
+           });
+           if (qualityRows.length !== 1) {
+             logQualityMenu('invalid_root_menu', rows);
+             reportUnknownPlayerMenu();
+             return;
+           }
+
+           rows.forEach(function(row) {
+             if (row !== qualityRows[0]) hideSettingsRow(row);
+           });
+           logQualityMenu('root_menu', rows);
+           qualityMenuFailureCount = 0;
+           return;
+         }
+
+         // Quality submenu: allow YouTube's actual resolution choices.
+         const qualityChoiceCount = texts.filter(function(text) {
+           const firstToken = text.split(' ')[0].toLowerCase();
+           const isNumericResolution = firstToken.endsWith('p') &&
+             firstToken.length > 1 &&
+             !isNaN(Number(firstToken.substring(0, firstToken.length - 1)));
+           return firstToken === 'auto' ||
+             isNumericResolution ||
+             text.indexOf('higher picture quality') !== -1 ||
+             text.indexOf('data saver') !== -1 ||
+             text.indexOf('\u062a\u0644\u0642\u0627\u0626\u064a') !== -1 ||
+             text.indexOf('\u062c\u0648\u062f\u0629 \u0635\u0648\u0631\u0629 \u0623\u0639\u0644\u0649') !== -1 ||
+             text.indexOf('\u062a\u0648\u0641\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a') !== -1;
+         }).length;
+         if (qualityChoiceCount > 0) {
+           logQualityMenu('quality_menu', rows);
+           qualityMenuFailureCount = 0;
+           return;
+         }
+
+         // Any other bottom sheet is an unknown/changed YouTube structure.
+         logQualityMenu('unknown_menu', rows);
+         reportUnknownPlayerMenu();
+       }
+
+       function scheduleQualityMenuCheck() {
+         if (qualityMenuCheckTimer !== null) return;
+         qualityMenuCheckTimer = setTimeout(function() {
+           qualityMenuCheckTimer = null;
+           secureQualityMenu();
+         }, 800);
+       }
+
        function cleanPlayer() {
          const css =
+           'html,body,*{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}' +
            '.ytmVideoInfoVideoTitleContainer{display:none!important}' +
            '.ytmVideoInfoChannelLogo,.ytmVideoInfoChannelAvatar,.ytmVideoInfoLink{display:none!important}' +
            '.fullscreen-action-menu{display:none!important}' +
@@ -419,7 +556,11 @@ class YoutubePlayerController extends GetxController {
            '.ytp-fullscreen-button,.ytm-fullscreen-button,.fullscreen-icon,' +
            'button[aria-label*="Full screen"],button[title*="Full screen"]{display:none!important}' +
            /* ⑥ زر خيارات إضافية / More options بكل اللغات */
-           '.ytp-overflow-button,.ytp-more-button,.ytp-overflow-button-container{display:none!important;pointer-events:none!important}' +
+           '.ytp-overflow-button,.ytp-more-button,.ytp-overflow-button-container,' +
+           '.ytp-settings-button,.ytm-settings-button,' +
+           'button[aria-label*="More actions"],button[title*="More actions"],' +
+           'button[aria-label*="More options"],button[title*="More options"],' +
+           'button[aria-label*="المزيد"],button[title*="المزيد"]{display:none!important;pointer-events:none!important;visibility:hidden!important}' +
            '.ytp-panel,.ytp-panel-menu,.ytp-share-panel{display:none!important}' +
            '.ytp-share-button,.ytEmbedPlayerShareButton{display:none!important;pointer-events:none!important}' +
            /* CSS wildcard يغطي كل aria-label يحتوي options */
@@ -436,10 +577,11 @@ class YoutubePlayerController extends GetxController {
 
          // ── فحص كل الأزرار بالـ aria-label (الحل الجذري لكل اللغات) ──
          var blockedTerms = [
-           'more options', 'more option',
+           'more options', 'more option', 'more actions',
            'share', 'copy link', 'watch on youtube',
            'mas opciones', 'plus d', 'weitere', 'altre', 'mais op',
            '\u062e\u064a\u0627\u0631\u0627\u062a',
+           '\u0627\u0644\u0645\u0632\u064a\u062f',
            '\u0645\u0634\u0627\u0631\u0643\u0629',
            '\u0646\u0633\u062e \u0627\u0644\u0631\u0627\u0628\u0637',
            '\u0634\u0627\u0647\u062f \u0639\u0644\u0649'
@@ -463,12 +605,15 @@ class YoutubePlayerController extends GetxController {
          // ── querySelectorAll بالنص الفعلي ──
          var sels = [
            '[aria-label="More options"]', '[aria-label="more options"]',
+           '[aria-label="More actions"]', '[title="More actions"]',
+           '[aria-label*="\u0627\u0644\u0645\u0632\u064a\u062f"]',
            '[aria-label="\u062e\u064a\u0627\u0631\u0627\u062a \u0625\u0636\u0627\u0641\u064a\u0629"]',
            '[aria-label="M\u00e1s opciones"]',
            '[aria-label="Weitere Optionen"]', '[aria-label="Altre opzioni"]',
            '[aria-label="Share"]', '[aria-label="\u0645\u0634\u0627\u0631\u0643\u0629"]',
            '[aria-label="Copy link"]', '[aria-label="Watch on YouTube"]',
-           '.ytp-overflow-button', '.ytp-more-button', '.ytp-overflow-button-container'
+           '.ytp-overflow-button', '.ytp-more-button', '.ytp-overflow-button-container',
+           '.ytp-settings-button', '.ytm-settings-button'
          ];
          sels.forEach(function(sel) {
            try {
@@ -489,11 +634,15 @@ class YoutubePlayerController extends GetxController {
              (item.innerText || item.textContent || '') + ' ' +
              (item.getAttribute('aria-label') || '')
            ).toLowerCase();
-           if (bannedWords.some(function(w){ return txt.indexOf(w) !== -1; })) {
+           const normalized = txt.replace(/\s/g, '');
+           const isDotsOnly = /^[.\u2022\u2026\u00b7]{3,}\$/.test(normalized);
+           if (isDotsOnly || bannedWords.some(function(w){ return txt.indexOf(w) !== -1; })) {
              item.style.setProperty('display','none','important');
              item.style.setProperty('pointer-events','none','important');
            }
          });
+
+         scheduleQualityMenuCheck();
 
          // ── حظر الروابط الخارجية ──
          document.querySelectorAll('a').forEach(function(a) {
@@ -511,6 +660,8 @@ class YoutubePlayerController extends GetxController {
 
        const ytObserver = new MutationObserver(cleanPlayer);
        if (document.body) { ytObserver.observe(document.body, { childList: true, subtree: true, attributes: true }); }
+       window.addEventListener('hashchange', scheduleQualityMenuCheck);
+       document.addEventListener('click', scheduleQualityMenuCheck, true);
        cleanPlayer();
 
        function lightweightObserver() {
@@ -518,8 +669,9 @@ class YoutubePlayerController extends GetxController {
            cleanPlayer();
            const dangerElements = document.querySelectorAll(
              '.ytp-share-button,.ytp-share-panel,.ytEmbedPlayerShareButton,' +
-             '.ytp-overflow-button,.ytp-more-button,' +
+             '.ytp-overflow-button,.ytp-more-button,.ytp-settings-button,.ytm-settings-button,' +
              '[aria-label*="Share"],[aria-label*="Copy"],[aria-label*="More options"],' +
+             '[aria-label*="More actions"],[aria-label*="\u0627\u0644\u0645\u0632\u064a\u062f"],' +
              '[title*="Share"],[title*="Copy"]'
            );
            for (let i = 0; i < dangerElements.length; i++) {
@@ -586,6 +738,12 @@ class YoutubePlayerController extends GetxController {
               uiChangedDetected = true;
               update();
             }
+          },
+        )
+        ..addJavaScriptChannel(
+          'DomDebugChannel',
+          onMessageReceived: (JavaScriptMessage message) {
+            debugPrint('[YT_DOM] ${message.message}', wrapWidth: 2048);
           },
         )
         ..setUserAgent(

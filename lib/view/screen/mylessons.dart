@@ -116,128 +116,137 @@ class MyLessons extends GetView<LessonsController> {
                                                   ),
                                                 ],
                                               ),
-                                              child: ListTile(
-                                                contentPadding:
-                                                    EdgeInsets.symmetric(
-                                                      horizontal:
-                                                          getValueForScreenType<
-                                                            double
-                                                          >(
-                                                            context: context,
-                                                            mobile: 15,
-                                                            tablet: 25,
-                                                          ),
-                                                      vertical:
-                                                          getValueForScreenType<
-                                                            double
-                                                          >(
-                                                            context: context,
-                                                            mobile: 8,
-                                                            tablet: 12,
-                                                          ),
-                                                    ),
-                                                leading: Icon(
-                                                  Icons.play_circle_fill,
-                                                  color: AppColor.grey,
-                                                  size:
-                                                      getValueForScreenType<
-                                                        double
-                                                      >(
-                                                        context: context,
-                                                        mobile: 59,
-                                                        tablet: 59,
+                                              child: Material(
+                                                color: Colors.transparent,
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                                child: ListTile(
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                        horizontal:
+                                                            getValueForScreenType<
+                                                              double
+                                                            >(
+                                                              context: context,
+                                                              mobile: 15,
+                                                              tablet: 25,
+                                                            ),
+                                                        vertical:
+                                                            getValueForScreenType<
+                                                              double
+                                                            >(
+                                                              context: context,
+                                                              mobile: 8,
+                                                              tablet: 12,
+                                                            ),
                                                       ),
-                                                ),
-                                                title: Text(
-                                                  item['name'] ?? "-",
-                                                  style: TextStyle(
-                                                    fontSize:
+                                                  leading: Icon(
+                                                    Icons.play_circle_fill,
+                                                    color: AppColor.grey,
+                                                    size:
                                                         getValueForScreenType<
                                                           double
                                                         >(
                                                           context: context,
-                                                          mobile: 16,
-                                                          tablet: 22,
-                                                        ),
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        AppColor.PrimaryColor,
-                                                  ),
-                                                ),
-                                                subtitle: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                        top: 6.0,
-                                                      ),
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.folder_open,
-                                                        size: 18,
-                                                        color: AppColor
-                                                            .SecondryColor,
-                                                      ),
-                                                      const SizedBox(width: 4),
-                                                      InkWell(
-                                                        onTap: () {
-                                                          print(
-                                                            "ffffffffffffffff${item2['app_lesson_lecture_files_count']}",
-                                                          );
-                                                        },
-                                                        child: Text(
-                                                          "عدد الملفات: ${item2['app_lesson_lecture_files_count'] ?? 0}",
-                                                          style: TextStyle(
-                                                            fontSize:
-                                                                getValueForScreenType<
-                                                                  double
-                                                                >(
-                                                                  context:
-                                                                      context,
-                                                                  mobile: 12,
-                                                                  tablet: 16,
-                                                                ),
-                                                            color: Colors
-                                                                .grey[700],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                trailing: Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 5,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        AppColor.SecondryColor,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          10,
+                                                          mobile: 59,
+                                                          tablet: 59,
                                                         ),
                                                   ),
-                                                  child: Text(
-                                                    "عرض",
+                                                  title: Text(
+                                                    item['name'] ?? "-",
                                                     style: TextStyle(
-                                                      color: Colors.white,
                                                       fontSize:
                                                           getValueForScreenType<
                                                             double
                                                           >(
                                                             context: context,
-                                                            mobile: 12,
-                                                            tablet: 16,
+                                                            mobile: 16,
+                                                            tablet: 22,
                                                           ),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          AppColor.PrimaryColor,
                                                     ),
                                                   ),
+                                                  subtitle: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                          top: 6.0,
+                                                        ),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.folder_open,
+                                                          size: 18,
+                                                          color: AppColor
+                                                              .SecondryColor,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        InkWell(
+                                                          onTap: () {
+                                                            print(
+                                                              "ffffffffffffffff${item2['app_lesson_lecture_files_count']}",
+                                                            );
+                                                          },
+                                                          child: Text(
+                                                            "عدد الملفات: ${item2['app_lesson_lecture_files_count'] ?? 0}",
+                                                            style: TextStyle(
+                                                              fontSize:
+                                                                  getValueForScreenType<
+                                                                    double
+                                                                  >(
+                                                                    context:
+                                                                        context,
+                                                                    mobile: 12,
+                                                                    tablet: 16,
+                                                                  ),
+                                                              color: Colors
+                                                                  .grey[700],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  trailing: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 5,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: AppColor
+                                                          .SecondryColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      "عرض",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize:
+                                                            getValueForScreenType<
+                                                              double
+                                                            >(
+                                                              context: context,
+                                                              mobile: 12,
+                                                              tablet: 16,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  onTap: () {
+                                                    controller
+                                                        .navigateToSection(
+                                                          item,
+                                                        );
+                                                  },
                                                 ),
-                                                onTap: () {
-                                                  controller.navigateToSection(
-                                                    item,
-                                                  );
-                                                },
                                               ),
                                             ),
                                           ),

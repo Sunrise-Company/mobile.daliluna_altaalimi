@@ -40,6 +40,7 @@ class _DownloadOption {
       label =
           '${stream.videoResolution.height}p - ${_formatBytes(stream.size.totalBytes)}';
 
+  // ignore: unused_element
   _DownloadOption.separate(
     yt.VideoOnlyStreamInfo video,
     yt.AudioOnlyStreamInfo audio,
@@ -217,7 +218,11 @@ class DownloadController extends GetxController {
         text: 'جلب الدقات...',
       );
 
-      final manifest = await _yt.videos.streamsClient.getManifest(url);
+      final manifest = await _yt.videos.streamsClient.getManifest(
+        url,
+        ytClients: [yt.YoutubeApiClient.androidSdkless],
+        requireWatchPage: false,
+      );
       final List<_DownloadOption> options = [];
 
       options.addAll(
@@ -225,20 +230,6 @@ class DownloadController extends GetxController {
             .where((s) => s.container == yt.StreamContainer.mp4)
             .map((s) => _DownloadOption.muxed(s)),
       );
-
-      final bestAudio = manifest.audioOnly.withHighestBitrate();
-      if (bestAudio != null) {
-        options.addAll(
-          manifest.videoOnly
-              .where((s) => s.container == yt.StreamContainer.mp4)
-              .where(
-                (v) => !options.any(
-                  (o) => o.label.startsWith('${v.videoResolution.height}p'),
-                ),
-              )
-              .map((v) => _DownloadOption.separate(v, bestAudio)),
-        );
-      }
 
       downloadStatusMap.remove(videoId);
 
@@ -321,8 +312,12 @@ class DownloadController extends GetxController {
 
         await _muxMp4(vTmp, aTmp, outPath);
 
-        await File(vTmp).delete().catchError((_) {});
-        await File(aTmp).delete().catchError((_) {});
+        try {
+          await File(vTmp).delete();
+        } catch (_) {}
+        try {
+          await File(aTmp).delete();
+        } catch (_) {}
       }
 
       downloadStatusMap[videoId]?.state.value = DownloadState.downloaded;
@@ -357,6 +352,12 @@ class DownloadController extends GetxController {
     await _dio.download(
       url,
       path,
+      options: Options(
+        headers: {
+          'User-Agent':
+              'com.google.android.youtube/20.10.38 (Linux; U; Android 11) gzip',
+        },
+      ),
       onReceiveProgress: (rec, total) {
         if (total > 0) onProg(rec, total);
       },
@@ -379,6 +380,12 @@ class DownloadController extends GetxController {
       await _dio.download(
         url,
         savePath,
+        options: Options(
+          headers: {
+            'User-Agent':
+                'com.google.android.youtube/20.10.38 (Linux; U; Android 11) gzip',
+          },
+        ),
         onReceiveProgress: (received, total) {
           if (total != -1) {
             final status = downloadStatusMap[uniqueId];

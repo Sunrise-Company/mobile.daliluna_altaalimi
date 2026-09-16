@@ -5,12 +5,10 @@ import 'package:daliluna_altaalimi/core/constant/color.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart' as ytd;
-import 'package:daliluna_altaalimi/background_download_service.dart';
 import 'dart:math';
 import 'dart:isolate';
 import 'dart:ui';
@@ -441,7 +439,8 @@ class DownloadService with WidgetsBindingObserver {
         const AndroidNotificationAction(
           'resume_download',
           '▶ استمرار',
-          showsUserInterface: false,
+          // The active Dio task and CancelToken live on the main isolate.
+          showsUserInterface: true,
           cancelNotification: false,
         ),
         const AndroidNotificationAction(
@@ -456,7 +455,8 @@ class DownloadService with WidgetsBindingObserver {
         const AndroidNotificationAction(
           'pause_download',
           '⏸ إيقاف مؤقت',
-          showsUserInterface: false,
+          // The active Dio task and CancelToken live on the main isolate.
+          showsUserInterface: true,
           cancelNotification: false,
         ),
         const AndroidNotificationAction(
@@ -469,14 +469,21 @@ class DownloadService with WidgetsBindingObserver {
     }
 
     final androidDetails = AndroidNotificationDetails(
-      'download_channel_v2', // تم تغيير المعرف لكي يقبل أندرويد الإعدادات الجديدة
-      'دليلنا التعليمي',
+      // Android notification-channel importance is immutable, so a new id is
+      // required when switching progress updates to a quiet channel.
+      'download_progress_channel_v3',
+      'تحميل الفيديو',
       channelDescription: 'إشعارات تقدم التحميل',
-      importance:
-          Importance.max, // لمنع الإشعار من الذهاب لقسم "الإشعارات الصامتة"
-      priority: Priority.high,
+      importance: Importance.low,
+      priority: Priority.low,
       playSound: false, // بدون صوت أثناء التقدم المباشر
       enableVibration: false,
+      onlyAlertOnce: true,
+      when: task.startTime?.millisecondsSinceEpoch,
+      showWhen: true,
+      category: AndroidNotificationCategory.progress,
+      groupKey: 'active_video_downloads',
+      groupAlertBehavior: GroupAlertBehavior.children,
       ongoing:
           task.status == DownloadStatus.downloading ||
           task.status == DownloadStatus.merging,
@@ -983,7 +990,7 @@ class DownloadService with WidgetsBindingObserver {
         task.retryCount++;
         try {
           await _refreshUrls(task);
-          return _executeDownload(task, null);
+          return await _executeDownload(task, null);
         } catch (resErr) {
           await _handleDownloadError(task, resErr);
         }
@@ -1035,7 +1042,13 @@ class DownloadService with WidgetsBindingObserver {
 
         // 2. Prepare request
         final options = Options(
-          headers: {'Range': 'bytes=$currentLength-'},
+          headers: {
+            'Range': 'bytes=$currentLength-',
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/96.0.4664.18 Safari/537.36',
+          },
           responseType: ResponseType.stream,
         );
 
@@ -1192,10 +1205,8 @@ class DownloadService with WidgetsBindingObserver {
 
       final manifest = await yt.videos.streamsClient.getManifest(
         cleanId,
-        ytClients: [
-          ytd.YoutubeApiClient.safari,
-          ytd.YoutubeApiClient.androidVr,
-        ],
+        ytClients: [ytd.YoutubeApiClient.androidSdkless],
+        requireWatchPage: false,
       );
 
       Map<String, ytd.StreamInfo> result = {};
