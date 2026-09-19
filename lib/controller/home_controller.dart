@@ -1,4 +1,4 @@
-﻿import 'package:get/get.dart';
+import 'package:get/get.dart';
 import 'package:daliluna_altaalimi/core/constant/routes.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:daliluna_altaalimi/core/services/breadcrumb_service.dart';
@@ -47,13 +47,13 @@ class HomeController extends GetxController {
     } finally {
       isLoadingCities = false;
 
-      // Update Screenshot Protection dynamically
+      // Screenshot Protection is always enabled
       try {
         if (Platform.isAndroid) {
           const securityChannel = MethodChannel(
             'com.sunrise.daliluna/security',
           );
-          await securityChannel.invokeMethod('setSecure', isDeployed == 1);
+          await securityChannel.invokeMethod('setSecure', true);
         }
       } catch (e) {
         print("Error updating security flags in HomeController: $e");

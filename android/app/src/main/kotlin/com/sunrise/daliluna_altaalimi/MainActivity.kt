@@ -44,8 +44,8 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Initial state: Screens are allowed by default for "Review Mode"
-        // Dart will call setSecure(true) if isDeployed != 0
+        // منع تصوير وتسجيل الشاشة بشكل دائم
+        window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
 
         // تهيئة DisplayManager
         displayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
@@ -149,12 +149,7 @@ class MainActivity : FlutterActivity() {
         ).setMethodCallHandler { call, result ->
             when (call.method) {
                 "setSecure" -> {
-                    val enabled = call.arguments as Boolean
-                    if (enabled) {
-                    //    window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                    } else {
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                    }
+                    window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     result.success(null)
                 }
                 else -> result.notImplemented()

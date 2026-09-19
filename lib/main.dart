@@ -76,12 +76,12 @@ void main() async {
     isDeployed = 0; // Default to Review Mode if offline/error
   }
 
-  // Handle Screenshot Protection (FLAG_SECURE) based on is_deployed
+  // Handle Screenshot Protection (FLAG_SECURE) - Always enabled
   try {
     if (Platform.isAndroid) {
       // Use our custom native channel for MainActivity protection
       const securityChannel = MethodChannel('com.sunrise.daliluna/security');
-      await securityChannel.invokeMethod('setSecure', isDeployed == 1);
+      await securityChannel.invokeMethod('setSecure', true);
     }
   } catch (e) {
     debugPrint("Security protection error: $e");
