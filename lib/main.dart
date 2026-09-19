@@ -17,7 +17,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:emulator_checker/emulator_checker.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:daliluna_altaalimi/download_service.dart';
-import 'package:daliluna_altaalimi/background_download_service.dart';
 import 'package:daliluna_altaalimi/core/services/upload_service.dart';
 import 'package:daliluna_altaalimi/core/services/apiservices.dart';
 import 'package:flutter/services.dart';
